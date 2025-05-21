@@ -1,4 +1,5 @@
 import express from 'express'
+import { userRouter } from './userRoute'
 
 
 
@@ -9,6 +10,7 @@ Router.get('/status', (req, res) => {
 })
 
 //user APIs
+Router.use('/', userRouter)
 
 
 export const APIs_V1 = Router

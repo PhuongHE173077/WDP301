@@ -22,15 +22,15 @@ const Index = () => {
   const currentUser = useSelector(selectCurrentUser);
 
   const navigate = useNavigate();
-  useEffect(() => {
-    if (currentUser) {
-      if (currentUser.role === USER_ROLE.ADMIN) {
-        navigate("/dashboard");
-      } else if (currentUser.role === USER_ROLE.OWNER_1 || currentUser.role === USER_ROLE.OWNER_2 || currentUser.role === USER_ROLE.OWNER_3) {
-        navigate("/home-page");
-      }
-    }
-  }, [currentUser])
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     if (currentUser.role === USER_ROLE.ADMIN) {
+  //       navigate("/dashboard");
+  //     } else if (currentUser.role === USER_ROLE.OWNER_1 || currentUser.role === USER_ROLE.OWNER_2 || currentUser.role === USER_ROLE.OWNER_3) {
+  //       navigate("/home-page");
+  //     }
+  //   }
+  // }, [currentUser])
 
   return (
     <div className="min-h-screen">
