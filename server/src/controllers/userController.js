@@ -42,6 +42,19 @@ const login = async (req, res, next) => {
     }
 }
 
+const getAllUser = async (req, res, next) => {
+    try {
+        const users = await User.find()
+        throw new ApiError(StatusCodes.OK, 'Get all user successfully!')
+        res.status(StatusCodes.OK).json(users)
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
 export const userController = {
-    login
+    login,
+    getAllUser
 }

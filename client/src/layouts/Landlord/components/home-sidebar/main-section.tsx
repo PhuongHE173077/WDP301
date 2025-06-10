@@ -3,11 +3,7 @@ import { CalendarIcon, FileBadgeIcon, FlameIcon, HomeIcon, HotelIcon, LibraryBig
 import { Link, useLocation } from 'react-router-dom';
 
 const items = [
-  {
-    title: 'Trang chủ',
-    url: "/home-page",
-    icon: HomeIcon
-  },
+
   {
     title: 'Phòng Trọ',
     url: "/rooms",
