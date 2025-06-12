@@ -13,4 +13,8 @@ Router.route('/login')
 Router.route('/list')
     .get(authMiddlewares.isAuthorized, userController.getAllUser)
 
+Router.route('/logout')
+    .delete(userController.logout)
+
+
 export const userRouter = Router

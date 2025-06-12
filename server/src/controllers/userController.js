@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import { JwtProvider } from "~/providers/JwtProvider"
 import { pickUser } from "~/utils/algorithms"
 import { env } from "~/config/environment"
+import ms from "ms"
 
 const login = async (req, res, next) => {
     try {
@@ -31,6 +32,22 @@ const login = async (req, res, next) => {
             env.REFRESH_TOKEN_LIFE
         )
 
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+            maxAge: ms('14 days')
+        })
+
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+            maxAge: ms('14 days')
+        })
+
+
         const resultData = {
             accessToken,
             refreshToken,
@@ -44,9 +61,22 @@ const login = async (req, res, next) => {
 
 const getAllUser = async (req, res, next) => {
     try {
+        const user = req.jwtDecoded._id
         const users = await User.find()
-        throw new ApiError(StatusCodes.OK, 'Get all user successfully!')
+        // throw new ApiError(StatusCodes.OK, 'Get all user successfully!')
         res.status(StatusCodes.OK).json(users)
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const logout = async (req, res, next) => {
+    try {
+        res.clearCookie('accessToken')
+        res.clearCookie('refreshToken')
+
+        res.status(StatusCodes.OK).json({ message: 'Logout successfully!' })
     } catch (error) {
         next(error)
     }
@@ -56,5 +86,6 @@ const getAllUser = async (req, res, next) => {
 
 export const userController = {
     login,
-    getAllUser
+    getAllUser,
+    logout
 }
