@@ -4,7 +4,7 @@ import { HomeNavbar } from '../components/home-navbar'
 import HomeSidebar from '../components/home-sidebar'
 import { Outlet } from 'react-router-dom'
 
-export const HomeLayout = () => {
+export const TenantLayout = () => {
   return (
     <SidebarProvider >
       <div className="w-full min-h-screen">

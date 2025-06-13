@@ -6,20 +6,16 @@ const items = [
 
   {
     title: 'Phòng Trọ',
-    url: "/rooms",
+    url: "/tenant-rooms",
     icon: HotelIcon,
     auth: true
   },
   {
-    title: 'Thuê Phòng',
-    url: "/order-rooms",
+    title: 'Hợp đồng',
+    url: "/contracts",
     icon: CalendarIcon,
   },
-  {
-    title: 'Người thuê phòng',
-    url: "/tenants",
-    icon: PlaySquareIcon,
-  },
+
   {
     title: 'Hóa Đơn ',
     url: "/bills",

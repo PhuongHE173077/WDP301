@@ -1,12 +1,19 @@
 import express from 'express'
-import { createDepartment, deleteDepartment, getDepartmentsByOwner, updateDepartment } from '~/controllers/departmentController'
+import { departmentController } from '~/controllers/departmentController'
+import { createDepartment, deleteDepartment, getDepartmentsByOwner, updateDepartment, getDepartmentById } from '~/controllers/departmentController'
 import { authMiddlewares } from '~/middlewares/authMiddlewares'
 
 
 const router = express.Router()
 
-router.post('/departments', authMiddlewares.isAuthorized, createDepartment)
-router.get('/departments/:ownerId',authMiddlewares.isAuthorized, getDepartmentsByOwner)
-router.put('/departments/:id',authMiddlewares.isAuthorized, updateDepartment)
-router.delete('/departments/:id',authMiddlewares.isAuthorized, deleteDepartment)
+router.route('/')
+    .get(authMiddlewares.isAuthorized, departmentController.getDepartmentsByOwner)
+    .post(authMiddlewares.isAuthorized, departmentController.createDepartment)
+
+router.route('/:id')
+    .get(authMiddlewares.isAuthorized, departmentController.getDepartmentById)
+    .put(authMiddlewares.isAuthorized, departmentController.updateDepartment)
+    .delete(authMiddlewares.isAuthorized, departmentController.deleteDepartment)
+
+
 export const departmentRouter = router

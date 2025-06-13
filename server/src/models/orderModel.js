@@ -1,21 +1,30 @@
+import Contract from "./contractModel";
+import Room from "./roomModel";
+import Tenant from "./tenantModel";
+import User from "./userModal";
+
 const { types } = require("joi");
 const { default: mongoose, Schema } = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
     roomId: {
         type: Schema.Types.ObjectId,
+        ref: "Room",
         required: true
     },
-    tenantId: {
+    tenantId: [{
         type: Schema.Types.ObjectId,
+        ref: "Tenant",
         required: true
-    },
+    }],
     ownerId: {
         type: Schema.Types.ObjectId,
+        ref: "User",
         required: true
     },
-    contractId: {
+    contract: {
         type: Schema.Types.ObjectId,
+        ref: "Contract",
         required: true
     },
     startAt: {
@@ -38,6 +47,6 @@ const orderSchema = new mongoose.Schema({
         default: false
     }
 })
-const Order = mongoose.model('Order', orderSchema)
+const OrderRoom = mongoose.model('OrderRoom', orderSchema, "orderRooms")
 
-export default Order
+export default OrderRoom

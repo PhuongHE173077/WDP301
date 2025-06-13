@@ -13,8 +13,9 @@ const createDepartment = async (req, res) => {
 // Lấy danh sách toà nhà theo owner
 const getDepartmentsByOwner = async (req, res) => {
   try {
+    const userId = req.jwtDecoded._id
     const departments = await Department.find({
-      ownerId: req.params.ownerId,
+      ownerId: userId,
       _destroy: false,
     });
     res.status(200).json(departments);
@@ -61,9 +62,26 @@ export const deleteDepartment = async (req, res) => {
   }
 }
 
-module.exports = {
+//Lấy toà nhà theo id
+const getDepartmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const department = await Department.findById(id);
+    if (!department || department._destroy) {
+      return res.status(404).json({ message: 'Không tìm thấy toà nhà' });
+    }
+    res.status(200).json(department);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const departmentController = {
   createDepartment,
   getDepartmentsByOwner,
   updateDepartment,
-  deleteDepartment
-};
+  deleteDepartment,
+  getDepartmentById
+}
+
+

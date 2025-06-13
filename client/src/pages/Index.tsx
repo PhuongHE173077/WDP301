@@ -32,7 +32,6 @@ const Index = () => {
       }
     }
 
-    fetchAllUserAPIs()
   }, [])
 
   return (
