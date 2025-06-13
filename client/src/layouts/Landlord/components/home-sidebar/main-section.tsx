@@ -12,7 +12,7 @@ const items = [
   },
   {
     title: 'Thuê Phòng',
-    url: "/OwnerRooms",
+    url: "/order-rooms",
     icon: CalendarIcon,
   },
   {

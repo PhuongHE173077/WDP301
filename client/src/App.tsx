@@ -12,6 +12,7 @@ import { Login } from "./pages/auth/Login";
 import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
+import { OrderRooms } from "./pages/Landlord/OrderRooms";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -19,27 +20,25 @@ const App = () => (
 
   <Provider store={store}>
     <PersistGate persistor={persistor}>
-      <TooltipProvider>
 
-        <BrowserRouter>
-          <Routes>
+      <BrowserRouter>
+        <Routes>
 
-            <Route path="/" element={<Index />} />
+          <Route path="/" element={<Index />} />
 
-            <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route element={<HomeLayout />} >
-                <Route path="/rooms" element={<Rooms />} />
-
-              </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route element={<HomeLayout />} >
+              <Route path="/rooms" element={<Rooms />} />
+              <Route path="/order-rooms" element={<OrderRooms />} />
             </Route>
+          </Route>
 
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
 
       <ToastContainer
         position="top-right"

@@ -11,7 +11,7 @@ export const HomeLayout = () => {
         <HomeNavbar />
         <div className="flex flex-col md:flex-row ">
           <HomeSidebar />
-          <main className='flex-1 overflow-y-auto min-h-[calc(100vh-64px)] p-3 ' style={{ backgroundColor: 'hsl(0, 0%, 99%)' }}>
+          <main className='flex-1 !overflow-y-hidden min-h-[calc(80vh)] p-3 ' style={{ backgroundColor: 'hsl(0, 0%, 99%)' }}>
             <Outlet />
           </main>
         </div>

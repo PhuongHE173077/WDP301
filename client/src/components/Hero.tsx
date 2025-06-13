@@ -36,9 +36,9 @@ const Hero = () => {
           </div>
           <div className="md:w-1/2 md:pl-10 animate-float relative">
             <div className="rounded-xl bg-white shadow-xl overflow-hidden relative z-10">
-              <img src="https://images.unsplash.com/photo-1574362848149-11496d93a7c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1084&q=80" 
-                alt="Dashboard" 
-                className="w-full h-auto" 
+              <img src="https://images.unsplash.com/photo-1574362848149-11496d93a7c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1084&q=80"
+                alt="Dashboard"
+                className="w-full h-auto"
               />
             </div>
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-rental-200 rounded-full -z-10"></div>
