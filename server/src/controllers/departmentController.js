@@ -13,8 +13,9 @@ const createDepartment = async (req, res) => {
 // Lấy danh sách toà nhà theo owner
 const getDepartmentsByOwner = async (req, res) => {
   try {
+    const userId = req.jwtDecoded._id
     const departments = await Department.find({
-      ownerId: req.params.ownerId,
+      ownerId: userId,
       _destroy: false,
     });
     res.status(200).json(departments);
@@ -61,9 +62,9 @@ export const deleteDepartment = async (req, res) => {
   }
 }
 
-module.exports = {
+export const departmentController = {
   createDepartment,
   getDepartmentsByOwner,
   updateDepartment,
   deleteDepartment
-};
+}
