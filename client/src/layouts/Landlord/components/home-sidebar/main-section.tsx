@@ -17,7 +17,7 @@ const items = [
   },
   {
     title: 'Người thuê phòng',
-    url: "/Tenants",
+    url: "/tenants",
     icon: PlaySquareIcon,
   },
   {

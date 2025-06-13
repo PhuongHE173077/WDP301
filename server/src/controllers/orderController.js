@@ -42,7 +42,32 @@ const updateOrder = async (req, res, next) => {
     }
 }
 
+const getTenantOrder = async (req, res, next) => {
+    try {
+        const ownerId = req.jwtDecoded._id
+
+        const orders = await OrderRoom.find({ tenantId: ownerId, _destroy: false }).populate('roomId').populate('tenantId')
+
+        console.log(orders);
+
+        const filterRs = orders.filter((order) => order.tenantId.length > 0)
+        const uniqueTenantIds = [
+            ...new Set(
+                filterRs.flatMap(item => item.tenantId.map(t => t))
+            )
+        ].map(item => pickUser(item));
+
+
+        res.status(StatusCodes.OK).json(uniqueTenantIds)
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
 export const orderController = {
     getOrderByOwnerId,
-    updateOrder
+    updateOrder,
+    getTenantOrder
 };

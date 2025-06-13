@@ -12,6 +12,7 @@ import { Login } from "./pages/auth/Login";
 import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
+import Tenants from "./pages/Landlord/Tenants/Tenant";
 import { OrderRooms } from "./pages/Landlord/OrderRooms";
 import { TenantLayout } from "./layouts/Tenant/layouts/home-page";
 import { TenantRooms } from "./pages/Tenant/Rooms";
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/order-rooms" element={<OrderRooms />} />
 
+              <Route path="/tenants" element={<Tenants />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/departments/:id" element={<DepartmentDetail />} />
             </Route>

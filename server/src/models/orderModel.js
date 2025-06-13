@@ -1,5 +1,6 @@
 import Contract from "./contractModel";
 import Room from "./roomModel";
+import Tenant from "./tenantModel";
 import User from "./userModal";
 
 const { types } = require("joi");
@@ -11,10 +12,11 @@ const orderSchema = new mongoose.Schema({
         ref: "Room",
         required: true
     },
-    tenantId: {
+    tenantId: [{
         type: Schema.Types.ObjectId,
+        ref: "Tenant",
         required: true
-    },
+    }],
     ownerId: {
         type: Schema.Types.ObjectId,
         ref: "User",
@@ -48,4 +50,3 @@ const orderSchema = new mongoose.Schema({
 const OrderRoom = mongoose.model('OrderRoom', orderSchema, "orderRooms")
 
 export default OrderRoom
-
