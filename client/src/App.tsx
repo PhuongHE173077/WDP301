@@ -13,6 +13,9 @@ import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
 import { OrderRooms } from "./pages/Landlord/OrderRooms";
+import { TenantLayout } from "./layouts/Tenant/layouts/home-page";
+import { TenantRooms } from "./pages/Tenant/Rooms";
+import { Contracts } from "./pages/Tenant/Contracts";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -29,10 +32,20 @@ const App = () => (
           <Route path="/login" element={<Login />} />
 
           <Route element={<ProtectedRoute />}>
+
+            {/* Landlord router */}
             <Route element={<HomeLayout />} >
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/order-rooms" element={<OrderRooms />} />
             </Route>
+
+            {/* Tenant router */}
+            <Route element={<TenantLayout />} >
+              <Route path="/tenant-rooms" element={<TenantRooms />} />
+              <Route path="/contracts" element={<Contracts />} />
+
+            </Route>
+
           </Route>
 
 
