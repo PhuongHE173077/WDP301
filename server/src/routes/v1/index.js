@@ -13,6 +13,6 @@ Router.get('/status', (req, res) => {
 //user APIs
 Router.use('/', userRouter)
 //department APIs
-Router.use('/', departmentRouter)
+Router.use('/departments', departmentRouter)
 
 export const APIs_V1 = Router
