@@ -62,9 +62,26 @@ export const deleteDepartment = async (req, res) => {
   }
 }
 
+//Lấy toà nhà theo id
+const getDepartmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const department = await Department.findById(id);
+    if (!department || department._destroy) {
+      return res.status(404).json({ message: 'Không tìm thấy toà nhà' });
+    }
+    res.status(200).json(department);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const departmentController = {
   createDepartment,
   getDepartmentsByOwner,
   updateDepartment,
-  deleteDepartment
+  deleteDepartment,
+  getDepartmentById
 }
+
+

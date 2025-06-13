@@ -16,6 +16,8 @@ import { OrderRooms } from "./pages/Landlord/OrderRooms";
 import { TenantLayout } from "./layouts/Tenant/layouts/home-page";
 import { TenantRooms } from "./pages/Tenant/Rooms";
 import { Contracts } from "./pages/Tenant/Contracts";
+import DepartmentList from "./pages/Landlord/Rooms/DepartmentList";
+import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -37,16 +39,19 @@ const App = () => (
             <Route element={<HomeLayout />} >
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/order-rooms" element={<OrderRooms />} />
-            </Route>
 
-            {/* Tenant router */}
-            <Route element={<TenantLayout />} >
-              <Route path="/tenant-rooms" element={<TenantRooms />} />
-              <Route path="/contracts" element={<Contracts />} />
-
+              <Route path="/rooms" element={<Rooms />} />
+              <Route path="/departments/:id" element={<DepartmentDetail />} />
             </Route>
+          </Route>
+
+          {/* Tenant router */}
+          <Route element={<TenantLayout />} >
+            <Route path="/tenant-rooms" element={<TenantRooms />} />
+            <Route path="/contracts" element={<Contracts />} />
 
           </Route>
+
 
 
           <Route path="*" element={<NotFound />} />
