@@ -1,20 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { getDepartmentsByOwner, deleteDepartment } from '@/apis/departmentApi'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  getDepartmentsByOwner,
+  deleteDepartment,
+  getRoomsByDepartment
+} from '@/apis/departmentApi'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuItem
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal, PlusCircle } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog'
 import { selectCurrentUser } from '@/store/slice/userSlice'
 import { toast } from 'react-toastify'
+import RoomTable from './RoomTable'
+
 const DepartmentList: React.FC = () => {
   const navigate = useNavigate()
   const currentUser = useSelector(selectCurrentUser)
@@ -23,6 +35,8 @@ const DepartmentList: React.FC = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleteName, setDeleteName] = useState<string>("")
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [selectedRooms, setSelectedRooms] = useState<any[]>([])
+  const [selectedDepartment, setSelectedDepartment] = useState<any>(null)
 
   useEffect(() => {
     if (currentUser?._id) {
@@ -35,6 +49,14 @@ const DepartmentList: React.FC = () => {
     try {
       const res = await getDepartmentsByOwner()
       setDepartments(res.data)
+
+      // Load phòng của tòa đầu tiên (tuỳ chọn)
+      if (res.data.length > 0) {
+        const firstDepartment = res.data[0]
+        const roomRes = await getRoomsByDepartment(firstDepartment._id)
+        setSelectedDepartment(firstDepartment)
+        setSelectedRooms(roomRes.data)
+      }
     } catch (error) {
       toast.error("Lỗi khi lấy danh sách tòa nhà")
     } finally {
@@ -42,12 +64,25 @@ const DepartmentList: React.FC = () => {
     }
   }
 
-  const handleDetail = (id: string) => {
-    navigate(`/departments/${id}`)
+  const handleShowRooms = async (department: any) => {
+    // Toggle
+    if (selectedDepartment?._id === department._id) {
+      setSelectedDepartment(null)
+      setSelectedRooms([])
+      return
+    }
+
+    try {
+      const res = await getRoomsByDepartment(department._id)
+      setSelectedRooms(res.data)
+      setSelectedDepartment(department)
+    } catch (err) {
+      toast.error("Lỗi khi tải danh sách phòng")
+    }
   }
 
-  const handleEdit = (id: string) => {
-    navigate(`/departments/edit/${id}`)
+  const handleDetail = (id: string) => {
+    navigate(`/departments/${id}`)
   }
 
   const handleDelete = (id: string, name: string) => {
@@ -62,6 +97,11 @@ const DepartmentList: React.FC = () => {
       await deleteDepartment(deleteId)
       toast.success("Xóa tòa nhà thành công")
       setDepartments(prev => prev.filter(dep => dep._id !== deleteId))
+
+      if (selectedDepartment?._id === deleteId) {
+        setSelectedDepartment(null)
+        setSelectedRooms([])
+      }
     } catch (err) {
       toast.error("Xóa thất bại")
     } finally {
@@ -82,30 +122,57 @@ const DepartmentList: React.FC = () => {
 
   return (
     <>
-      {!loading && departments.length === 0 ? (
+      <div className="p-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-700">Danh sách tòa nhà</h1>
+        <Button
+          onClick={() => navigate('/departments/create')}
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+        >
+          <PlusCircle className="w-5 h-5" />
+          <span> Tạo tòa nhà</span>
+        </Button>
+
+         <Button
+      onClick={() => navigate('/rooms/create')}
+      className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+    >
+      <PlusCircle className="w-5 h-5" />
+      <span>+ Tạo phòng</span>
+    </Button>
+      </div>
+
+      {departments.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[300px] text-center p-4">
           <img
             src="/images/departments.svg"
             alt="Empty departments"
             className="w-64 h-64 object-contain mb-6"
           />
-
           <h2 className="text-xl font-semibold text-gray-700 mb-2">
             Bạn không có tòa nhà nào!
           </h2>
           <p className="text-gray-500 mb-4">
             Hãy tạo ngay để bắt đầu quản lý phòng trọ hiệu quả.
           </p>
-          <Button onClick={() => navigate('/departments/create')} className="bg-blue-600 hover:bg-blue-700 text-white">
-            + Tạo tòa nhà mới
-          </Button>
         </div>
       ) : (
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {departments.map(dep => (
-            <Card key={dep._id} className="relative">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
-                <h3 className="text-lg font-semibold truncate">{dep.name}</h3>
+            <div key={dep._id} className="mb-8">
+              <div
+                className={`rounded-xl shadow-md p-4 border cursor-pointer flex items-center justify-between transition-all duration-200
+                  ${selectedDepartment?._id === dep._id
+                    ? 'bg-blue-100 border-blue-500'
+                    : 'bg-white border-gray-200'}
+                `}
+                onClick={() => handleShowRooms(dep)}
+              >
+                <div>
+                  <h2 className={`text-lg font-semibold ${selectedDepartment?._id === dep._id ? 'text-blue-700' : 'text-blue-600'}`}>{dep.name}</h2>
+                  <p className="text-sm text-gray-500">
+                    {dep.village}, {dep.commune}, {dep.district}, {dep.province}
+                  </p>
+                </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -117,14 +184,18 @@ const DepartmentList: React.FC = () => {
                     <DropdownMenuItem onClick={() => handleDelete(dep._id, dep.name)}>Xoá</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </CardHeader>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
 
+      {selectedDepartment && (
+        <div className="px-6 pb-12">
+          <RoomTable rooms={selectedRooms} departmentName={selectedDepartment.name} />
+        </div>
+      )}
 
-      {/* Modal xác nhận xoá */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>

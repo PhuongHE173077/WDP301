@@ -19,3 +19,7 @@ export const deleteDepartment = (id: string) => {
 export const createDepartment = ( data: any) => {
   return axiosCustomize.post(`/api/v1/departments`, data)
 }
+
+export const getRoomsByDepartment = (departmentId : string) => {
+  return axiosCustomize.get(`/api/v1/departments/${departmentId}/rooms`)
+}
