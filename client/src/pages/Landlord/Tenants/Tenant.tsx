@@ -16,7 +16,7 @@ import { DialogView } from "./components/DialogView";
 
 type User = {
     id: number;
-    name: string;
+    displayName: string;
     phone: string;
     email: string;
     birthYear: number;
@@ -46,12 +46,8 @@ export default function Tenant() {
     }
 
 
-
     return (
         <Card className="p-4 space-y-4">
-            <Button className="w-full md:w-auto bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-700 text-black" onClick={() => setOpen(true)}>
-                <CirclePlusIcon className="mr-2 h-4 w-4 " />
-                Thêm người dùng</Button>
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto rounded-lg border ">
                 <Table className="min-w-[700px] bg-white">
@@ -60,7 +56,7 @@ export default function Tenant() {
                             <TableHead className="w-10">#</TableHead>
                             <TableHead>Tên</TableHead>
                             <TableHead>SĐT</TableHead>
-                            <TableHead className="hidden lg:table-cell">Email</TableHead>
+                            <TableHead>Email</TableHead>
                             <TableHead>Chức năng</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -68,58 +64,23 @@ export default function Tenant() {
                         {paginatedData.map((user, idx) => (
                             <TableRow key={user.id}>
                                 <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
-                                <TableCell>{user.name}</TableCell>
+                                <TableCell>{user.displayName}</TableCell>
                                 <TableCell>{user.phone}</TableCell>
-                                <TableCell className="hidden lg:table-cell">{user.email}</TableCell>
+                                <TableCell>{user.email}</TableCell>
                                 <TableCell>
                                     <div className="flex gap-2">
                                         <Button size="sm" onClick={() => {
                                             setActiveUser(user);
                                             setOpenDialog(true);
                                         }}>
-                                            xem
-                                        </Button>
-                                        <Button size="sm" variant="outline">
-                                            Sửa
-                                        </Button>
+                                            Xem
+                                        </Button>                                        
                                     </div>
                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="block md:hidden space-y-4">
-                {paginatedData.map((user, idx) => (
-                    <div
-                        key={user.id}
-                        className="border rounded-lg p-4 bg-white shadow-sm space-y-2"
-                    >
-                        <p className="text-sm">
-                            <strong>STT:</strong> {(page - 1) * PAGE_SIZE + idx + 1}
-                        </p>
-                        <p className="text-sm">
-                            <strong>Tên:</strong> {user.name}
-                        </p>
-                        <p className="text-sm">
-                            <strong>SĐT:</strong> {user.phone}
-                        </p>
-                        <p className="text-sm">
-                            <strong>Email:</strong> {user.email}
-                        </p>
-                        <p className="text-sm">
-                            <strong>Năm Sinh:</strong> {user.birthYear}
-                        </p>
-                        <div className="flex justify-end gap-2 pt-2">
-                            <Button size="sm" variant="outline">
-                                Sửa
-                            </Button>
-
-                        </div>
-                    </div>
-                ))}
             </div>
 
             {/* Pagination */}
