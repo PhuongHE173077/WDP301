@@ -1,6 +1,7 @@
 import express from 'express'
 import { userController } from '~/controllers/userController'
 import { authMiddlewares } from '~/middlewares/authMiddlewares'
+import { multerUploadMiddlewares } from '~/middlewares/multerUploadMiddlewares'
 import { userValidations } from '~/validations/userValidation'
 
 
@@ -15,6 +16,9 @@ Router.route('/list')
 
 Router.route('/logout')
     .delete(userController.logout)
+
+Router.route('/profile')
+    .put(authMiddlewares.isAuthorized, multerUploadMiddlewares.upload.single('avatar'), userController.updateProfile)
 
 
 export const userRouter = Router

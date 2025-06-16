@@ -19,7 +19,16 @@ export const logoutUserAPIs = createAsyncThunk("user/logout", async () => {
 });
 
 export const updateUserAPIs = createAsyncThunk("user/update", async (userData: any) => {
-  return await axiosCustomize.put("/users/update", userData);
+  // If userData is FormData (contains file), don't set Content-Type header
+  // Axios will automatically set the correct Content-Type with boundary
+  const config = userData instanceof FormData ? {} : {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+
+  const result = await axiosCustomize.put("api/v1/profile", userData, config);
+  return result.data;
 });
 
 export const userSlice = createSlice({

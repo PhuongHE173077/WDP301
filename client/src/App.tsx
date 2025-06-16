@@ -12,6 +12,7 @@ import { Login } from "./pages/auth/Login";
 import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
+import ProfileScreen from "./pages/me/ProfileScreen";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -31,8 +32,9 @@ const App = () => (
             <Route element={<ProtectedRoute />}>
               <Route element={<HomeLayout />} >
                 <Route path="/rooms" element={<Rooms />} />
-
+                <Route path="/profile" element={<ProfileScreen />} />
               </Route>
+
             </Route>
 
 
