@@ -4,12 +4,11 @@ const { default: User } = require('./userModal');
 const { Schema } = mongoose;
 
 const contractSchema = new Schema({
-
-    tenantId: {
+    tenantId: [{
         type: Schema.Types.ObjectId,
         required: true,
         ref: "User"
-    },
+    }],
     ownerId: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -21,11 +20,11 @@ const contractSchema = new Schema({
     },
     image1CCCD: {
         type: String,
-        required: true
+        default: ''
     },
     image2CCCD: {
         type: String,
-        required: true
+        default: ''
     },
     status: {
         type: String,
@@ -36,19 +35,18 @@ const contractSchema = new Schema({
         type: String,
         default: ''
     },
-    userSignatureImage: {
-        type: String,
-        default: ''
-    },
     userSignedAt: {
-        type: Date
+        type: Date,
+        default: null
     },
     approvedBy: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        default: null
     },
     approvedAt: {
-        type: Date
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true

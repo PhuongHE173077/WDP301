@@ -1,13 +1,17 @@
 import { fetchOrders } from '@/apis/order.apis'
+import { fetchTenantAPIs } from '@/apis/tenant.apis'
 import Loader from '@/components/ui-customize/Loader'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { EyeIcon, Trash2, Upload, UserPlusIcon } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
 import dayjs from "dayjs"
+import { ClipboardPenLineIcon, EyeIcon, Trash2, Upload, UserPlusIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import AddUserDialog from './components/DialogAdd'
+import { useNavigate } from 'react-router-dom'
 
 export const OrderRooms = () => {
+    const navigate = useNavigate()
     const [orders, setOrders] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
     const [page, setPage] = useState(1)
@@ -27,9 +31,17 @@ export const OrderRooms = () => {
     const fetchData = async () => {
         setLoading(true)
         const orders = await fetchOrders();
+        const tenant = await fetchTenantAPIs();
         setOrders(orders.data);
+        setUsers(tenant.data);
         setLoading(false)
     };
+
+
+
+
+
+
     if (loading) return <Loader />
     return (
         <div className="p-4">
@@ -55,45 +67,43 @@ export const OrderRooms = () => {
                             <TableHead>Ngày bắt đầu</TableHead>
                             <TableHead>Thời hạn</TableHead>
                             <TableHead>Hợp đồng</TableHead>
+                            <TableHead>Trạng thái</TableHead>
                             <TableHead className="text-right">Chức năng</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {orders.map((tenant: any) => (
                             <TableRow key={tenant._id}>
-                                <TableCell>{tenant?.room?.roomId}</TableCell>
-                                <TableCell>{tenant?.tenants?.name}</TableCell>
-                                <TableCell>{tenant?.startAt ? dayjs(tenant?.startAt).format('DD/MM/YYYY') : ""}</TableCell>
-                                <TableCell>{tenant?.startAt ? dayjs(tenant?.duration).format('DD/MM/YYYY') : ""}</TableCell>
-                                <TableCell>{tenant?.contract &&
-                                    <>
-                                        <Button variant="outline"
-                                            onClick={() => {
-                                                setImagePreview(tenant?.contract)
-                                                setOpenView(true)
-                                            }}
-                                        >
-                                            <EyeIcon className="w-4 h-4" />Xem hợp đồng
-                                        </Button>
+                                <TableCell>
+                                    <strong>{tenant?.room?.roomId}</strong>
+                                </TableCell>
+                                <TableCell>
+                                    <ul>
+                                        {tenant?.tenants?.map((t: any) => (
 
-                                    </>
+                                            <li key={t._id} className='mb-2'>
+                                                {t?.displayName}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </TableCell>
+                                <TableCell>{tenant?.startAt ? dayjs(tenant?.startAt).format('DD/MM/YYYY') : ""}</TableCell>
+                                <TableCell>{tenant?.startAt ? dayjs(tenant?.endAt).format('DD/MM/YYYY') : ""}</TableCell>
+                                <TableCell>{tenant?.tenants ?
+                                    <Tooltip >
+                                        <TooltipTrigger>
+                                            <Button variant="outline" size="icon" onClick={() => navigate(`/landlord/contract?orderId=${tenant._id}`)}>
+                                                <ClipboardPenLineIcon className="w-4 h-4" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            hợp đồng
+                                        </TooltipContent>
+                                    </Tooltip> : ""
                                 }</TableCell>
+                                <TableCell>{tenant?.contract?.status === "pending_signature" ? "Đang đợi phản hồi người thuê" : tenant?.tenants ? "Chưa tạo hợp đồng" : ""}</TableCell>
                                 <TableCell className="text-right space-x-2">
-                                    {tenant.tenants &&
-                                        <Tooltip >
-                                            <TooltipTrigger>
-                                                <Button variant="outline" size="icon" onClick={() => {
-                                                    setOrderUpload(tenant)
-                                                    setOpenUpload(true)
-                                                }}>
-                                                    <Upload className="w-4 h-4" />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                Tải hợp đồng
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    }
+
                                     <Tooltip >
                                         <TooltipTrigger>
                                             <Button variant="outline" size="icon" onClick={() => {
@@ -124,7 +134,7 @@ export const OrderRooms = () => {
                                             <Tooltip >
                                                 <TooltipTrigger>
                                                     <Button variant="outline" size="icon" onClick={() => {
-                                                        setOrderId(tenant._id);
+                                                        setActiveOrder(tenant);
                                                         setOpenAddUser(true)
                                                     }}>
                                                         <UserPlusIcon className="w-4 h-4" />
@@ -143,7 +153,10 @@ export const OrderRooms = () => {
                 </Table>
             </div>
 
+            {openAddUser && <AddUserDialog open={openAddUser} setOpen={setOpenAddUser} order={activeOrder} users={users} fetchData={fetchData} />}
+
 
         </div>
+
     )
 }

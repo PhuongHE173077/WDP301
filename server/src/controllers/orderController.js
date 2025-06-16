@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes"
 import OrderRoom from "~/models/orderModel"
 import { pickUser } from "~/utils/algorithms"
+import ApiError from "~/utils/ApiError"
 
 const getOrderByOwnerId = async (req, res, next) => {
     try {
@@ -12,7 +13,7 @@ const getOrderByOwnerId = async (req, res, next) => {
             return {
                 _id: order._id,
                 room: order.roomId,
-                tenant: pickUser(order.tenantId),
+                tenants: order.tenantId && order.tenantId.length > 0 ? order.tenantId.map(t => pickUser(t)) : null,
                 contract: order.contract,
                 startAt: order.startAt,
                 endAt: order.endAt,
@@ -28,13 +29,13 @@ const getOrderByOwnerId = async (req, res, next) => {
 
 const updateOrder = async (req, res, next) => {
     try {
-        const { orderId } = req.params
+        const { id } = req.params
 
 
-        const order = await OrderRoom.findOne({ _id: orderId, _destroy: false })
+        const order = await OrderRoom.findOne({ _id: id, _destroy: false })
         if (!order) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
 
-        const orderUpload = await OrderRoom.findOneAndUpdate({ _id: orderId }, req.body, { new: true })
+        const orderUpload = await OrderRoom.findOneAndUpdate({ _id: id }, req.body, { new: true })
 
         res.status(StatusCodes.OK).json(orderUpload)
     } catch (error) {
@@ -65,9 +66,37 @@ const getTenantOrder = async (req, res, next) => {
 }
 
 
+const getOrderById = async (req, res, next) => {
+    try {
+        const ownerId = req.jwtDecoded._id
+        const orderId = req.params.id
+
+        const order = await OrderRoom.findOne({ _id: orderId, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
+
+        if (order.ownerId._id.toString() !== ownerId) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
+
+        res.status(StatusCodes.OK).json({
+            _id: order._id,
+            room: order.roomId,
+            owner: pickUser(order.ownerId),
+            tenants: order.tenantId && order.tenantId.length > 0 ? order.tenantId.map(t => pickUser(t)) : null,
+            contract: order.contract,
+            startAt: order.startAt,
+            endAt: order.endAt,
+            createdAt: order.createdAt,
+            updatedAt: order.updatedAt,
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 
 export const orderController = {
     getOrderByOwnerId,
     updateOrder,
-    getTenantOrder
+    getTenantOrder,
+    updateOrder,
+    getOrderById
 };

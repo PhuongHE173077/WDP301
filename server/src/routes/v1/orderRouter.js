@@ -12,4 +12,8 @@ Router.route('/')
 
 Router.route("/users")
     .get(authMiddlewares.isAuthorized, orderController.getTenantOrder)
+
+Router.route("/:id")
+    .get(authMiddlewares.isAuthorized, orderController.getOrderById)
+    .put(authMiddlewares.isAuthorized, orderController.updateOrder)
 export const orderRouter = Router

@@ -18,6 +18,14 @@ export const logoutUserAPIs = createAsyncThunk("user/logout", async () => {
   return result.data
 });
 
+export const LoginTenantAPIs = createAsyncThunk(
+  "tenant/login",
+  async (userData: any) => {
+    const result = await axiosCustomize.post("api/v1/tenants/login", userData);
+    return result.data
+  }
+);
+
 export const updateUserAPIs = createAsyncThunk("user/update", async (userData: any) => {
   return await axiosCustomize.put("/users/update", userData);
 });
@@ -34,6 +42,9 @@ export const userSlice = createSlice({
       state.currentUser = null;
     });
     builder.addCase(updateUserAPIs.fulfilled, (state, action) => {
+      state.currentUser = action.payload;
+    });
+    builder.addCase(LoginTenantAPIs.fulfilled, (state, action) => {
       state.currentUser = action.payload;
     });
   },
