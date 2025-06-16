@@ -5,6 +5,7 @@ import { departmentRouter } from './departmentRoute'
 import { tenantRouter } from './tenantRouter'
 import { contractRouter } from './contractRoute'
 import { imageRouter } from './imageRoute'
+import { roomRouter } from './roomRoute'
 
 
 
@@ -32,5 +33,7 @@ Router.use('/contracts', contractRouter)
 //image APIs
 Router.use('/images', imageRouter)
 
+//room APIs
+Router.use('/rooms', roomRouter)
 
 export const APIs_V1 = Router
