@@ -1,3 +1,4 @@
+import Room from './roomModel';
 const mongoose = require('mongoose');
 const { default: OrderRoom } = require('./orderModel');
 const { default: User } = require('./userModal');
@@ -14,11 +15,33 @@ const contractSchema = new Schema({
         required: true,
         ref: "User"
     },
+    roomId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Room"
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    signature_A: {
+        type: String,
+        default: ''
+    },
+    signature_B: {
+        type: String,
+        default: ''
+    },
     contractURI: {
         type: String,
         required: true
     },
-    image1CCCD: {
+    deposit: {
+        type: Number,
+        required: true
+
+    }
+    , image1CCCD: {
         type: String,
         default: ''
     },

@@ -21,6 +21,7 @@ import DepartmentList from "./pages/Landlord/Rooms/DepartmentList";
 import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
 import "react-datepicker/dist/react-datepicker.css"
 import { LandlordContracts } from "./pages/Landlord/Contracts";
+import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDetail";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -53,6 +54,7 @@ const App = () => (
           <Route element={<TenantLayout />} >
             <Route path="/tenant-rooms" element={<TenantRooms />} />
             <Route path="/contracts" element={<Contracts />} />
+            <Route path="/contract-detail/:id" element={<ContractDetail />} />
 
           </Route>
 

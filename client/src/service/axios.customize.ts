@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 const axiosCustomize = axios.create({
     baseURL: 'http://localhost:8081/',
-    timeout: 10000,
+    timeout: 20000,
     withCredentials: true
 })
 

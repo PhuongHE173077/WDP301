@@ -6,3 +6,7 @@ export const fetchAllUserAPIs = async () => {
 export const fetchTenants = async () => {
     return await axiosCustomize.get('api/v1/orders/users')
 }
+
+export const createImageUrl = async (data: any) => {
+    return await axiosCustomize.post('api/v1/images/upload', data)
+}

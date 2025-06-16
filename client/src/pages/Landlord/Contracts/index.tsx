@@ -12,6 +12,7 @@ import { createContactApis } from '@/apis/contract.apis';
 import html2pdf from 'html2pdf.js';
 import { toast } from 'react-toastify';
 import { getDownloadUrl } from '@/utils/contanst';
+import { Input } from '@/components/ui/input';
 
 export const LandlordContracts = () => {
     const [order, setOrder] = useState<any>({});
@@ -27,7 +28,9 @@ export const LandlordContracts = () => {
 
     const currentUser = useSelector(selectCurrentUser);
 
+    const [loadingUpload, setLoadingUpload] = useState(false);
 
+    const [deposit, setDeposit] = useState(0);
 
 
     useEffect(() => {
@@ -50,9 +53,17 @@ export const LandlordContracts = () => {
     const roomName = order?.roomId?.name || 'Không xác định';
 
     const createContract = async () => {
+        if (deposit <= 0) {
+            return alert("Vui lý nhập số tiền đặt cọc ")
+        }
+
+        if (!signature) {
+            return alert("Yêu cầu bạn phải ký ")
+        }
+
         const element = document.getElementById('contract-content');
         if (!element) return;
-
+        setLoadingUpload(true)
         setTextPdf(true);
 
         const opt = {
@@ -68,6 +79,9 @@ export const LandlordContracts = () => {
         const formData = new FormData();
         formData.append('file', new File([pdfBlob], `hop_dong_thue_tro_${order?.room?.roomId}_${dayjs().format('DD-MM-YYYY')}.pdf`, { type: 'application/pdf' }));
         formData.append('orderId', orderId || '');
+        formData.append('deposit', (deposit || 0).toString());
+        formData.append('content', text || '');
+        formData.append('signature_A', signature);
 
         await toast.promise(
             createContactApis(formData),
@@ -79,6 +93,7 @@ export const LandlordContracts = () => {
         ).then((res) => order(res.data));
 
         window.location.reload();
+        setLoadingUpload(false)
 
         fetchData();
         setTextPdf(false);
@@ -100,7 +115,7 @@ export const LandlordContracts = () => {
 
     return (
         <div className='relative'>
-            {!contract && open && <Button className='absolute top-4 right-4 bg-blue-500 hover:bg-blue-600' onClick={createContract}>
+            {!contract && open && <Button disabled={loadingUpload} className='absolute top-4 right-4 bg-blue-500 hover:bg-blue-600' onClick={createContract}>
                 Tạo hợp đồng
             </Button>}
             <div className="p-6 max-w-3xl mx-auto">
@@ -153,7 +168,13 @@ export const LandlordContracts = () => {
 
                             <p style={{ marginBottom: 10 }}>Bên A cho Bên B thuê 01 phòng trọ số <strong>{order?.room?.roomId}</strong>.
                                 Với thời hạn là: từ <strong> {dayjs(order?.startAt).format('DD/MM/YYYY')}</strong> đến <strong> {dayjs(order?.endAt).format('DD/MM/YYYY')}</strong> ,
-                                giá thuê: < strong> {order?.room?.price?.toLocaleString()} </strong> VND / tháng. Chưa bao gồm chi phí: điện sinh hoạt, nước.</p>
+                                giá thuê: < strong> {order?.room?.price?.toLocaleString()} </strong> VND / tháng. Tiền thuê nhà không bao gồm chi phí khác như tiền điện, nước, vệ sinh.... Khoản tiền này sẽ do bên B trả theo khối lượng, công suất sử dụng thực tế của Bên B hàng tháng, được tính theo đơn giá của nhà nước.</p>
+                            <p style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>Bên B sẽ giao cho Bên A một khoản tiền là {!textPdf ? <Input style={{ width: 100 }} value={deposit} onChange={(e: any) => setDeposit(e.target.value)} /> : deposit.toLocaleString()} VNĐ  </p>
+                            {/* <p style={{ marginBottom: 10 }}>Ngay sau khi ký hợp đồng này. Số tiền này là tiền đặt cọc để đảm bảm thực hiện Hợp đồng cho thuê nhà.</p> */}
+                            <p style={{ marginBottom: 10 }}>Nếu Bên A đơn phương chấm dứt hợp đồng mà không thực hiện nghĩa vụ báo trước tới bên B thì bên A sẽ phải hoàn trả lại Bên B số tiền đặt cọc và phải bồi thường thêm một khoản bằng chính tiền đặt cọc.</p>
+                            <p style={{ marginBottom: 10 }}>Nếu Bên A đơn phương chấm dứt hợp đồng mà không thực hiện nghĩa vụ báo trước tới bên B thì bên A sẽ phải hoàn trả lại Bên B số tiền đặt cọc và phải bồi thường thêm một khoản bằng chính tiền đặt cọc.</p>
+                            <p style={{ marginBottom: 10 }}>Vào thời điểm kết thúc thời hạn thuê hoặc kể từ ngày chấm dứt Hợp đồng, Bên A sẽ hoàn lại cho Bên B số tiền đặt cọc sau khi đã khấu trừ khoản tiền chi phí để khắc phục thiệt hại (nếu có)</p>
+                            <p style={{ marginBottom: 10 }}>Tiền thuê nhà được thanh toán theo 01 (một) tháng/lần hàng tháng</p>
                             <strong style={{ display: "block", marginBottom: 10 }} >TRÁC NHIỆM CỦA 2 BIÊN:</strong>
                             {textPdf ? <div style={{ whiteSpace: "pre-line", marginBottom: 10 }}>
                                 {text}
@@ -189,7 +210,7 @@ export const LandlordContracts = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-gray-500">Phòng:</p>
-                                    <p className="font-medium">{roomName}</p>
+                                    <p className="font-medium">{order.room.roomId}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500">Trạng thái:</p>

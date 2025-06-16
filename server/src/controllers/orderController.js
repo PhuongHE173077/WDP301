@@ -69,11 +69,19 @@ const getTenantOrder = async (req, res, next) => {
 const getOrderById = async (req, res, next) => {
     try {
         const ownerId = req.jwtDecoded._id
-        const orderId = req.params.id
+        const id = req.params.id
+        const findBy = req.query.findBy
+        let order
+        if (!findBy) {
+            order = await OrderRoom.findOne({ _id: id, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
+            if (order.ownerId._id.toString() !== ownerId) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
+        }
+        // Tìm theo ContractId
+        else if (findBy == 'contract') {
+            order = await OrderRoom.findOne({ contract: id, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
+        }
 
-        const order = await OrderRoom.findOne({ _id: orderId, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
 
-        if (order.ownerId._id.toString() !== ownerId) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
 
         res.status(StatusCodes.OK).json({
             _id: order._id,
