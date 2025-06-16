@@ -3,12 +3,42 @@ const Department = require('../models/departmentModel');
 // Tạo mới toà nhà (department)
 const createDepartment = async (req, res) => {
   try {
-    const department = await Department.create(req.body);
-    res.status(201).json(department);
+    const {
+      name,
+      electricPrice,
+      waterPrice,
+      province,
+      district,
+      commune,
+      village,
+    } = req.body;
+
+    if (!name || !electricPrice || !waterPrice || !province || !district || !commune || !village) {
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc!' });
+    }
+
+    const ownerId = req.jwtDecoded?._id;
+    if (!ownerId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const newDepartment = await Department.create({
+      ownerId,
+      name,
+      electricPrice,
+      waterPrice,
+      province,
+      district,
+      commune,
+      village,
+    });
+
+    res.status(201).json(newDepartment);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
+
 
 // Lấy danh sách toà nhà theo owner
 const getDepartmentsByOwner = async (req, res) => {
