@@ -162,6 +162,7 @@ const CreateRoom = () => {
         <div>
           <label className="block text-sm font-medium mb-1">Chọn tòa nhà</label>
           <select
+          title='department'
             name="departmentId"
             value={form.departmentId}
             onChange={handleInputChange}
