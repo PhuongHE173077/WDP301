@@ -155,7 +155,7 @@ export const ContractDetail = () => {
                     <div>
                         <b>ĐẠI DIỆN BÊN B</b><br /><br />
                         {signature ? <>
-                            <img src={order?.contract?.signature_A} alt="avatar" className='mb-2' width={100} height={100} />
+                            <img src={signature} alt="avatar" className='mb-2' width={100} height={100} />
                             <div>{currentUser?.displayName}</div>
                         </> : <Button onClick={() => setOpen(true)}>
                             Ký hợp đồng
