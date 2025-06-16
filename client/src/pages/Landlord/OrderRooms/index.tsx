@@ -101,7 +101,12 @@ export const OrderRooms = () => {
                                         </TooltipContent>
                                     </Tooltip> : ""
                                 }</TableCell>
-                                <TableCell>{tenant?.contract?.status === "pending_signature" ? "Đang đợi phản hồi người thuê" : tenant?.tenants ? "Chưa tạo hợp đồng" : ""}</TableCell>
+                                <TableCell>{tenant?.contract?.status === "pending_signature" ? "Đang đợi phản hồi người thuê"
+                                    : tenant?.contract?.status === "pending_review" ? "Đang đợi đuyệt" :
+                                        tenant?.contract?.status === "approved" ? "Đã duyệt hợp đồng" :
+                                            tenant?.contract?.status === "rejected" ? "Bị từ chối" :
+                                                tenant?.tenants ? "Chưa tạo hợp đồng" :
+                                                    ""}</TableCell>
                                 <TableCell className="text-right space-x-2">
 
                                     <Tooltip >

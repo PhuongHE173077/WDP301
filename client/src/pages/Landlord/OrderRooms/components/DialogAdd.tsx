@@ -23,6 +23,7 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
     const [phoneInput, setPhoneInput] = useState("")
     const [selectedUser, setSelectedUser] = useState<any>(null)
     const [startDate, setStartDate] = useState<Date | null>(null)
+    const [endDate, setEndDate] = useState<Date | null>(null)
     const [electricityNumber, setElectricityNumber] = useState("")
 
     useEffect(() => {
@@ -48,7 +49,7 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
         const updateData = {
             tenantId: selectedUser._id,
             startAt: startDate ? format(startDate, "yyyy-MM-dd") : "",
-            endAt: null,
+            endAt: endDate ? format(endDate, "yyyy-MM-dd") : "",
             oldElectricNumber: parseInt(electricityNumber, 10),
             contract: null
         }
@@ -122,7 +123,6 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
                                 <div><strong>Tên:</strong> {selectedUser.displayName}</div>
                                 <div><strong>Email:</strong> {selectedUser.email}</div>
                                 <div><strong>SĐT:</strong> {selectedUser.phone}</div>
-
                             </div>
 
                             <div className="flex items-center gap-3 mt-4">
@@ -133,6 +133,20 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
                                 <DatePicker
                                     selected={startDate}
                                     onChange={(date) => setStartDate(date)}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    className="w-2/3 px-3 py-2 border rounded-md"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-3 mt-4">
+                                <label className="w-1/3 flex items-center gap-2 font-medium">
+                                    <CalendarCheck className="w-4 h-4 text-gray-600" />
+                                    Ngày kết thúc:
+                                </label>
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={(date) => setEndDate(date)}
                                     dateFormat="dd/MM/yyyy"
                                     placeholderText="dd/mm/yyyy"
                                     className="w-2/3 px-3 py-2 border rounded-md"
