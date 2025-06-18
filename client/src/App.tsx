@@ -20,6 +20,7 @@ import { TenantRooms } from "./pages/Tenant/Rooms";
 import { Contracts } from "./pages/Tenant/Contracts";
 import DepartmentList from "./pages/Landlord/Rooms/DepartmentList";
 import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
+import Feedback from "./pages/Landlord/Feedback/Feedback";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -42,8 +43,8 @@ const App = () => (
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/order-rooms" element={<OrderRooms />} />
               <Route path="/tenants" element={<Tenants />} />
-              <Route path="/rooms" element={<Rooms />} />
               <Route path="/departments/:id" element={<DepartmentDetail />} />
+              <Route path="/feedback" element={<Feedback />} />
             </Route>
           </Route>
 

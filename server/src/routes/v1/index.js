@@ -3,7 +3,7 @@ import { userRouter } from './userRoute'
 import { orderRouter } from './orderRouter'
 import { departmentRouter } from './departmentRoute'
 import { tenantRouter } from './tenantRouter'
-
+import { feedbackRouter } from './feedbackRoute'
 
 
 const Router = express.Router()
@@ -23,5 +23,9 @@ Router.use('/departments', departmentRouter)
 
 //tenant APIs
 Router.use('/tenants', tenantRouter)
+
+//feedback APIs
+Router.use('/feedbacks', feedbackRouter)
+
 
 export const APIs_V1 = Router

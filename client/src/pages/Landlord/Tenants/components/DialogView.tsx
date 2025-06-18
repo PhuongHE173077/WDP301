@@ -26,11 +26,11 @@ export const DialogView = ({
 
                 <div className="flex flex-col items-center gap-3 mt-4">
                     <Avatar className="w-24 h-24 border-4 border-gray-300 shadow-md">
-                        <AvatarImage src={user.image} alt={user.name} />
+                        <AvatarImage src={user.image} alt={user.userName} />
                     </Avatar>
 
                     <div className="text-center mt-2">
-                        <h2 className="text-xl font-semibold text-gray-900">{user.name}</h2>
+                        <h2 className="text-xl font-semibold text-gray-900">{user.userName}</h2>
                         <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                 </div>
@@ -42,7 +42,7 @@ export const DialogView = ({
                     </div>
                     <div>
                         <Label className="text-gray-600">CCCD</Label>
-                        <p className="text-gray-800 font-medium">{user.cccd}</p>
+                        <p className="text-gray-800 font-medium">{user.CCCD}</p>
                     </div>
                     <div className="col-span-2">
                         <Label className="text-gray-600">Địa chỉ</Label>

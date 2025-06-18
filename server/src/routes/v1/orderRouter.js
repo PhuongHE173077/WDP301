@@ -10,7 +10,7 @@ const Router = express.Router()
 Router.route('/')
     .get(authMiddlewares.isAuthorized, orderController.getOrderByOwnerId)
 
-Router.route("/users")
+Router.route("/tenant")
     .get(authMiddlewares.isAuthorized, orderController.getTenantOrder)
 
 export const orderRouter = Router

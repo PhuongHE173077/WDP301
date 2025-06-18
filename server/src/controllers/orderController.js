@@ -47,8 +47,11 @@ const getTenantOrder = async (req, res, next) => {
         const ownerId = req.jwtDecoded._id
 
         const orders = await OrderRoom.find({ ownerId: ownerId, _destroy: false }).populate('roomId').populate('tenantId')
-    
-        const filterRs = orders.filter((order) => order.tenantId.length > 0)
+
+        console.log(orders);
+
+        // const filterRs = orders.filter((order) => order.tenantId.length > 0)
+        const filterRs = orders.filter((order) => Array.isArray(order.tenantId) && order.tenantId.length > 0)
         const uniqueTenantIds = [
             ...new Set(
                 filterRs.flatMap(item => item.tenantId.map(t => t))

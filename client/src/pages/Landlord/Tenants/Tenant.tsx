@@ -16,7 +16,7 @@ import { DialogView } from "./components/DialogView";
 
 type User = {
     id: number;
-    displayName: string;
+    userName: string;
     phone: string;
     email: string;
     birthYear: number;
@@ -64,7 +64,7 @@ export default function Tenant() {
                         {paginatedData.map((user, idx) => (
                             <TableRow key={user.id}>
                                 <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
-                                <TableCell>{user.displayName}</TableCell>
+                                <TableCell>{user.userName}</TableCell>
                                 <TableCell>{user.phone}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>
