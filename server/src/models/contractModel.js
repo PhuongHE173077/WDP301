@@ -1,31 +1,53 @@
+import Room from './roomModel';
 const mongoose = require('mongoose');
 const { default: OrderRoom } = require('./orderModel');
 const { default: User } = require('./userModal');
 const { Schema } = mongoose;
 
 const contractSchema = new Schema({
-
-    tenantId: {
+    tenantId: [{
         type: Schema.Types.ObjectId,
         required: true,
         ref: "User"
-    },
+    }],
     ownerId: {
         type: Schema.Types.ObjectId,
         required: true,
         ref: "User"
     },
+    roomId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Room"
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    signature_A: {
+        type: String,
+        default: ''
+    },
+    signature_B: {
+        type: String,
+        default: ''
+    },
     contractURI: {
         type: String,
         required: true
     },
-    image1CCCD: {
-        type: String,
+    deposit: {
+        type: Number,
         required: true
+
+    }
+    , image1CCCD: {
+        type: String,
+        default: ''
     },
     image2CCCD: {
         type: String,
-        required: true
+        default: ''
     },
     status: {
         type: String,
@@ -36,19 +58,18 @@ const contractSchema = new Schema({
         type: String,
         default: ''
     },
-    userSignatureImage: {
-        type: String,
-        default: ''
-    },
     userSignedAt: {
-        type: Date
+        type: Date,
+        default: null
     },
     approvedBy: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        default: null
     },
     approvedAt: {
-        type: Date
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true

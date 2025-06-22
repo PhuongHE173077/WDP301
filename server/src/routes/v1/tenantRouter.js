@@ -10,6 +10,9 @@ const Router = express.Router()
 Router.route('/')
     .get(authMiddlewares.isAuthorized, tenantController.getAll)
 
+Router.route('/login')
+    .post(tenantController.login)
+
 
 
 export const tenantRouter = Router

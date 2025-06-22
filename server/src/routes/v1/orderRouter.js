@@ -13,4 +13,7 @@ Router.route('/')
 Router.route("/tenant")
     .get(authMiddlewares.isAuthorized, orderController.getTenantOrder)
 
+Router.route("/:id")
+    .get(authMiddlewares.isAuthorized, orderController.getOrderById)
+    .put(authMiddlewares.isAuthorized, orderController.updateOrder)
 export const orderRouter = Router

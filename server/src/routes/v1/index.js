@@ -4,6 +4,10 @@ import { orderRouter } from './orderRouter'
 import { departmentRouter } from './departmentRoute'
 import { tenantRouter } from './tenantRouter'
 import { feedbackRouter } from './feedbackRoute'
+import { contractRouter } from './contractRoute'
+import { imageRouter } from './imageRoute'
+import { roomRouter } from './roomRoute'
+
 
 
 const Router = express.Router()
@@ -27,5 +31,13 @@ Router.use('/tenants', tenantRouter)
 //feedback APIs
 Router.use('/feedbacks', feedbackRouter)
 
+//contract APIs
+Router.use('/contracts', contractRouter)
+
+//image APIs
+Router.use('/images', imageRouter)
+
+//room APIs
+Router.use('/rooms', roomRouter)
 
 export const APIs_V1 = Router

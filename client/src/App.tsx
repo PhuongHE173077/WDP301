@@ -13,7 +13,6 @@ import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
 import Tenants from "./pages/Landlord/Tenants/Tenant";
-
 import { OrderRooms } from "./pages/Landlord/OrderRooms";
 import { TenantLayout } from "./layouts/Tenant/layouts/home-page";
 import { TenantRooms } from "./pages/Tenant/Rooms";
@@ -21,6 +20,12 @@ import { Contracts } from "./pages/Tenant/Contracts";
 import DepartmentList from "./pages/Landlord/Rooms/DepartmentList";
 import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
 import Feedback from "./pages/Landlord/Feedback/Feedback";
+import "react-datepicker/dist/react-datepicker.css"
+import { LandlordContracts } from "./pages/Landlord/Contracts";
+import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDetail";
+import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
+import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
+import ProfileScreen from "./pages/me/ProfileScreen";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -42,16 +47,26 @@ const App = () => (
             <Route element={<HomeLayout />} >
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/order-rooms" element={<OrderRooms />} />
+              <Route path="/landlord/contract" element={<LandlordContracts />} />
               <Route path="/tenants" element={<Tenants />} />
               <Route path="/departments/:id" element={<DepartmentDetail />} />
               <Route path="/feedback" element={<Feedback />} />
             </Route>
           </Route>
+              <Route path="/departments/create" element={<CreateDepartment />} />
+              <Route path="/rooms/create" element={<CreateRoom />} />
+              <Route path="/rooms" element={<Rooms />} />
+              <Route path="/profile" element={<ProfileScreen />} />
 
-          {/* Tenant router */}
-          <Route element={<TenantLayout />} >
-            <Route path="/tenant-rooms" element={<TenantRooms />} />
-            <Route path="/contracts" element={<Contracts />} />
+            </Route>
+
+            {/* Tenant router */}
+            <Route element={<TenantLayout />} >
+              <Route path="/tenant-rooms" element={<TenantRooms />} />
+              <Route path="/contracts" element={<Contracts />} />
+              <Route path="/contract-detail/:id" element={<ContractDetail />} />
+
+            </Route>
 
           </Route>
 

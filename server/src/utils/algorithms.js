@@ -2,5 +2,5 @@ import { pick } from "lodash"
 
 export const pickUser = (user) => {
     if (!user) return {}
-    return pick(user, ['_id', 'email', 'userName', 'avatar', 'role', 'isActive', 'address', 'phone', 'timeExpired', 'dateOfBirth', 'CCCD'])
+    return pick(user, ['_id', 'email', 'userName', 'displayName', 'avatar', 'role', 'isActive', 'address', 'phone', 'timeExpired', 'dateOfBirth', 'CCCD'])
 }

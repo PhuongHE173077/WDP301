@@ -26,6 +26,29 @@ const streamUpload = (fileBuffer, forderName) => {
   })
 }
 
+const streamUploadFile = (fileBuffer, folderName, fileName) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: folderName,
+        public_id: fileName, // ✅ đặt tên file ở đây
+        resource_type: 'raw' // hoặc 'raw' nếu là PDF
+      },
+      (error, result) => {
+        if (result) {
+          resolve(result);
+        } else {
+          reject(error);
+        }
+      }
+    );
+
+    streamifier.createReadStream(fileBuffer).pipe(stream);
+  });
+};
+
+
 export const cloudinaryProvider = {
-  streamUpload
+  streamUpload,
+  streamUploadFile
 }

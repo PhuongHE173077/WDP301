@@ -3,12 +3,12 @@ const { default: User } = require('./userModal');
 
 const tenantSchema = new mongoose.Schema(
     {
-        ownerId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true
-        },
         userName: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        displayName: {
             type: String,
             required: true,
             trim: true
@@ -21,6 +21,10 @@ const tenantSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
+        },
+        password: {
+            type: String,
+            required: true
         },
         address: {
             type: String,
@@ -37,7 +41,7 @@ const tenantSchema = new mongoose.Schema(
             trim: true,
             default: ''
         },
-        cccd: {
+        CCCD: {
             type: String,
             trim: true,
             default: ''

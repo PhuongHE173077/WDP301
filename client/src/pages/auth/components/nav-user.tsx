@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useDispatch, useSelector } from "react-redux"
 import { logoutUserAPIs, selectCurrentUser } from "@/store/slice/userSlice"
+import { Link } from "react-router-dom"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
@@ -84,7 +85,7 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem className="flex gap-2">
                 <UserCircleIcon />
-                Tài khoản
+                <Link to="/profile">Tài khoản</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="flex gap-2">
                 <CreditCardIcon />

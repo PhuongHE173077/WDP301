@@ -29,6 +29,8 @@ const Index = () => {
         navigate("/dashboard");
       } else if (currentUser.role === USER_ROLE.OWNER_1 || currentUser.role === USER_ROLE.OWNER_2 || currentUser.role === USER_ROLE.OWNER_3) {
         navigate("/rooms");
+      } else if (currentUser.role === USER_ROLE.TENANT) {
+        navigate("/tenant-rooms");
       }
     }
 
