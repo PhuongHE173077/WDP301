@@ -2,16 +2,26 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Slider } from "@/components/ui/slider"
-import {
-    Bed, BellIcon,
-    CreditCardIcon, Grid3X3, Heart, HeartIcon, List, LogOutIcon, MapPin, MoreVerticalIcon, Search, SettingsIcon, UserCircleIcon
-} from 'lucide-react'
+import { logoutUserAPIs, selectCurrentUser } from "@/store/slice/userSlice"
+import { EllipsisVerticalIcon, Filter, Grid, List, MapPin, Maximize, Search, Users } from "lucide-react"
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
+"use client"
+
+import {
+    ChevronDownIcon,
+    CreditCardIcon,
+    LogOutIcon,
+    UserCircleIcon
+} from "lucide-react"
 
 import {
     Avatar,
@@ -27,379 +37,537 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { logoutUserAPIs, selectCurrentUser } from "@/store/slice/userSlice"
-import { useDispatch, useSelector } from "react-redux"
-const mockTroData = [
+import {
+    SidebarMenuButton
+} from "@/components/ui/sidebar"
+
+// Mock data
+const rooms = [
     {
         id: 1,
         title: "Phòng trọ cao cấp gần ĐH Bách Khoa",
         price: 3500000,
+        address: "123 Lý Thường Kiệt, Q.10, TP.HCM",
         area: 25,
-        address: "123 Lý Thường Kiệt, Quận 10, TP.HCM",
-        image: "https://imgs.search.brave.com/6gsoJ8w1o3w5sH6Z0atkh1rWE5Ks-uNFD5QHiIJHD38/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9maWxl/LnBob25ndHJvLnZu/LzIvcGhvbmd0cm9f/MTc0OTQ3OTUxMDI2/My5qcGc",
-        amenities: ["Wifi", "Điều hòa", "Bảo vệ", "Thang máy"],
-        type: "Phòng đơn",
-        available: true
+        capacity: 2,
+        type: "Phòng trọ",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY6VkhePM9gjttqCL76YxCkvZ8oXm1CSXXGg&s",
+        amenities: ["Điều hòa", "WiFi", "Máy giặt"],
+        district: "Quận 10",
+        province: "TP.HCM",
     },
     {
         id: 2,
-        title: "Nhà trọ sinh viên giá rẻ",
-        price: 2200000,
-        area: 20,
-        address: "456 Nguyễn Văn Cừ, Quận 5, TP.HCM",
-        image: "https://imgs.search.brave.com/fZBmUxcnm-7QX6tsYlKcSNrN6wxGg9qLOn-adT5lU5c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9maWxl/LnBob25ndHJvLnZu/LzIvQkRfNl83NTZm/NDkxMWExLmpwZw",
-        amenities: ["Wifi", "Bảo vệ", "Giặt ủi"],
-        type: "Phòng đơn",
-        available: true
+        title: "Căn hộ mini đầy đủ tiện nghi",
+        price: 5000000,
+        address: "456 Nguyễn Văn Cừ, Q.5, TP.HCM",
+        area: 35,
+        capacity: 2,
+        type: "Căn hộ mini",
+        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZDXghsEu7ZK32EtXsBIJGs2YAaIqjq6VpXA&s",
+        amenities: ["Bếp riêng", "WC riêng", "Ban công"],
+        district: "Quận 5",
+        province: "TP.HCM",
     },
     {
         id: 3,
-        title: "Phòng trọ có gác lửng rộng rãi",
-        price: 4200000,
-        area: 30,
-        address: "789 Võ Văn Tần, Quận 3, TP.HCM",
-        image: "https://imgs.search.brave.com/nquZV3Xj_AQYuKlNHRKkOyDdUa4f3LUuwcIe0FG-o6o/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/Y2hvdG90LmNvbS9i/UlpLenltRDU2RE9Z/RFdzYklYS3VlN1ly/Ym52c2I3SXlhTTBK/SERHVkpRL3ByZXNl/dDpsaXN0aW5nL3Bs/YWluLzljYTFjOTRm/N2NhZDQwNGE3MGQz/YzllM2U0ZGIzZWE5/LTI5MjcwMjkyODMy/MDc1ODA2NTEuanBn",
-        amenities: ["Wifi", "Điều hòa", "Bếp riêng", "WC riêng"],
-        type: "Phòng có gác",
-        available: false
+        title: "Phòng ở ghép sinh viên",
+        price: 1800000,
+        address: "789 Võ Văn Tần, Q.3, TP.HCM",
+        area: 20,
+        capacity: 4,
+        type: "Ở ghép",
+        image: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg",
+        amenities: ["WiFi", "Tủ lạnh chung"],
+        district: "Quận 3",
+        province: "TP.HCM",
     },
     {
         id: 4,
-        title: "Căn hộ mini full nội thất",
-        price: 6500000,
-        area: 35,
-        address: "321 Cách Mạng Tháng 8, Quận 1, TP.HCM",
-        image: "https://imgs.search.brave.com/Ub0Gd8YI_5gaqGgmHPdoml4Qp9JGWljLfuZsWogSVBs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/Y2hvdG90LmNvbS90/blZ2WEU3eHV1bEhQ/QW8tZ1JVdlY1eU1p/Y2ItTzFkRkY5QVdw/R1dYZVdrL3ByZXNl/dDpsaXN0aW5nL3Bs/YWluL2ZiMzUwMWEy/YWMyYTgwMmFlN2Yz/MzUwZGY3ODczYjk5/LTI5MTg4NTk1OTE0/MTM0MTg5NTAuanBn",
-        amenities: ["Wifi", "Điều hòa", "Bếp riêng", "WC riêng", "Thang máy", "Bảo vệ"],
-        type: "Căn hộ mini",
-        available: true
+        title: "Ký túc xá cao cấp",
+        price: 2200000,
+        address: "321 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM",
+        area: 15,
+        capacity: 2,
+        type: "Ký túc xá",
+        image: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
+        amenities: ["An ninh 24/7", "Căng tin"],
+        district: "Quận Bình Thạnh",
+        province: "TP.HCM",
     },
     {
         id: 5,
-        title: "Phòng trọ gần chợ Bến Thành",
-        price: 3800000,
-        area: 22,
-        address: "654 Lê Lợi, Quận 1, TP.HCM",
-        image: "https://imgs.search.brave.com/W2vv_Xyvgj3mS9QqQiVQrJ_VXpFkoIqC3f2su2Hl1zE/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/bG96aWRvLmNvbS9p/bWFnZS9wb3N0L3Ro/dW1iLzY3ZjE4YmUw/YThlNjEtMTc0Mzg4/MzIzMi0wMDEuanBn",
-        amenities: ["Wifi", "Điều hòa", "Bảo vệ"],
-        type: "Phòng đơn",
-        available: true
+        title: "Studio hiện đại trung tâm",
+        price: 6500000,
+        address: "654 Lê Lợi, Q.1, TP.HCM",
+        area: 30,
+        capacity: 1,
+        type: "Studio",
+        image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+        amenities: ["Gym", "Hồ bơi", "Thang máy"],
+        district: "Quận 1",
+        province: "TP.HCM",
     },
     {
         id: 6,
-        title: "Nhà trọ cao cấp có thang máy",
-        price: 5200000,
-        area: 28,
-        address: "987 Nguyễn Huệ, Quận 1, TP.HCM",
-        image: "https://imgs.search.brave.com/bAbthm92DhNOOzfIQf5GzMos533su_FTaH4bUIIkUVA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9iYW5k/b24udm4vdXBsb2Fk/cy90aGlldC1rZS1u/aGEtdHJvLWRlcC0y/MDIwLWJhbmRvbi0y/Mi5qcGc",
-        amenities: ["Wifi", "Điều hòa", "Thang máy", "Bảo vệ", "Giặt ủi"],
-        type: "Phòng cao cấp",
-        available: true
-    }
+        title: "Phòng trọ giá rẻ gần chợ",
+        price: 2800000,
+        address: "987 Phan Văn Trị, Q.Gò Vấp, TP.HCM",
+        area: 18,
+        capacity: 2,
+        type: "Phòng trọ",
+        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+        amenities: ["Gần chợ", "Xe ôm"],
+        district: "Quận Gò Vấp",
+        province: "TP.HCM",
+    },
 ]
 
-export default function SearchPage() {
+const roomTypes = ["Tất cả", "Phòng trọ", "Căn hộ mini", "Ký túc xá", "Ở ghép", "Studio"]
+const provinces = ["Tất cả", "TP.HCM", "Hà Nội", "Đà Nẵng", "Cần Thơ"]
+const districts = ["Tất cả", "Quận 1", "Quận 3", "Quận 5", "Quận 10", "Quận Bình Thạnh", "Quận Gò Vấp"]
+
+export default function RentalSearch() {
     const [searchTerm, setSearchTerm] = useState("")
-    const [priceRange, setPriceRange] = useState([1000000, 10000000])
-    const [selectedDistrict, setSelectedDistrict] = useState("all")
-    const [selectedType, setSelectedType] = useState("all")
+    const [selectedProvince, setSelectedProvince] = useState("Tất cả")
+    const [selectedDistrict, setSelectedDistrict] = useState("Tất cả")
+    const [selectedRoomType, setSelectedRoomType] = useState("Tất cả")
+    const [priceRange, setPriceRange] = useState([0, 10000000])
+    const [areaRange, setAreaRange] = useState([0, 50])
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-    const [favorites, setFavorites] = useState<number[]>([])
-    const user = useSelector(selectCurrentUser)
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 6
 
-    const toggleFavorite = (id: number) => {
-        setFavorites(prev =>
-            prev.includes(id)
-                ? prev.filter(fav => fav !== id)
-                : [...prev, id]
-        )
-    }
-
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(price)
-    }
-
-    const filteredTro = mockTroData.filter(tro => {
-        const matchesSearch = tro.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tro.address.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesPrice = tro.price >= priceRange[0] && tro.price <= priceRange[1]
-        const matchesDistrict = selectedDistrict === "all" || tro.address.includes(selectedDistrict)
-        const matchesType = selectedType === "all" || tro.type === selectedType
-
-        return matchesSearch && matchesPrice && matchesDistrict && matchesType
-    })
-
+    const currentUser = useSelector(selectCurrentUser);
+    const dispatch = useDispatch();
     const handleLogout = () => {
         const result = dispatch(logoutUserAPIs());
     }
 
-    return (
+    // Filter rooms based on criteria
+    const filteredRooms = rooms.filter((room) => {
+        const matchesSearch =
+            room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            room.address.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesProvince = selectedProvince === "Tất cả" || room.province === selectedProvince
+        const matchesDistrict = selectedDistrict === "Tất cả" || room.district === selectedDistrict
+        const matchesRoomType = selectedRoomType === "Tất cả" || room.type === selectedRoomType
+        const matchesPrice = room.price >= priceRange[0] && room.price <= priceRange[1]
+        const matchesArea = room.area >= areaRange[0] && room.area <= areaRange[1]
 
-        <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="bg-white shadow-sm border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <img
-                                src='/favicon.ico'
-                                alt="Logo"
-                                className="h-8 w-8"
-                            />
-                            <h1 className="text-2xl font-bold text-rental-500">RoomPro</h1>
-                        </div>
+        return matchesSearch && matchesProvince && matchesDistrict && matchesRoomType && matchesPrice && matchesArea
+    })
 
-                        <div className="flex items-center space-x-4">
-                            {user ?
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            className="flex items-center gap-2 p-2 hover:bg-gray-100"
-                                        >
-                                            <Avatar className="h-8 w-8 rounded-lg ">
-                                                <AvatarImage src={user.avatar} alt={user.displayName} />
-                                                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                                            </Avatar>
-                                            <div className="hidden md:block text-left text-sm leading-tight">
-                                                <div className="font-medium truncate">{user.displayName}</div>
-                                            </div>
-                                            <MoreVerticalIcon className="ml-1 h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
+    // Pagination
+    const totalPages = Math.ceil(filteredRooms.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const paginatedRooms = filteredRooms.slice(startIndex, startIndex + itemsPerPage)
 
-                                    <DropdownMenuContent
-                                        className="min-w-56 rounded-lg"
-                                        align="end"
-                                        sideOffset={4}
-                                    >
-                                        <DropdownMenuLabel className="p-0 font-normal">
-                                            <div className="flex items-center gap-2 px-3 py-2 text-sm">
-                                                <Avatar className="h-8 w-8 rounded-lg">
-                                                    <AvatarImage src={user.avatar} alt={user.displayName} />
-                                                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                                                </Avatar>
-                                                <div className="text-left">
-                                                    <div className="font-medium truncate">{user.displayName}</div>
-                                                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                                                </div>
-                                            </div>
-                                        </DropdownMenuLabel>
+    const formatPrice = (price: number) => {
+        return new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+        }).format(price)
+    }
 
-                                        <DropdownMenuSeparator />
+    const navigate = useNavigate();
 
-                                        <DropdownMenuGroup>
-                                            <DropdownMenuItem onClick={() => navigate('/tenant-rooms')}>
-                                                <UserCircleIcon className="mr-2 h-4 w-4" />
-                                                Trang quản trị
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem>
-                                                <HeartIcon className="mr-2 h-4 w-4" />
-                                                Yêu thích
-                                            </DropdownMenuItem>
-
-                                        </DropdownMenuGroup>
-
-                                        <DropdownMenuSeparator />
-
-                                        <DropdownMenuItem onClick={handleLogout}>
-                                            <LogOutIcon className="mr-2 h-4 w-4" />
-                                            Log out
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                :
-                                <>
-                                    <Link to="/login" className="text-sm font-semibold leading-6 text-gray-900">
-                                        Đăng nhập
-                                    </Link>
-                                    <Link to="/register" className="text-sm font-semibold leading-6 text-gray-900">
-                                        Đăng ký
-                                    </Link>
-                                </>
-                            }
-                        </div>
-                    </div>
+    const AdvancedFilters = () => (
+        <div className="space-y-6">
+            <div>
+                <Label className="text-sm font-medium mb-3 block">Khoảng giá (VNĐ)</Label>
+                <Slider
+                    value={priceRange}
+                    onValueChange={setPriceRange}
+                    max={10000000}
+                    min={0}
+                    step={100000}
+                    className="mb-2"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                    <span>{formatPrice(priceRange[0])}</span>
+                    <span>{formatPrice(priceRange[1])}</span>
                 </div>
-            </header>
+            </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                {/* Search Filters */}
-                <Card className="mb-6">
-                    <CardHeader>
-                        <h2 className="text-lg font-semibold">Tìm kiếm phòng trọ</h2>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {/* Search Input */}
-                        <div className="relative">
-                            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                                placeholder="Tìm theo địa chỉ, tên trường học..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10"
-                            />
+            <div>
+                <Label className="text-sm font-medium mb-3 block">Diện tích (m²)</Label>
+                <Slider value={areaRange} onValueChange={setAreaRange} max={50} min={0} step={1} className="mb-2" />
+                <div className="flex justify-between text-xs text-gray-500">
+                    <span>{areaRange[0]}m²</span>
+                    <span>{areaRange[1]}m²</span>
+                </div>
+            </div>
+
+            <div>
+                <Label className="text-sm font-medium mb-3 block">Tiện ích</Label>
+                <div className="space-y-2">
+                    {["Điều hòa", "WiFi", "Máy giặt", "Bếp riêng", "WC riêng", "Ban công"].map((amenity) => (
+                        <div key={amenity} className="flex items-center space-x-2">
+                            <Checkbox id={amenity} />
+                            <Label htmlFor={amenity} className="text-sm">
+                                {amenity}
+                            </Label>
                         </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
 
-                        {/* Filters Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Chọn quận/huyện" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Tất cả quận</SelectItem>
-                                    <SelectItem value="Quận 1">Quận 1</SelectItem>
-                                    <SelectItem value="Quận 3">Quận 3</SelectItem>
-                                    <SelectItem value="Quận 5">Quận 5</SelectItem>
-                                    <SelectItem value="Quận 10">Quận 10</SelectItem>
-                                </SelectContent>
-                            </Select>
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+            {/* Navbar */}
+            <nav className="bg-white shadow-sm border-b">
+                <div className="container mx-auto px-4 py-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
 
-                            <Select value={selectedType} onValueChange={setSelectedType}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Loại phòng" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Tất cả loại</SelectItem>
-                                    <SelectItem value="Phòng đơn">Phòng đơn</SelectItem>
-                                    <SelectItem value="Phòng có gác">Phòng có gác</SelectItem>
-                                    <SelectItem value="Căn hộ mini">Căn hộ mini</SelectItem>
-                                    <SelectItem value="Phòng cao cấp">Phòng cao cấp</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Giá thuê</label>
-                                <Slider
-                                    value={priceRange}
-                                    onValueChange={setPriceRange}
-                                    max={10000000}
-                                    min={1000000}
-                                    step={500000}
-                                    className="w-full"
+                            <div className="p-4 flex items-center gap-2 cursor-auto">
+                                <img
+                                    src='/favicon.ico'
+                                    alt="Logo"
+                                    className="h-8 w-8"
                                 />
-                                <div className="flex justify-between text-xs text-gray-500">
-                                    <span>{formatPrice(priceRange[0])}</span>
-                                    <span>{formatPrice(priceRange[1])}</span>
-                                </div>
+                                <span className="font-bold text-xl text-rental-500 ">RoomPro</span>
                             </div>
 
-                            <div className="flex items-end space-x-2">
+                            <div className="hidden md:flex space-x-6">
+                                <a href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                    Trang chủ
+                                </a>
+                                <a href="/tim-kiem-tro" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                    Tìm phòng
+                                </a>
+
+                                <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                    Hỗ trợ
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-3">
+                            {/* <div className="flex items-center gap-2">
                                 <Button
                                     variant={viewMode === "grid" ? "default" : "outline"}
                                     size="sm"
                                     onClick={() => setViewMode("grid")}
                                 >
-                                    <Grid3X3 className="h-4 w-4" />
+                                    <Grid className="w-4 h-4" />
                                 </Button>
                                 <Button
                                     variant={viewMode === "list" ? "default" : "outline"}
                                     size="sm"
                                     onClick={() => setViewMode("list")}
                                 >
-                                    <List className="h-4 w-4" />
+                                    <List className="w-4 h-4" />
                                 </Button>
+                            </div> */}
+
+                            <div className="hidden md:flex items-center space-x-2">
+                                {!currentUser ?
+                                    <> <Button variant="outline" onClick={() => navigate("/login")}>Đăng nhập</Button>
+                                        <Button>Đăng ký</Button></>
+                                    :
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="lg"
+                                                className="relative p-0 rounded-lg"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar className="h-10 w-10 rounded-lg">
+                                                        <AvatarImage src={currentUser?.avatar} alt="" />
+                                                        <AvatarFallback className="rounded-lg">
+                                                            {currentUser?.displayName?.charAt(0)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="">
+                                                        {currentUser?.displayName}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <EllipsisVerticalIcon className="h-4 w-4" />
+                                                </div>
+
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent
+                                            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                                            side={"bottom"}
+                                            align="end"
+                                            sideOffset={4}
+                                        >
+                                            <DropdownMenuLabel className="p-0 font-normal">
+                                                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                                    <Avatar className="h-4 w-4 rounded-lg">
+                                                        <AvatarImage src={currentUser?.avatar} alt={''} />
+                                                        <AvatarFallback className="rounded-lg">{currentUser?.displayName?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="grid flex-1 text-left text-sm leading-tight">
+                                                        <span className="truncate font-medium">{currentUser?.displayName}</span>
+                                                        <span className="truncate text-xs text-muted-foreground">
+                                                            {currentUser?.email}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuGroup>
+                                                <DropdownMenuItem className="flex gap-2" onClick={() => navigate("/tenant-rooms")}>
+                                                    <UserCircleIcon />
+                                                    Trang quản lý
+                                                </DropdownMenuItem>
+
+                                            </DropdownMenuGroup>
+                                            <DropdownMenuSeparator />
+
+                                            <DropdownMenuItem onClick={() => handleLogout()}>
+                                                <LogOutIcon />
+                                                Log out
+                                            </DropdownMenuItem>
+
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                }
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
 
-                {/* Results Header */}
-                <div className="flex justify-between items-center mb-4">
-                    <p className="text-gray-600">
-                        Tìm thấy <span className="font-semibold">{filteredTro.length}</span> kết quả
-                    </p>
-                </div>
-
-                {/* Results Grid/List */}
-                <div className={viewMode === "grid"
-                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    : "space-y-4"
-                }>
-                    {filteredTro.map((tro) => (
-                        <Card key={tro.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="relative">
-                                <img
-                                    src={tro.image || "/placeholder.svg"}
-                                    alt={tro.title}
-                                    className="w-full h-48 object-cover"
-                                />
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                                    onClick={() => toggleFavorite(tro.id)}
-                                >
-                                    <Heart
-                                        className={`h-4 w-4 ${favorites.includes(tro.id)
-                                            ? "fill-red-500 text-red-500"
-                                            : "text-gray-600"
-                                            }`}
-                                    />
-                                </Button>
-                                {!tro.available && (
-                                    <Badge className="absolute top-2 left-2 bg-red-500">
-                                        Đã thuê
-                                    </Badge>
-                                )}
-                            </div>
-
-                            <CardHeader className="pb-2">
-                                <h3 className="font-semibold text-lg line-clamp-2">{tro.title}</h3>
-                                <div className="flex items-center text-gray-600 text-sm">
-                                    <MapPin className="h-4 w-4 mr-1" />
-                                    <span className="line-clamp-1">{tro.address}</span>
-                                </div>
-                            </CardHeader>
-
-                            <CardContent className="pt-0">
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-2xl font-bold text-red-600">
-                                        {formatPrice(tro.price)}
-                                    </span>
-                                    <div className="flex items-center text-gray-600 text-sm">
-                                        <Bed className="h-4 w-4 mr-1" />
-                                        <span>{tro.area}m²</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-wrap gap-1 mb-3">
-                                    {tro.amenities.slice(0, 3).map((amenity, index) => (
-                                        <Badge key={index} variant="secondary" className="text-xs">
-                                            {amenity}
-                                        </Badge>
-                                    ))}
-                                    {tro.amenities.length > 3 && (
-                                        <Badge variant="secondary" className="text-xs">
-                                            +{tro.amenities.length - 3}
-                                        </Badge>
-                                    )}
-                                </div>
-                            </CardContent>
-
-                            <CardFooter className="pt-0">
-                                <Link to={`/tro/${tro.id}`} className="w-full">
-                                    <Button className="w-full" disabled={!tro.available}>
-                                        {tro.available ? "Xem chi tiết" : "Đã thuê"}
+                            {/* Mobile menu button */}
+                            <Sheet>
+                                <SheetTrigger asChild>
+                                    <Button variant="outline" size="sm" className="md:hidden">
+                                        Menu
                                     </Button>
-                                </Link>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+                                </SheetTrigger>
+                                <SheetContent>
+                                    <SheetHeader>
+                                        <SheetTitle>Menu</SheetTitle>
+                                    </SheetHeader>
+                                    <div className="flex flex-col space-y-4 mt-6">
+                                        <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                            Trang chủ
+                                        </a>
+                                        <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                            Tìm phòng
+                                        </a>
+                                        <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                            Đăng tin
+                                        </a>
+                                        <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">
+                                            Hỗ trợ
+                                        </a>
+                                        <div className="pt-4 border-t">
+                                            <Button variant="outline" className="w-full mb-2">
+                                                Đăng nhập
+                                            </Button>
+                                            <Button className="w-full">Đăng ký</Button>
 
-                {filteredTro.length === 0 && (
-                    <div className="text-center py-12">
-                        <p className="text-gray-500 text-lg">Không tìm thấy kết quả phù hợp</p>
-                        <p className="text-gray-400">Thử thay đổi bộ lọc tìm kiếm</p>
+                                        </div>
+                                    </div>
+                                </SheetContent>
+                            </Sheet>
+                        </div>
                     </div>
-                )}
+                </div>
+            </nav>
+
+            {/* Search Section */}
+            <div className="bg-white shadow-sm border-b">
+                <div className="container mx-auto px-4 py-4">
+                    {/* Main Search Bar */}
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 mb-4">
+                        <div className="md:col-span-2 relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input
+                                placeholder="Tìm kiếm theo tên hoặc địa chỉ..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+
+                        <Select value={selectedProvince} onValueChange={setSelectedProvince}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Tỉnh/Thành" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {provinces.map((province) => (
+                                    <SelectItem key={province} value={province}>
+                                        {province}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Quận/Huyện" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {districts.map((district) => (
+                                    <SelectItem key={district} value={district}>
+                                        {district}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={selectedRoomType} onValueChange={setSelectedRoomType}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Loại phòng" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {roomTypes.map((type) => (
+                                    <SelectItem key={type} value={type}>
+                                        {type}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" className="w-full">
+                                    <Filter className="w-4 h-4 mr-2" />
+                                    Bộ lọc
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent>
+                                <SheetHeader>
+                                    <SheetTitle>Bộ lọc nâng cao</SheetTitle>
+                                    <SheetDescription>Tùy chỉnh tiêu chí tìm kiếm của bạn</SheetDescription>
+                                </SheetHeader>
+                                <div className="mt-6">
+                                    <AdvancedFilters />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container mx-auto px-4 py-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Desktop Sidebar Filters */}
+                    <div className="hidden lg:block w-80">
+                        <Card className="sticky top-6">
+                            <CardContent className="p-6">
+                                <h3 className="font-semibold mb-4">Bộ lọc nâng cao</h3>
+                                <AdvancedFilters />
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1">
+                        {/* Results Header */}
+                        <div className="flex items-center justify-between mb-6">
+                            <p className="text-gray-600">
+                                Tìm thấy <span className="font-semibold">{filteredRooms.length}</span> kết quả
+                            </p>
+                        </div>
+
+                        {/* Room Listings */}
+                        <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
+                            {paginatedRooms.map((room) => (
+                                <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow" onClick={() => navigate(`/tro/${room._id}`)}>
+                                    <div className={viewMode === "list" ? "flex" : ""}>
+                                        <div className={viewMode === "list" ? "w-48 flex-shrink-0" : ""}>
+                                            <img
+                                                src={room.image || "/placeholder.svg"}
+                                                alt={room.title}
+                                                width={300}
+                                                height={200}
+                                                className={`object-cover ${viewMode === "list" ? "h-full" : "w-full h-48"}`}
+                                            />
+                                        </div>
+                                        <CardContent className={`p-4 ${viewMode === "list" ? "flex-1" : ""}`}>
+                                            <div className="flex items-start justify-between mb-2">
+                                                <Badge variant="secondary" className="text-xs">
+                                                    {room.type}
+                                                </Badge>
+                                                <span className="text-lg font-bold text-blue-600">{formatPrice(room.price)}</span>
+                                            </div>
+
+                                            <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{room.title}</h3>
+
+                                            <div className="flex items-center text-gray-600 text-sm mb-2">
+                                                <MapPin className="w-4 h-4 mr-1" />
+                                                <span className="line-clamp-1">{room.address}</span>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                                                <div className="flex items-center">
+                                                    <Maximize className="w-4 h-4 mr-1" />
+                                                    <span>{room.area}m²</span>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <Users className="w-4 h-4 mr-1" />
+                                                    <span>{room.capacity} người</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-1 mb-3">
+                                                {room.amenities.slice(0, 3).map((amenity, index) => (
+                                                    <Badge key={index} variant="outline" className="text-xs">
+                                                        {amenity}
+                                                    </Badge>
+                                                ))}
+                                                {room.amenities.length > 3 && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                        +{room.amenities.length - 3}
+                                                    </Badge>
+                                                )}
+                                            </div>
+
+                                            <Button className="w-full bg-blue-600 hover:bg-blue-700">Xem chi tiết</Button>
+                                        </CardContent>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center gap-2 mt-8">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Trước
+                                </Button>
+
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <Button
+                                        key={page}
+                                        variant={currentPage === page ? "default" : "outline"}
+                                        onClick={() => setCurrentPage(page)}
+                                        className="w-10"
+                                    >
+                                        {page}
+                                    </Button>
+                                ))}
+
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Sau
+                                </Button>
+                            </div>
+                        )}
+
+                        {/* Load More Button Alternative */}
+                        <div className="text-center mt-6">
+                            <Button variant="outline" className="px-8">
+                                Tải thêm phòng trọ
+                            </Button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
