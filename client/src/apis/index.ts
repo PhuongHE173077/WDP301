@@ -7,12 +7,6 @@ export const fetchTenants = async () => {
     return await axiosCustomize.get('api/v1/orders/tenant')
 }
 
-export const fetchFeedback = async () => {
-    return await axiosCustomize.get('api/v1/feedbacks')
-}
-
-export const updateFeedbackReply = ({ feedbackId, reply }) =>
-  axiosCustomize.put(`/api/v1/feedbacks/${feedbackId}/reply`, { reply });
 export const createImageUrl = async (data: any) => {
     return await axiosCustomize.post('api/v1/images/upload', data)
 }

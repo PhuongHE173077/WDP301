@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { fetchFeedback, updateFeedbackReply } from "@/apis"; // 👈 cần thêm hàm update
+import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis"; // 👈 cần thêm hàm update
 
 const PAGE_SIZE = 5;
 
@@ -30,6 +30,30 @@ export default function Feedback() {
     const res = await fetchFeedback();
     setFeedbacks(res.data);
   };
+
+  const handleReplyChange = (e, idx, page, setFeedbacks, feedbacks) => {
+    const updated = [...feedbacks];
+    updated[(page - 1) * PAGE_SIZE + idx].reply = e.target.value;
+    setFeedbacks(updated);
+  };
+
+  const handleReplyBlur = async (e, fb, idx, page, setFeedbacks, feedbacks) => {
+  const newReply = e.target.value.trim();
+  if (!newReply) return;
+
+  try {
+    await updateFeedbackReply(fb._id, { reply: newReply });
+
+    const updated = [...feedbacks];
+    updated[(page - 1) * PAGE_SIZE + idx].status = 'Replied';
+    updated[(page - 1) * PAGE_SIZE + idx].reply = newReply; // cập nhật reply mới
+    setFeedbacks(updated);
+  } catch (error) {
+    console.error("Lỗi khi cập nhật phản hồi:", error);
+  }
+};
+
+
 
   return (
     <Card className="p-4 space-y-4">
@@ -77,32 +101,8 @@ export default function Feedback() {
                     value={fb.reply || ""}
                     placeholder="Nhập phản hồi..."
                     className="text-sm text-gray-700 w-full border border-transparent focus:border-gray-300 px-2 py-1 rounded-md outline-none"
-                    onChange={(e) => {
-                      const updated = [...feedbacks];
-                      updated[(page - 1) * PAGE_SIZE + idx].reply = e.target.value;
-                      setFeedbacks(updated);
-                    }}
-                    onBlur={async (e) => {
-                      const newReply = e.target.value.trim();
-
-                      try {
-                        await fetch(`/api/v1/feedback/${fb._id}/reply`, {
-                          method: 'PUT',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            reply: newReply,
-                          }),
-                        });
-
-                        const updated = [...feedbacks];
-                        updated[(page - 1) * PAGE_SIZE + idx].status = 'Replied';
-                        setFeedbacks(updated);
-                      } catch (error) {
-                        console.error("Lỗi khi cập nhật phản hồi:", error);
-                      }
-                    }}
+                    onChange={(e) => handleReplyChange(e, idx, page, setFeedbacks, feedbacks)}
+                    onBlur={(e) => handleReplyBlur(e, fb, idx, page, setFeedbacks, feedbacks)}
                   />
                 </TableCell>
 

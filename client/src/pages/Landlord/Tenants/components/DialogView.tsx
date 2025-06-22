@@ -26,7 +26,7 @@ export const DialogView = ({
 
                 <div className="flex flex-col items-center gap-3 mt-4">
                     <Avatar className="w-24 h-24 border-4 border-gray-300 shadow-md">
-                        <AvatarImage src={user.image} alt={user.userName} />
+                        <AvatarImage src={user.avatar} alt={user.userName} />
                     </Avatar>
 
                     <div className="text-center mt-2">

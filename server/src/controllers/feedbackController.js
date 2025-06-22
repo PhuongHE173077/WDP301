@@ -11,7 +11,7 @@ const getFeedbacksByOwner = async (req, res, next) => {
         const resultData = feedback.map((feedback) => {
             return {
                 _id: feedback._id,
-                tenantName: feedback.tenantId?.userName || "",
+                tenantName: feedback.tenantId?.displayName || "",
                 description: feedback.description,
                 images: feedback.images,
                 status: feedback.status,
@@ -26,7 +26,7 @@ const getFeedbacksByOwner = async (req, res, next) => {
 };
 
 // Owner trả lời feedback
-const replyToFeedback = async (req, res, next) => {
+const replyToFeedback = async (req, res) => {
   try {
     const { id } = req.params;
     const { reply } = req.body;
@@ -35,20 +35,25 @@ const replyToFeedback = async (req, res, next) => {
       id,
       {
         reply,
-        status: "Replied", // cập nhật trạng thái luôn nếu có phản hồi
+        status: "Replied",
       },
-      { new: true } // trả về bản ghi sau khi update
+      { new: true }
     );
 
     if (!updatedFeedback) {
-      return res.status(404).json({ message: "Feedback not found" });
+      return res.status(404).json({ message: "Không tìm thấy phản hồi để cập nhật." });
     }
 
-    res.status(200).json(updatedFeedback);
-  } catch (error) {
-    next(error);
+    res.status(200).json({
+      message: "Phản hồi thành công.",
+      data: updatedFeedback,
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Lỗi server", error: err.message });
   }
 };
+
 
 
 

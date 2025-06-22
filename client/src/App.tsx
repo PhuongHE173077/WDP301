@@ -52,7 +52,7 @@ const App = () => (
               <Route path="/departments/:id" element={<DepartmentDetail />} />
               <Route path="/feedback" element={<Feedback />} />
             </Route>
-          </Route>
+          <Route>
               <Route path="/departments/create" element={<CreateDepartment />} />
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
