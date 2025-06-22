@@ -10,3 +10,6 @@ export const fetchTenants = async () => {
 export const fetchFeedback = async () => {
     return await axiosCustomize.get('api/v1/feedbacks')
 }
+
+export const updateFeedbackReply = ({ feedbackId, reply }) =>
+  axiosCustomize.put(`/api/v1/feedbacks/${feedbackId}/reply`, { reply });
