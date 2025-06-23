@@ -1,3 +1,4 @@
+import OrderRoom from "~/models/orderModel"
 import Room from "~/models/roomModel"
 
 // Lấy danh sách phòng theo departmentId
@@ -31,15 +32,18 @@ const createRoom = async (req, res) => {
       utilities,
       serviceFee,
       departmentId,
-      post = true,
-      status = true,
+      post = false,
+      status = false,
       type = "Phòng trọ"
-    } = req.body
+    } = req.body;
 
-    if (!roomId || !price || !departmentId) {
-      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc!' })
+    const ownerId = req.jwtDecoded?._id
+    // Kiểm tra các trường bắt buộc
+    if (!roomId || !price || !departmentId || !ownerId) {
+      return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
     }
 
+    // Tạo Room
     const newRoom = await Room.create({
       roomId,
       image,
@@ -51,13 +55,30 @@ const createRoom = async (req, res) => {
       post,
       status,
       type
-    })
+    });
 
-    res.status(201).json(newRoom)
+    // Tạo OrderRoom mặc định gắn với Room mới
+    await OrderRoom.create({
+      roomId: newRoom._id,
+      ownerId: ownerId,
+      tenantId: [],
+      contract: null,
+      startAt: null,
+      endAt: null,
+      oldElectricNumber: 0,
+      history: [],
+      _destroy: false
+    });
+
+    return res.status(201).json({
+      message: "Tạo phòng và đơn thuê thành công!",
+      room: newRoom
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    console.error("Lỗi tạo phòng:", error);
+    return res.status(500).json({ message: "Tạo phòng thất bại", error: error.message });
   }
-}
+};
 
 // Xoá mềm phòng (_destroy = true)
 const deleteRoom = async (req, res) => {

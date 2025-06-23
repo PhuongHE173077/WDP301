@@ -34,33 +34,40 @@ const RoomTable: React.FC<RoomTableProps> = ({ rooms, departmentName, onRoomDele
   const navigate = useNavigate();
 
   const confirmDelete = async (roomId: string) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-    });
-
-    if (result.isConfirmed) {
+  const result = await Swal.fire({
+    title: 'Bạn có chắc chắc không?',
+    text: "Bạn không thể quay lại sau khi thực hiện hành động này!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Xoá!',
+    cancelButtonText: 'Huỷ',
+    showLoaderOnConfirm: true,
+    allowOutsideClick: () => !Swal.isLoading(),
+    preConfirm: async () => {
       try {
         await deleteRoom(roomId);
-        Swal.fire('Deleted!', 'The room has been deleted.', 'success');
-
-        // Reload page or call parent callback
-        if (onRoomDeleted) {
-          onRoomDeleted(roomId);
-        } else {
-          window.location.reload(); // fallback
-        }
+        return true;
       } catch (error) {
-        Swal.fire('Error!', 'Failed to delete room.', 'error');
+        Swal.showValidationMessage('Xoá phòng thất bại!');
+        return false;
       }
     }
-  };
+  });
+
+  if (result.isConfirmed) {
+    Swal.fire('Đã xoá!', 'Phòng đã bị xoá thành công.', 'success');
+
+    // Reload hoặc cập nhật danh sách
+    if (onRoomDeleted) {
+      onRoomDeleted(roomId);
+    } else {
+      window.location.reload();
+    }
+  }
+};
+
 
   return (
     <div className="mt-8 w-full">
