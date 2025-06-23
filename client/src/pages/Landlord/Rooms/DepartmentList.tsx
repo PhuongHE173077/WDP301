@@ -132,13 +132,7 @@ const DepartmentList: React.FC = () => {
           <span> Tạo tòa nhà</span>
         </Button>
 
-         <Button
-      onClick={() => navigate('/rooms/create')}
-      className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-    >
-      <PlusCircle className="w-5 h-5" />
-      <span>+ Tạo phòng</span>
-    </Button>
+         
       </div>
 
       {departments.length === 0 ? (

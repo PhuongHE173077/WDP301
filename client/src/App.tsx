@@ -27,6 +27,7 @@ import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
 import ProfileScreen from "./pages/me/ProfileScreen";
 import TroDetailPage from "./pages/Public/RoomDetail";
 import RentalSearch from "./pages/Public/SearchRoom";
+import EditRoom from "./pages/Landlord/Rooms/EditRoom";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/departments/create" element={<CreateDepartment />} />
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
+              <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
 
             </Route>
