@@ -12,7 +12,7 @@ const serviceFeeSchema = new mongoose.Schema(
 const roomSchema = new mongoose.Schema(
     {
         roomId: { type: String, required: true, unique: true },
-        image: { type: String, default: "" },
+        image: { type: [String], default: [] },
         price: { type: Number, required: true },
         area: { type: String },
         utilities: { type: String },
@@ -22,6 +22,13 @@ const roomSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Department",
             required: true,
+        },
+        post: { type: Boolean, default: false },
+        status: { type: Boolean, default: true },
+        type: {
+            type: String,
+            enum: ['Phòng trọ', 'Căn hộ mini'],
+            default: 'Phòng trọ'
         },
     },
     {

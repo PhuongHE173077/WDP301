@@ -30,7 +30,10 @@ const createRoom = async (req, res) => {
       area,
       utilities,
       serviceFee,
-      departmentId
+      departmentId,
+      post = true,
+      status = true,
+      type = "Phòng trọ"
     } = req.body
 
     if (!roomId || !price || !departmentId) {
@@ -44,7 +47,10 @@ const createRoom = async (req, res) => {
       area,
       utilities,
       serviceFee,
-      departmentId
+      departmentId,
+      post,
+      status,
+      type
     })
 
     res.status(201).json(newRoom)
@@ -71,9 +77,49 @@ const deleteRoom = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+//Cập nhật thông tin phòng
+const updateRoom = async (req, res) => {
+  try {
+    const { id } = req.params
+    const updatedData = req.body
+
+    const updatedRoom = await Room.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true
+    })
+
+    if (!updatedRoom) {
+      return res.status(404).json({ message: 'Không tìm thấy phòng để cập nhật' })
+    }
+
+    res.status(200).json({
+      message: 'Cập nhật phòng thành công',
+      room: updatedRoom
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
+
+//lấy thông tin phòng theo id
+ const getRoomById = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id)
+
+    if (!room || room._destroy) {
+      return res.status(404).json({ message: 'Không tìm thấy phòng' })
+    }
+
+    res.status(200).json(room)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+}
 
 export const roomController = {
   getRoomsByDepartment,
-  createRoom, // optional
-  deleteRoom // optional
+  createRoom, 
+  deleteRoom,
+  updateRoom,
+  getRoomById
 }
