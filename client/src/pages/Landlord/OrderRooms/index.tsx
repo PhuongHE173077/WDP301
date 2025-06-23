@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import dayjs from "dayjs"
-import { ClipboardPenLineIcon, EyeIcon, Trash2, Upload, UserPlusIcon } from 'lucide-react'
+import { ClipboardPenLineIcon, EyeIcon, Trash2, UserPlusIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import AddUserDialog from './components/DialogAdd'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
+import AddUserDialog from './components/DialogAdd'
 
 export const OrderRooms = () => {
     const navigate = useNavigate()
@@ -20,11 +21,8 @@ export const OrderRooms = () => {
     const [orderId, setOrderId] = useState(null)
     const [openAddUser, setOpenAddUser] = useState(false)
     const [users, setUsers] = useState([])
-    const [openUpload, setOpenUpload] = useState(false)
-    const [orderUpload, setOrderUpload] = useState(null)
-    const [imagePreview, setImagePreview] = useState('')
-    const [openView, setOpenView] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [openConfirm, setOpenConfirm] = useState(false)
     useEffect(() => {
         fetchData()
     }, [])
@@ -36,6 +34,26 @@ export const OrderRooms = () => {
         setUsers(tenant.data);
         setLoading(false)
     };
+
+    const handleDelete = async (data: any) => {
+        Swal.fire({
+            title: `Bạn có muốn xóa người thuê ra khỏi phòng ${data.room.roomId}? `,
+            text: data.contract ? `Phòng này đã tạo hợp đồng khi xóa trước hết hạn thì có thể đền hợp đồng!` : "Hành động này không thể phục hồi! ",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Có, xóa!",
+            cancelButtonText: "Hủy"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (data.contract) {
+
+                }
+
+            }
+        });
+    }
 
 
 
@@ -108,6 +126,19 @@ export const OrderRooms = () => {
                                                 tenant?.tenants ? "Chưa tạo hợp đồng" :
                                                     ""}</TableCell>
                                 <TableCell className="text-right space-x-2">
+                                    {tenant.tenants && <Button variant={"destructive"} size="icon" onClick={() => handleDelete(tenant)}>
+
+                                        <Tooltip >
+                                            <TooltipTrigger>
+                                                <Button variant="destructive" size="icon" >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Xóa người thuê
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </Button>}
 
                                     <Tooltip >
                                         <TooltipTrigger>
@@ -123,33 +154,25 @@ export const OrderRooms = () => {
                                         </TooltipContent>
                                     </Tooltip>
 
-                                    <Button variant={tenant.tenants ? "destructive" : "secondary"} size="icon">
-                                        {tenant.tenants ?
-                                            <Tooltip >
-                                                <TooltipTrigger>
-                                                    <Button variant="destructive" size="icon" >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    Xóa người thuê
-                                                </TooltipContent>
-                                            </Tooltip>
-                                            :
-                                            <Tooltip >
-                                                <TooltipTrigger>
-                                                    <Button variant="outline" size="icon" onClick={() => {
-                                                        setActiveOrder(tenant);
-                                                        setOpenAddUser(true)
-                                                    }}>
-                                                        <UserPlusIcon className="w-4 h-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    Thêm người thuê
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        }
+                                    <Button variant="outline" size="icon" onClick={() => {
+                                        setActiveOrder(tenant);
+                                        setOpenAddUser(true)
+                                    }}>
+                                        <Tooltip >
+                                            <TooltipTrigger>
+                                                <Button variant="outline" size="icon" onClick={() => {
+                                                    setActiveOrder(tenant);
+                                                    setOpenAddUser(true)
+                                                }}>
+                                                    <UserPlusIcon className="w-4 h-4" />
+                                                </Button>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                {tenant.tenants && tenant.tenants.length > 0
+                                                    ? "Thêm người thuê cho phòng này"
+                                                    : "Cho thuê phòng"}
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </Button>
                                 </TableCell>
                             </TableRow>
@@ -159,7 +182,6 @@ export const OrderRooms = () => {
             </div>
 
             {openAddUser && <AddUserDialog open={openAddUser} setOpen={setOpenAddUser} order={activeOrder} users={users} fetchData={fetchData} />}
-
 
         </div>
 

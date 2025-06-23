@@ -25,6 +25,8 @@ import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDeta
 import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
 import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
 import ProfileScreen from "./pages/me/ProfileScreen";
+import TroDetailPage from "./pages/Public/RoomDetail";
+import RentalSearch from "./pages/Public/SearchRoom";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -39,6 +41,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
 
           <Route path="/login" element={<Login />} />
+          <Route path="/tim-kiem-tro" element={<RentalSearch />} />
+          <Route path="/tro/:id" element={<TroDetailPage />} />
 
           <Route element={<ProtectedRoute />}>
 
