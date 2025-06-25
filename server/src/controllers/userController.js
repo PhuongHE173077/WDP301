@@ -6,6 +6,7 @@ import { JwtProvider } from "~/providers/JwtProvider"
 import { pickUser } from "~/utils/algorithms"
 import { env } from "~/config/environment"
 import ms from "ms"
+import { cloudinaryProvider } from "~/providers/CloudinaryProvider"
 
 const login = async (req, res, next) => {
     try {
@@ -82,10 +83,49 @@ const logout = async (req, res, next) => {
     }
 }
 
+const getProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id)
+        res.status(StatusCodes.OK).json(user)
+    } catch (error) {
+        next(error)
+    }
+}
+
+const updateProfile = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.jwtDecoded._id)
+
+        if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+        let userUpload;
+
+        if (req.file) {
+            const result = await cloudinaryProvider.streamUpload(req.file.buffer, "users")
+            userUpload = await User.findByIdAndUpdate(req.jwtDecoded._id, { avatar: result.secure_url }, { new: true })
+
+
+        }
+        else if (req.body.currentPassword && req.body.newPassword) {
+            if (!bcrypt.compareSync(req.body.currentPassword, user.password)) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'The current password is incorrect!')
+            const newPassword = bcrypt.hashSync(req.body.newPassword, 10)
+            userUpload = await User.findByIdAndUpdate(req.jwtDecoded._id, { password: newPassword }, { new: true })
+        }
+        else {
+            userUpload = await User.findByIdAndUpdate(req.jwtDecoded._id, req.body, { new: true })
+        }
+
+        res.status(StatusCodes.OK).json(userUpload)
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 
 export const userController = {
     login,
     getAllUser,
-    logout
+    logout,
+    getProfile,
+    updateProfile
 }

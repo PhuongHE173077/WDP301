@@ -15,7 +15,7 @@ const orderSchema = new mongoose.Schema({
     tenantId: [{
         type: Schema.Types.ObjectId,
         ref: "Tenant",
-        required: true
+        required: false
     }],
     ownerId: {
         type: Schema.Types.ObjectId,
@@ -25,19 +25,19 @@ const orderSchema = new mongoose.Schema({
     contract: {
         type: Schema.Types.ObjectId,
         ref: "Contract",
-        required: true
+        required: false
     },
     startAt: {
         type: Date,
-        required: true
+        required: false
     },
     endAt: {
         type: Date,
-        required: true
+        required: false
     },
     oldElectricNumber: {
         type: Number,
-        required: true
+        required: false
     },
     history: {
         type: Array,

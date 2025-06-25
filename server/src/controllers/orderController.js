@@ -49,7 +49,7 @@ const getTenantOrder = async (req, res, next) => {
 
         const orders = await OrderRoom.find({ ownerId: ownerId, _destroy: false }).populate('roomId').populate('tenantId')
 
-        const filterRs = orders.filter((order) => order.tenantId.length > 0)
+        const filterRs = orders.filter((order) => order.tenantId?.length > 0)
         const uniqueTenantIds = [
             ...new Set(
                 filterRs.flatMap(item => item.tenantId.map(t => t))
@@ -85,7 +85,7 @@ const getOrderById = async (req, res, next) => {
             _id: order._id,
             room: order.roomId,
             owner: pickUser(order.ownerId),
-            tenants: order.tenantId && order.tenantId.length > 0 ? order.tenantId.map(t => pickUser(t)) : null,
+            tenants: order.tenantId && order.tenantId?.length > 0 ? order.tenantId.map(t => pickUser(t)) : null,
             contract: order.contract,
             startAt: order.startAt,
             endAt: order.endAt,
