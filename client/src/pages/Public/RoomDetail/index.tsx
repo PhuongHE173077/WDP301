@@ -1,28 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { fetchAPIsBlogById } from "@/apis/blog.apis"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { logoutUserAPIs, selectCurrentUser } from "@/store/slice/userSlice"
 import {
     ArrowLeft,
-    Heart,
-    Share2,
-    MapPin,
     Bed,
-    Wifi,
-    Shield,
-    Phone,
-    MessageCircle,
-    Calendar,
     DollarSign,
-    Home,
-    Zap,
     Droplets,
+    DropletsIcon,
+    Home,
+    LogOut,
+    MapPin,
+    MessageCircle,
+    Phone,
+    Send,
+    Shield,
+    User,
+    UserCircleIcon,
+    UserPlus,
+    Wifi,
     Wind,
+    Zap,
+    ZapIcon
 } from "lucide-react"
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { Link, useNavigate, useParams } from "react-router-dom"
+import FormAuth from "../auth/Auth"
+import RentDateDialog from "./components/DialogAdd"
 
 const mockTroDetail = {
     id: 1,
@@ -80,12 +90,40 @@ const mockTroDetail = {
 export default function TroDetailPage() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [isFavorite, setIsFavorite] = useState(false)
+    const [blog, setBlog] = useState<any>(null)
+    const [open, setOpen] = useState(false)
+    const [openLogin, setOpenLogin] = useState(false)
+    const { id } = useParams();
+
+    useEffect(() => {
+        if (id) {
+            fetchAPIsBlogById("685bc07940ee858bae96e252").then(res => setBlog(res.data))
+        }
+    }, [id])
+
+    const currentUser = useSelector(selectCurrentUser);
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat("vi-VN", {
             style: "currency",
             currency: "VND",
         }).format(price)
+    }
+
+    const handleBookRoom = () => {
+        if (!currentUser) {
+            setOpenLogin(true)
+        }
+        else {
+            setOpen(true)
+        }
+    }
+
+    const handleLogout = () => {
+        const result = dispatch(logoutUserAPIs());
     }
 
     return (
@@ -104,14 +142,47 @@ export default function TroDetailPage() {
                             <h1 className="text-xl font-semibold text-gray-900">Chi tiết phòng trọ</h1>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Button variant="outline" size="sm" onClick={() => setIsFavorite(!isFavorite)}>
-                                <Heart className={`h-4 w-4 mr-2 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
-                                Yêu thích
-                            </Button>
-                            <Button variant="outline" size="sm">
-                                <Share2 className="h-4 w-4 mr-2" />
-                                Chia sẻ
-                            </Button>
+                            {currentUser ? <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="ghost" className="flex items-center gap-2 font-bold">
+                                        <User className="w-4 h-4" />
+                                        {currentUser?.displayName}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-40 p-2">
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start "
+                                        onClick={() => navigate("/tenant-rooms")}
+                                    >
+                                        <UserCircleIcon className="w-4 h-4 mr-2" />
+                                        Trang quản lý
+                                    </Button>
+
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start text-red-500"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="w-4 h-4 mr-2" />
+                                        Đăng xuất
+                                    </Button>
+                                </PopoverContent>
+                            </Popover> :
+                                <>
+                                    <Button variant="ghost" className="flex items-center gap-2 font-bold">
+                                        <User className="w-4 h-4" />
+                                        Đăng nhập
+                                    </Button>
+                                    <Button variant="ghost" className="flex items-center gap-2 font-bold">
+                                        <UserPlus className="w-4 h-4" />
+                                        Đăng ký
+                                    </Button>
+                                </>
+
+                            }
+
+
                         </div>
                     </div>
                 </div>
@@ -125,15 +196,15 @@ export default function TroDetailPage() {
                         <Card className="overflow-hidden">
                             <div className="relative">
                                 <img
-                                    src={mockTroDetail.images[currentImageIndex] || "/placeholder.svg"}
-                                    alt={mockTroDetail.title}
+                                    src={blog?.room?.image[0] || "/placeholder.svg"}
+                                    alt={blog?.room?.roomId}
                                     className="w-full h-96 object-cover"
                                 />
                                 <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                    {currentImageIndex + 1} / {mockTroDetail.images.length}
+                                    {/* {currentImageIndex + 1} / {blog.room.image.length} */}
                                 </div>
                             </div>
-                            <div className="p-4">
+                            {/* <div className="p-4">
                                 <div className="flex space-x-2 overflow-x-auto">
                                     {mockTroDetail.images.map((image, index) => (
                                         <img
@@ -146,7 +217,7 @@ export default function TroDetailPage() {
                                         />
                                     ))}
                                 </div>
-                            </div>
+                            </div> */}
                         </Card>
 
                         {/* Basic Info */}
@@ -157,12 +228,12 @@ export default function TroDetailPage() {
                                         <CardTitle className="text-2xl mb-2">{mockTroDetail.title}</CardTitle>
                                         <div className="flex items-center text-gray-600 mb-2">
                                             <MapPin className="h-4 w-4 mr-2" />
-                                            <span>{mockTroDetail.address}</span>
+                                            <span>{blog?.room?.departmentId?.commune + ", " + blog?.room?.departmentId?.district + ", " + blog?.room?.departmentId?.province}</span>
                                         </div>
                                         <div className="flex items-center space-x-4 text-sm text-gray-500">
-                                            <span>Đăng ngày: {new Date(mockTroDetail.postedDate).toLocaleDateString("vi-VN")}</span>
+                                            <span>Đăng ngày: {new Date(blog?.createdAt).toLocaleDateString("vi-VN")}</span>
                                             <Badge variant={mockTroDetail.available ? "default" : "destructive"}>
-                                                {mockTroDetail.available ? "Còn trống" : "Đã thuê"}
+                                                Còn trống
                                             </Badge>
                                         </div>
                                     </div>
@@ -177,22 +248,22 @@ export default function TroDetailPage() {
                                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                                         <Bed className="h-6 w-6 mx-auto mb-2 text-gray-600" />
                                         <div className="text-sm text-gray-600">Diện tích</div>
-                                        <div className="font-semibold">{mockTroDetail.area}m²</div>
+                                        <div className="font-semibold">{blog?.room?.area}</div>
                                     </div>
                                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                                         <DollarSign className="h-6 w-6 mx-auto mb-2 text-gray-600" />
                                         <div className="text-sm text-gray-600">Giá thuê</div>
-                                        <div className="font-semibold">{formatPrice(mockTroDetail.price)}</div>
+                                        <div className="font-semibold">{formatPrice(blog?.room.price)}</div>
                                     </div>
                                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                        <Home className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-                                        <div className="text-sm text-gray-600">Cọc trước</div>
-                                        <div className="font-semibold">{formatPrice(mockTroDetail.deposit)}</div>
+                                        <ZapIcon className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+                                        <div className="text-sm text-gray-600">Giá Điện</div>
+                                        <div className="font-semibold">{formatPrice(blog?.room?.departmentId?.electricPrice)}/kWh</div>
                                     </div>
                                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                                        <Calendar className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-                                        <div className="text-sm text-gray-600">Trạng thái</div>
-                                        <div className="font-semibold text-green-600">Còn trống</div>
+                                        <DropletsIcon className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+                                        <div className="text-sm text-gray-600">Giá nước</div>
+                                        <div className="font-semibold ">{formatPrice(blog?.room?.departmentId?.waterPrice)}/m³</div>
                                     </div>
                                 </div>
 
@@ -231,11 +302,11 @@ export default function TroDetailPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex justify-between py-2">
                                         <span>Điện:</span>
-                                        <span className="font-semibold">{mockTroDetail.utilities.electricity}</span>
+                                        <span className="font-semibold">{blog?.room?.departmentId?.electricPrice}</span>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span>Nước:</span>
-                                        <span className="font-semibold">{mockTroDetail.utilities.water}</span>
+                                        <span className="font-semibold">{blog?.room?.departmentId?.waterPrice}</span>
                                     </div>
                                     <div className="flex justify-between py-2">
                                         <span>Internet:</span>
@@ -294,19 +365,18 @@ export default function TroDetailPage() {
                             <CardContent className="space-y-4">
                                 <div className="flex items-center space-x-3">
                                     <img
-                                        src={mockTroDetail.landlord.avatar || "/placeholder.svg"}
-                                        alt={mockTroDetail.landlord.name}
+                                        src={blog?.owner?.avatar || "/placeholder.svg"}
+                                        alt={blog?.owner?.displayName}
                                         className="w-12 h-12 rounded-full"
                                     />
                                     <div>
                                         <div className="flex items-center space-x-2">
-                                            <span className="font-semibold">{mockTroDetail.landlord.name}</span>
-                                            {mockTroDetail.landlord.verified && (
-                                                <Badge variant="secondary" className="text-xs">
-                                                    <Shield className="h-3 w-3 mr-1" />
-                                                    Đã xác thực
-                                                </Badge>
-                                            )}
+                                            <span className="font-semibold">{blog?.owner?.displayName}</span>
+
+                                            <Badge variant="secondary" className="text-xs">
+                                                <Shield className="h-3 w-3 mr-1" />
+                                                Đã xác thực
+                                            </Badge>
                                         </div>
                                         <div className="text-sm text-gray-600">Chủ trọ</div>
                                     </div>
@@ -317,11 +387,18 @@ export default function TroDetailPage() {
                                 <div className="space-y-3">
                                     <Button className="w-full" size="lg">
                                         <Phone className="h-4 w-4 mr-2" />
-                                        {mockTroDetail.landlord.phone}
+                                        {blog?.owner.phone}
                                     </Button>
-                                    <Button variant="outline" className="w-full" size="lg">
+                                    <Button variant="outline" className="w-full" size="lg" onClick={() => {
+                                        window.open(`https://zalo.me/${blog?.owner.phone}`)
+                                    }}>
                                         <MessageCircle className="h-4 w-4 mr-2" />
                                         Nhắn tin
+                                    </Button>
+
+                                    <Button variant="outline" className="w-full bg-blue-300 hover:bg-blue-400" size="lg" onClick={() => handleBookRoom()}>
+                                        <Send className="h-4 w-4 mr-2" />
+                                        Đặt Phòng
                                     </Button>
                                 </div>
 
@@ -330,7 +407,7 @@ export default function TroDetailPage() {
                         </Card>
 
                         {/* Map Placeholder */}
-                        <Card>
+                        {/* <Card>
                             <CardHeader>
                                 <CardTitle>Vị trí</CardTitle>
                             </CardHeader>
@@ -343,10 +420,12 @@ export default function TroDetailPage() {
                                     </div>
                                 </div>
                             </CardContent>
-                        </Card>
+                        </Card> */}
                     </div>
                 </div>
             </div>
-        </div>
+            <RentDateDialog open={open} setOpen={setOpen} />
+            <FormAuth open={openLogin} setOpen={setOpenLogin} />
+        </div >
     )
 }

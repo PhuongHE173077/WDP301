@@ -2,6 +2,8 @@ import Blog from "~/models/blogModel";
 import OrderRoom from "~/models/orderModel";
 import Room from "~/models/roomModel";
 import dayjs from "dayjs";
+import { StatusCodes } from "http-status-codes";
+import { pickUser } from "~/utils/algorithms";
 
 const addRoomToBlog = async (req, res) => {
   const roomId = req.params.id;
@@ -53,6 +55,37 @@ const addRoomToBlog = async (req, res) => {
   return res.status(201).json({ message: "Phòng đã được thêm vào blog.", blog });
 };
 
+
+const getBlogById = async (req, res, next) => {
+  try {
+    const id = req.params.id
+    const blog = await Blog.findById(id)
+      .populate({
+        path: 'roomId',
+        populate: {
+          path: 'departmentId',
+          model: 'Department'
+        }
+      })
+      .populate('ownerId');
+
+    if (!blog) return next(new ApiError(StatusCodes.NOT_FOUND, 'Blog not found!'))
+
+    res.status(StatusCodes.OK).json({
+      _id: blog._id,
+      room: blog.roomId,
+      owner: pickUser(blog.ownerId),
+      availableFrom: blog.availableFrom,
+      description: blog.description,
+      createdAt: blog.createdAt,
+      updatedAt: blog.updatedAt,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const blogController = {
-  addRoomToBlog
+  addRoomToBlog,
+  getBlogById
 };

@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.route('/:id')
     .post(authMiddlewares.isAuthorized, blogController.addRoomToBlog)
+    .get(blogController.getBlogById)
 
 
 
