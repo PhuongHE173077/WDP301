@@ -1,10 +1,24 @@
 import { SidebarProvider } from '@/components/ui/sidebar'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { HomeNavbar } from '../components/home-navbar'
 import HomeSidebar from '../components/home-sidebar'
-import { Outlet } from 'react-router-dom'
-
+import { Outlet, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '@/store/slice/userSlice'
+import { USER_ROLE } from '@/utils/contanst'
+const ALLOWED_ROLES = [USER_ROLE.OWNER_1, USER_ROLE.OWNER_2, USER_ROLE.OWNER_3];
 export const HomeLayout = () => {
+  const currentUser = useSelector(selectCurrentUser);
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser && !ALLOWED_ROLES.includes(currentUser.role)) {
+        navigate("/not-found");
+      }
+    }
+
+  }, [])
   return (
     <SidebarProvider >
       <div className="w-full min-h-screen">
