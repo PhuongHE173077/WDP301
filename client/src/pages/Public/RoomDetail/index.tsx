@@ -97,7 +97,7 @@ export default function TroDetailPage() {
 
     useEffect(() => {
         if (id) {
-            fetchAPIsBlogById("685bc07940ee858bae96e252").then(res => setBlog(res.data))
+            fetchAPIsBlogById(id).then(res => setBlog(res.data))
         }
     }, [id])
 
@@ -424,7 +424,7 @@ export default function TroDetailPage() {
                     </div>
                 </div>
             </div>
-            <RentDateDialog open={open} setOpen={setOpen} />
+            <RentDateDialog open={open} setOpen={setOpen} id={id} />
             <FormAuth open={openLogin} setOpen={setOpenLogin} />
         </div >
     )

@@ -14,19 +14,29 @@ import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form"
 import { useState } from "react"
 import { CalendarIcon } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { createBookRoomAPIs } from "@/apis/book.room.apis"
+import { toast } from "react-toastify"
 
 type RentDateForm = {
     startDate: string
-    endDate: string
+    endDate: string,
+    note?: string
 }
 
-export default function RentDateDialog({ open, setOpen }: any) {
+export default function RentDateDialog({ open, setOpen, id }: any) {
     const { register, handleSubmit, reset } = useForm<RentDateForm>()
 
-    const onSubmit = (data: RentDateForm) => {
-        console.log("Ngày thuê:", data)
-        setOpen(false)
-        reset()
+    const onSubmit = async (data: RentDateForm) => {
+        await createBookRoomAPIs({
+            ...data,
+            roomId: id
+        }).then(res => {
+            toast.success("Đặt phòng trọ thành công ! ")
+            setOpen(false)
+            reset()
+        })
+
     }
 
     return (
@@ -57,6 +67,18 @@ export default function RentDateDialog({ open, setOpen }: any) {
                             className="rounded-lg border p-2"
                         />
                     </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="note" className="text-sm font-medium">Ghi chú</Label>
+                        <Textarea
+                            id="note"
+                            {...register("note")}
+                            placeholder="Nhập ghi chú nếu có..."
+                            className="rounded-lg border p-2 min-h-[100px]"
+                        />
+                    </div>
+
+
 
                     <DialogFooter className="mt-6">
                         <Button type="submit" className="w-full rounded-full text-white bg-primary hover:bg-primary/90">
