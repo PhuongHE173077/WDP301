@@ -470,8 +470,8 @@ export default function RentalSearch() {
 
                         {/* Room Listings */}
                         <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
-                            {paginatedRooms.map((room) => (
-                                <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow" onClick={() => navigate(`/tro/${room._id}`)}>
+                            {paginatedRooms.map((room: any) => (
+                                <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow" >
                                     <div className={viewMode === "list" ? "flex" : ""}>
                                         <div className={viewMode === "list" ? "w-48 flex-shrink-0" : ""}>
                                             <img
@@ -521,7 +521,7 @@ export default function RentalSearch() {
                                                 )}
                                             </div>
 
-                                            <Button className="w-full bg-blue-600 hover:bg-blue-700">Xem chi tiết</Button>
+                                            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${room._id ? room._id : "685bc07940ee858bae96e252"}`)}>Xem chi tiết</Button>
                                         </CardContent>
                                     </div>
                                 </Card>

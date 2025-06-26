@@ -49,7 +49,7 @@ const data = {
 
         {
             title: "Users",
-            url: "/users",
+            url: "/manage-user",
             icon: UsersIcon,
         },
         {

@@ -1,5 +1,6 @@
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-import { CalendarIcon, FileBadgeIcon, FlameIcon, HomeIcon, HotelIcon, LibraryBigIcon, PlaySquareIcon } from 'lucide-react'
+import { CalendarIcon, FileBadgeIcon, FlameIcon, HomeIcon, HotelIcon, LibraryBigIcon, PlaySquareIcon, SendIcon } from 'lucide-react'
+import { title } from 'process';
 import { Link, useLocation } from 'react-router-dom';
 
 const items = [
@@ -21,6 +22,11 @@ const items = [
     url: "/bills",
     icon: FileBadgeIcon,
   },
+  {
+    title: "Đặt phòng trọ",
+    url: "/book-rooms",
+    icon: SendIcon
+  }
 
 ]
 export const MainSection = () => {
