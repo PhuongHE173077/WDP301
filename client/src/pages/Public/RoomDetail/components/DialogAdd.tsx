@@ -30,7 +30,7 @@ export default function RentDateDialog({ open, setOpen, id }: any) {
     const onSubmit = async (data: RentDateForm) => {
         await createBookRoomAPIs({
             ...data,
-            roomId: id
+            blogId: id
         }).then(res => {
             toast.success("Đặt phòng trọ thành công ! ")
             setOpen(false)
