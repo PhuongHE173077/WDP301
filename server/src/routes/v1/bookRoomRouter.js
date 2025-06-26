@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.route('/')
     .post(authMiddlewares.isAuthorized, bookRoomController.createBookRoom)
+    .get(authMiddlewares.isAuthorized, bookRoomController.getBookRoom)
 
 
 
