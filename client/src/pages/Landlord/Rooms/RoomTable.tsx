@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Pencil, PlusCircle, Trash, UploadCloud } from "lucide-react";
+import { Pencil, PlusCircle, Trash, UploadCloud, HousePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { deleteRoom } from "@/apis/roomApi";
-import { addRoomToBlog } from "@/apis/blog.apis";
+import { addRoomToBlog, checkRoomStatus, removeRoomFromBlog } from "@/apis/blog.apis";
 import dayjs from "dayjs";
 
 interface ServiceFee {
@@ -34,6 +34,11 @@ interface RoomTableProps {
 
 const RoomTable: React.FC<RoomTableProps> = ({ rooms, departmentName, onRoomDeleted }) => {
   const navigate = useNavigate();
+  const [localRooms, setLocalRooms] = useState<Room[]>(rooms);
+
+  useEffect(() => {
+    setLocalRooms(rooms);
+  }, [rooms]);
 
   const confirmDelete = async (roomId: string) => {
     const result = await Swal.fire({
@@ -61,66 +66,161 @@ const RoomTable: React.FC<RoomTableProps> = ({ rooms, departmentName, onRoomDele
     if (result.isConfirmed) {
       Swal.fire('Đã xoá!', 'Phòng đã bị xoá thành công.', 'success');
 
-      // Reload hoặc cập nhật danh sách
       if (onRoomDeleted) {
         onRoomDeleted(roomId);
       } else {
-        window.location.reload();
+        setLocalRooms((prev) => prev.filter((room) => room._id !== roomId));
       }
     }
   };
 
-const handleAddToBlog = async (roomId: string) => {
-  try {
-    // Gọi lần đầu để kiểm tra trạng thái phòng
-    const res = await addRoomToBlog(roomId);
-    const data = res.data;
+const showBlogFormDialog = async (defaultDate: Date) => {
+  const minDate = dayjs(defaultDate).format("YYYY-MM-DD");
 
-    console.log(data);
+  const { value: formValues } = await Swal.fire({
+    title: '<span style="font-size: 20px; font-weight: 600;"> Thêm phòng vào blog</span>',
+    html: `
+  <div style="padding: 0 16px; box-sizing: border-box;">
+    <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+      <div style="display: flex; flex-direction: column;">
+        <label for="title" style="font-size: 13px; font-weight: 500; margin-bottom: 2px;">Tiêu đề <span style="color: red;">*</span></label>
+        <input id="title" class="swal2-input" placeholder="Nhập tiêu đề blog"
+          style="padding: 4px 8px; height: 32px; font-size: 14px; width: 100%; box-sizing: border-box;" />
+      </div>
+      <div style="display: flex; flex-direction: column;">
+        <label for="description" style="font-size: 13px; font-weight: 500; margin-bottom: 2px;">Mô tả</label>
+        <textarea id="description" class="swal2-textarea" placeholder="Nhập mô tả " rows="3"
+          style="padding: 4px 8px; font-size: 14px; width: 100%; box-sizing: border-box;"></textarea>
+      </div>
+      <div style="display: flex; flex-direction: column;">
+        <label for="availableFrom" style="font-size: 13px; font-weight: 500; margin-bottom: 2px;">Ngày bắt đầu</label>
+        <input id="availableFrom" type="date" class="swal2-input" value="${minDate}" min="${minDate}"
+          style="padding: 4px 8px; height: 32px; font-size: 14px; width: 100%; box-sizing: border-box;" />
+      </div>
+    </div>
+  </div>
+`
+,
+    confirmButtonText: 'Thêm',
+    showCancelButton: true,
+    cancelButtonText: 'Hủy',
+    focusConfirm: false,
     
-    // Nếu phòng đã tồn tại trong blog
-    if (data.existed) {
-      Swal.fire("Thông báo", "Phòng đã có trong blog!", "info");
-      return;
-    }
+    preConfirm: () => {
+      const title = (document.getElementById("title") as HTMLInputElement).value.trim();
+      const description = (document.getElementById("description") as HTMLTextAreaElement).value.trim();
+      const availableFrom = (document.getElementById("availableFrom") as HTMLInputElement).value;
 
-    // Nếu phòng đang được thuê => hỏi người dùng có muốn tiếp tục không
-    if (data.warning) {
-      const result = await Swal.fire({
-        title: "Phòng đang có người thuê",
-        html: `Phòng đang được thuê đến <strong>${dayjs(data.endAt).format("DD/MM/YYYY")}</strong>.<br>Bạn vẫn muốn đăng vào blog không?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Vẫn đăng",
-        cancelButtonText: "Huỷ"
-      });
-
-      if (result.isConfirmed) {
-        // Loading khi xác nhận
-        Swal.fire({
-          title: "Đang xử lý...",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
-
-        // Gửi lại request với force: true
-        const confirmRes = await addRoomToBlog(roomId, true);
-
-        Swal.fire("Thành công", "Phòng đã được thêm vào blog.", "success");
+      if (!title) {
+        Swal.showValidationMessage("⚠️ Tiêu đề là bắt buộc");
+        return false;
       }
-    } else {
-      // Nếu phòng trống, thêm blog ngay
-      Swal.fire("Thành công", "Phòng đã được thêm vào blog.", "success");
-    }
 
-  } catch (err: any) {
-    Swal.fire("Lỗi", err?.response?.data?.message || "Có lỗi xảy ra", "error");
-  }
+      if (dayjs(availableFrom).isBefore(minDate)) {
+        Swal.showValidationMessage(`⚠️ Ngày bắt đầu không được trước ${dayjs(minDate).format("DD/MM/YYYY")}`);
+        return false;
+      }
+
+      return { title, description, availableFrom };
+    }
+  });
+
+  return formValues;
 };
 
 
+  const updateRoomPostStatus = (roomId: string) => {
+    setLocalRooms((prev) =>
+      prev.map((room) =>
+        room._id === roomId ? { ...room, post: true } : room
+      )
+    );
+  };
+
+  const handleAddToBlog = async (roomId: string) => {
+    try {
+      const res = await checkRoomStatus(roomId);
+      const data = res.data;
+
+      if (data.existed) {
+        Swal.fire("Thông báo", "Phòng đã có trong blog!", "info");
+        return;
+      }
+
+      let form = null;
+
+      if (data.warning) {
+        const result = await Swal.fire({
+          title: "Phòng đang có người thuê",
+          html: `Phòng đang được thuê đến <strong>${dayjs(data.endAt).format("DD/MM/YYYY")}</strong>.<br>Bạn vẫn muốn đăng vào blog không?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Vẫn đăng",
+          cancelButtonText: "Huỷ"
+        });
+
+        if (!result.isConfirmed) return;
+
+        form = await showBlogFormDialog(new Date(data.endAt));
+      } else {
+        form = await showBlogFormDialog(new Date());
+      }
+
+      if (!form) return;
+
+      Swal.fire({
+        title: "Đang thêm phòng vào blog...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const confirmRes = await addRoomToBlog(roomId, {
+        force: true,
+        ...form
+      });
+
+      if (confirmRes.status === 201) {
+        updateRoomPostStatus(roomId);
+        Swal.fire("Thành công", "Phòng đã được thêm vào blog.", "success");
+      }
+
+    } catch (err: any) {
+      Swal.fire("Lỗi", err?.response?.data?.message || "Có lỗi xảy ra", "error");
+    }
+  };
+
+  const handleRemoveFromBlog = async (roomId: string) => {
+    const confirm = await Swal.fire({
+      title: "Xác nhận",
+      text: "Bạn có chắc muốn gỡ phòng khỏi blog?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Gỡ",
+      cancelButtonText: "Huỷ"
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      Swal.fire({
+        title: "Đang xử lý...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      await removeRoomFromBlog(roomId);
+
+      setLocalRooms((prev) =>
+        prev.map((room) =>
+          room._id === roomId ? { ...room, post: false } : room
+        )
+      );
+
+      Swal.fire("Thành công", "Phòng đã được gỡ khỏi blog.", "success");
+    } catch (err: any) {
+      Swal.fire("Lỗi", err?.response?.data?.message || "Có lỗi xảy ra", "error");
+    }
+  };
 
   return (
     <div className="mt-8 w-full">
@@ -136,7 +236,7 @@ const handleAddToBlog = async (roomId: string) => {
           <span> Tạo phòng</span>
         </Button>
       </div>
-      {rooms.length > 0 ? (
+      {localRooms.length > 0 ? (
         <div className="overflow-x-auto bg-white rounded shadow">
           <table className="min-w-full border text-sm">
             <thead className="bg-gray-100">
@@ -153,7 +253,7 @@ const handleAddToBlog = async (roomId: string) => {
               </tr>
             </thead>
             <tbody>
-              {rooms.map((room) => (
+              {localRooms.map((room) => (
                 <tr key={room._id} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">
                     {Array.isArray(room.image) && room.image.length > 0 ? (
@@ -164,21 +264,16 @@ const handleAddToBlog = async (roomId: string) => {
                       <span className="text-gray-400 italic">Không có ảnh</span>
                     )}
                   </td>
-
                   <td className="py-2 px-4 border-b">{room.roomId}</td>
                   <td className="py-2 px-4 border-b">{room.price.toLocaleString()}₫</td>
-                  <td className="py-2 px-4 border-b">{room.area} </td>
-
+                  <td className="py-2 px-4 border-b">{room.area}</td>
                   <td className="py-2 px-4 border-b">
-                    <div className="bg-green-100 p-2 rounded ">
-                      <div className="list-disc list-inside text-sm">
-                        {room.utilities?.split(",").map((item, idx) => (
-                          <div key={idx}>{item.trim()}</div>
-                        ))}
-                      </div>
+                    <div className="bg-green-100 p-2 rounded">
+                      {room.utilities?.split(",").map((item, idx) => (
+                        <div key={idx}>{item.trim()}</div>
+                      ))}
                     </div>
                   </td>
-
                   <td className="py-2 px-4 border-b">
                     <div className="bg-blue-100 p-2 rounded">
                       <ul className="list-inside space-y-1 text-sm">
@@ -190,7 +285,6 @@ const handleAddToBlog = async (roomId: string) => {
                       </ul>
                     </div>
                   </td>
-
                   <td className="py-2 px-4 border-b">
                     {room.status ? (
                       <span className="text-green-600 font-medium">Đang cho thuê</span>
@@ -198,9 +292,7 @@ const handleAddToBlog = async (roomId: string) => {
                       <span className="text-red-500 font-medium">Trống</span>
                     )}
                   </td>
-
                   <td className="py-2 px-4 border-b">{room.type}</td>
-
                   <td className="py-2 px-4 border-b space-x-2">
                     <Button variant="outline" size="sm" onClick={() => navigate(`/rooms/edit/${room._id}`)}>
                       <Pencil className="w-4 h-4" />
@@ -209,16 +301,15 @@ const handleAddToBlog = async (roomId: string) => {
                       <Trash className="w-4 h-4" />
                     </Button>
                     <Button
-                      variant={room.post ? "outline" : "secondary"}
+                      variant="outline"
                       size="sm"
-                      disabled={room.post}
-                      onClick={() => !room.post && handleAddToBlog(room._id)}
+                      onClick={() =>
+                        room.post ? handleRemoveFromBlog(room._id) : handleAddToBlog(room._id)
+                      }
                     >
                       <UploadCloud className="w-4 h-4 mr-1" />
-                      {room.post ? "Đã đăng" : "Blog"}
+                      {room.post ? "Gỡ blog" : "Blog"}
                     </Button>
-
-
                   </td>
                 </tr>
               ))}
@@ -226,7 +317,11 @@ const handleAddToBlog = async (roomId: string) => {
           </table>
         </div>
       ) : (
-        <p className="text-sm text-gray-500">Không có phòng nào cho tòa nhà này.</p>
+        <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <HousePlus className="w-16 h-16 mb-4 text-gray-300" />
+          <p className="text-lg font-semibold">Không có phòng nào cho toà nhà này.</p>
+          <p className="text-sm">Vui lòng thêm phòng để quản lý thông tin.</p>
+        </div>
       )}
     </div>
   );
