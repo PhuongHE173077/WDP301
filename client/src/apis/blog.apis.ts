@@ -10,4 +10,8 @@ export const removeRoomFromBlog = (roomId : string) => {
 
 export const checkRoomStatus = (roomId: string) => {
   return axiosCustomize.get(`/api/v1/blogs/check-status/${roomId}`);
+}
+
+export const fetchAPIsBlogById = (id: string) => {
+  return axiosCustomize.get(`/api/v1/blogs/${id}`);
 };

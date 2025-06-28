@@ -2,7 +2,7 @@ import { fetchOrderByIdAPIs } from '@/apis/order.apis';
 import Loader from '@/components/ui-customize/Loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, FilePlus } from 'lucide-react';
+import { ArrowLeft, Download, FilePlus, NotebookPenIcon, SaveIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ import html2pdf from 'html2pdf.js';
 import { toast } from 'react-toastify';
 import { getDownloadUrl } from '@/utils/contanst';
 import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 
 export const LandlordContracts = () => {
     const [order, setOrder] = useState<any>({});
@@ -31,6 +32,8 @@ export const LandlordContracts = () => {
     const [loadingUpload, setLoadingUpload] = useState(false);
 
     const [deposit, setDeposit] = useState(0);
+
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -115,9 +118,22 @@ export const LandlordContracts = () => {
 
     return (
         <div className='relative'>
-            {!contract && open && <Button disabled={loadingUpload} className='absolute top-4 right-4 bg-blue-500 hover:bg-blue-600' onClick={createContract}>
-                Tạo hợp đồng
-            </Button>}
+
+            <Button onClick={() => navigate(-1)} className="bg-blue-500 hover:bg-blue-600">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+            </Button>
+            {!contract && open && <div style={{
+                position: 'fixed',
+                top: 60,
+                right: 20,
+                zIndex: 1000
+            }}>
+                <Button disabled={loadingUpload} className='absolute top-4 right-4 bg-blue-500 hover:bg-blue-600' onClick={createContract}>
+                    <SaveIcon className="mr-2 h-4 w-4" />
+                    Tạo hợp đồng
+                </Button>
+            </div>}
             <div className="p-6 max-w-3xl mx-auto">
                 {!contract ? (
                     !open ? <div className="flex flex-col items-center justify-center h-[70vh] gap-4 text-center">
@@ -204,38 +220,49 @@ export const LandlordContracts = () => {
                             </div>
                         </div>
                 ) : (
-                    <Card className="shadow-xl">
-                        <CardContent className="p-6 space-y-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Thông tin hợp đồng</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-gray-500">Phòng:</p>
-                                    <p className="font-medium">{order.room.roomId}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500">Trạng thái:</p>
-                                    <p className="font-medium text-green-600">Đã tạo</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500">Ngày tạo:</p>
-                                    <p className="font-medium">{dayjs(contract?.createdAt).format('DD/MM/YYYY')}</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-500">Ngày kết thúc:</p>
-                                    <p className="font-medium">{dayjs(contract?.endDate).format('DD/MM/YYYY')}</p>
-                                </div>
-                            </div>
+                    <>
 
-                            <div className="pt-4">
-                                <Button variant="outline" className="flex items-center gap-2" onClick={() => {
-                                    window.open(getDownloadUrl(contract?.contractURI), '_blank');
-                                }}>
-                                    <Download className="w-4 h-4" />
-                                    Tải xuống hợp đồng
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        <Card className="shadow-xl">
+                            <CardContent className="p-6 space-y-4">
+                                <h2 className="text-2xl font-bold text-gray-800">Thông tin hợp đồng</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-gray-500">Phòng:</p>
+                                        <p className="font-medium">{order.room.roomId}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">Trạng thái:</p>
+                                        <p className="font-medium text-green-600">Đã tạo</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">Ngày tạo:</p>
+                                        <p className="font-medium">{dayjs(contract?.createdAt).format('DD/MM/YYYY')}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">Ngày kết thúc:</p>
+                                        <p className="font-medium">{dayjs(contract?.endDate).format('DD/MM/YYYY')}</p>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 flex justify-between ">
+                                    <Button variant="outline" className="flex items-center gap-2" onClick={() => {
+                                        window.open(getDownloadUrl(contract?.contractURI), '_blank');
+                                    }}>
+                                        <Download className="w-4 h-4" />
+                                        Tải xuống hợp đồng
+                                    </Button>
+
+                                    <Button variant="outline" className="flex items-center gap-2" onClick={() => {
+                                        window.open(getDownloadUrl(contract?.contractURI), '_blank');
+                                    }}>
+                                        <NotebookPenIcon className="w-4 h-4" />
+                                        Gia hạn hợp đồng
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </>
+
                 )}
             </div>
             <SignatureDialog open={signatureOpen} setOpen={setSignatureOpen} onSave={handleSaveSignature} />

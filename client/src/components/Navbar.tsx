@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, SearchIcon, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
@@ -42,6 +42,9 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex space-x-4">
+            <Button variant="outline" className="border-rental-500 text-rental-700 hover:bg-rental-50" onClick={() => navigate('/tim-kiem-tro')}>
+              <SearchIcon className="mr-2" />
+              Tìm kiếm trọ</Button>
             <Button variant="outline" className="border-rental-500 text-rental-700 hover:bg-rental-50" onClick={() => navigate('/login')}>Đăng nhập</Button>
           </div>
 

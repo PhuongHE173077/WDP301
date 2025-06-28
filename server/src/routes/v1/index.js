@@ -7,6 +7,7 @@ import { contractRouter } from './contractRoute'
 import { imageRouter } from './imageRoute'
 import { roomRouter } from './roomRoute'
 import { blogRouter } from './blogRoutes'
+import { bookRoomRouter } from './bookRoomRouter'
 
 
 
@@ -39,5 +40,8 @@ Router.use('/rooms', roomRouter)
 
 //blog APIs
 Router.use('/blogs', blogRouter)
+
+//book room APIs
+Router.use('/book-rooms', bookRoomRouter)
 
 export const APIs_V1 = Router

@@ -2,7 +2,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import Notification from './notification'
 import { Image } from '@radix-ui/react-avatar'
 import { Link } from 'react-router-dom'
-import { NavUser } from '@/pages/auth/components/nav-user'
+import { NavUser } from './nav-user'
 
 export const HomeNavbar = () => {
 

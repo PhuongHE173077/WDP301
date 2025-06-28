@@ -24,8 +24,13 @@ import { LandlordContracts } from "./pages/Landlord/Contracts";
 import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDetail";
 import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
 import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
+import TroDetailPage from "./pages/Public/RoomDetail";
+import RentalSearch from "./pages/Public/SearchRoom";
 import ProfileScreen from "./pages/me/ProfileScreen";
 import EditRoom from "./pages/Landlord/Rooms/EditRoom";
+import LayoutAdmin from "./layouts/admin";
+import Page from "./pages/Admin/Dashboard";
+import { ManagerUser } from "./pages/Admin/Manager-User";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -40,6 +45,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
 
           <Route path="/login" element={<Login />} />
+          <Route path="/tim-kiem-tro" element={<RentalSearch />} />
+          <Route path="/tro/:id" element={<TroDetailPage />} />
 
           <Route element={<ProtectedRoute />}>
 
@@ -65,6 +72,11 @@ const App = () => (
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract-detail/:id" element={<ContractDetail />} />
 
+            </Route>
+
+            <Route element={<LayoutAdmin />} >
+              <Route path="/dashboard" element={<Page />} />
+              <Route path="/manage-user" element={<ManagerUser />} />
             </Route>
 
           </Route>
