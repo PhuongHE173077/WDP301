@@ -7,9 +7,9 @@ const getOrderByOwnerId = async (req, res, next) => {
     try {
         const owner = req.jwtDecoded._id
 
-        const orders = await OrderRoom.find({ ownerId: owner, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
+        const orders = await OrderRoom.find({ ownerId: owner }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
 
-        const resultData = orders.map((order) => {
+        const resultData = orders.filter((order) => order.roomId?._destroy === false).map((order) => {
             return {
                 _id: order._id,
                 room: order.roomId,

@@ -4,6 +4,7 @@ import Room from "~/models/roomModel";
 import dayjs from "dayjs";
 import { StatusCodes } from "http-status-codes";
 import { pickUser } from "~/utils/algorithms";
+import ApiError from "~/utils/ApiError";
 
 const addRoomToBlog = async (req, res) => {
   const roomId = req.params.id;

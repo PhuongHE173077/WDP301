@@ -48,12 +48,12 @@ export const Contracts = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {contracts.map((contract, index) => (
+                            {contracts?.map((contract, index) => (
                                 <TableRow
                                     key={index}
                                     className="hover:bg-muted/50 transition-colors"
                                 >
-                                    <TableCell>{contract.room.roomId}</TableCell>
+                                    <TableCell>{contract.room?.roomId}</TableCell>
                                     <TableCell>{contract.owner.userName}</TableCell>
                                     <TableCell>
                                         {contract.tenant.map((t) => t.displayName).join(", ")}

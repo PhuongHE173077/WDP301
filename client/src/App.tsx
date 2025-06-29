@@ -32,6 +32,7 @@ import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
 import { BookRoom } from "./pages/Tenant/BookRooms";
+import { BookRoomManager } from "./pages/Landlord/BookRooms";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
+              <Route path="/book-room-manager" element={<BookRoomManager />} />
 
             </Route>
 
