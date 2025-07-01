@@ -26,6 +26,8 @@ import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDeta
 import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
 import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
 import ProfileScreen from "./pages/me/ProfileScreen";
+import TenanFeedback from "./pages/Tenant/Feedback/TenanFeedback";
+
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -52,7 +54,7 @@ const App = () => (
               <Route path="/departments/:id" element={<DepartmentDetail />} />
               <Route path="/feedback" element={<Feedback />} />
             </Route>
-          <Route>
+            <Route>
               <Route path="/departments/create" element={<CreateDepartment />} />
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
@@ -65,7 +67,7 @@ const App = () => (
               <Route path="/tenant-rooms" element={<TenantRooms />} />
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract-detail/:id" element={<ContractDetail />} />
-
+              <Route path="/feedback-tenant" element={<TenanFeedback />} />
             </Route>
 
           </Route>
