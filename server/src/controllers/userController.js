@@ -97,24 +97,22 @@ const updateProfile = async (req, res, next) => {
         const user = await User.findById(req.jwtDecoded._id)
 
         if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
-        let userUpload;
+
+        const updateData = { ...req.body };
 
         if (req.file) {
             const result = await cloudinaryProvider.streamUpload(req.file.buffer, "users")
-            userUpload = await User.findByIdAndUpdate(req.jwtDecoded._id, { avatar: result.secure_url }, { new: true })
-
-
+            updateData.avatar = result.secure_url;
         }
-        else if (req.body.currentPassword && req.body.newPassword) {
+
+        if (req.body.currentPassword && req.body.newPassword) {
             if (!bcrypt.compareSync(req.body.currentPassword, user.password)) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'The current password is incorrect!')
-            const newPassword = bcrypt.hashSync(req.body.newPassword, 10)
-            userUpload = await User.findByIdAndUpdate(req.jwtDecoded._id, { password: newPassword }, { new: true })
+            updateData.password = bcrypt.hashSync(req.body.newPassword, 10)
+            delete updateData.currentPassword;
+            delete updateData.newPassword;
         }
-        else {
-            userUpload = await User.findByIdAndUpdate(req.jwtDecoded._id, req.body, { new: true })
-        }
-
-        res.status(StatusCodes.OK).json(userUpload)
+        const updatedUser = await User.findByIdAndUpdate(req.jwtDecoded._id, updateData, { new: true })
+        res.status(StatusCodes.OK).json(updatedUser)
     } catch (error) {
         next(error)
     }

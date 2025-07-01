@@ -42,7 +42,11 @@ export const updateUserAPIs = createAsyncThunk("user/update", async (userData: a
 export const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    setUser: (state, action) => {
+      state.currentUser = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(LoginUserAPIs.fulfilled, (state, action) => {
       state.currentUser = action.payload;
