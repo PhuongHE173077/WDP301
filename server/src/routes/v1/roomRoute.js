@@ -8,5 +8,8 @@ const router = express.Router()
 router.route('/')
     .post(authMiddlewares.isAuthorized, roomController.createRoom)
 
-
+router.route('/:id')
+    .put(authMiddlewares.isAuthorized, roomController.updateRoom)
+    .delete(authMiddlewares.isAuthorized, roomController.deleteRoom)
+    .get(authMiddlewares.isAuthorized, roomController.getRoomById)
 export const roomRouter = router
