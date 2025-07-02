@@ -4,6 +4,7 @@ import Room from "~/models/roomModel";
 import dayjs from "dayjs";
 import { StatusCodes } from "http-status-codes";
 import { pickUser } from "~/utils/algorithms";
+import { sendEmail } from "~/providers/MailProvider";
 
 const addRoomToBlog = async (req, res) => {
   const roomId = req.params.id;
@@ -60,7 +61,7 @@ const addRoomToBlog = async (req, res) => {
     availableFrom: availableFrom ? new Date(availableFrom) : new Date(),
     _destroy: false
   });
-
+  sendEmail()
   room.post = true;
   await room.save();
 

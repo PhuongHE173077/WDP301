@@ -84,13 +84,13 @@ const showBlogFormDialog = async (defaultDate: Date) => {
     <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
       <div style="display: flex; flex-direction: column;">
         <label for="title" style="font-size: 13px; font-weight: 500; margin-bottom: 2px;">Tiêu đề <span style="color: red;">*</span></label>
-        <input id="title" class="swal2-input" placeholder="Nhập tiêu đề blog"
+        <input id="title" class="swal2-input" placeholder="Nhập tiêu đề blog" value="Phòng đẹp giá rẻ"
           style="padding: 4px 8px; height: 32px; font-size: 14px; width: 100%; box-sizing: border-box;" />
       </div>
       <div style="display: flex; flex-direction: column;">
         <label for="description" style="font-size: 13px; font-weight: 500; margin-bottom: 2px;">Mô tả</label>
         <textarea id="description" class="swal2-textarea" placeholder="Nhập mô tả " rows="3"
-          style="padding: 4px 8px; font-size: 14px; width: 100%; box-sizing: border-box;"></textarea>
+          style="padding: 4px 8px; font-size: 14px; width: 100%; box-sizing: border-box;">Phòng có nội thất đầy đủ, gần trung tâm</textarea>
       </div>
       <div style="display: flex; flex-direction: column;">
         <label for="availableFrom" style="font-size: 13px; font-weight: 500; margin-bottom: 2px;">Ngày bắt đầu</label>
