@@ -7,3 +7,7 @@ export const addRoomToBlog = (roomId: string, force = false) => {
 export const fetchAPIsBlogById = (id: string) => {
   return axiosCustomize.get(`/api/v1/blogs/${id}`);
 };
+
+export const fetchAPIsBlog = () => {
+  return axiosCustomize.get(`/api/v1/blogs`);
+};

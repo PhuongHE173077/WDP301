@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Slider } from "@/components/ui/slider"
 import { logoutUserAPIs, selectCurrentUser } from "@/store/slice/userSlice"
 import { EllipsisVerticalIcon, Filter, Grid, List, MapPin, Maximize, Search, Users } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 "use client"
@@ -40,92 +40,17 @@ import {
 import {
     SidebarMenuButton
 } from "@/components/ui/sidebar"
+import { fetchAPIsBlog } from "@/apis/blog.apis"
 
-// Mock data
-const rooms = [
-    {
-        id: 1,
-        title: "Phòng trọ cao cấp gần ĐH Bách Khoa",
-        price: 3500000,
-        address: "123 Lý Thường Kiệt, Q.10, TP.HCM",
-        area: 25,
-        capacity: 2,
-        type: "Phòng trọ",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY6VkhePM9gjttqCL76YxCkvZ8oXm1CSXXGg&s",
-        amenities: ["Điều hòa", "WiFi", "Máy giặt"],
-        district: "Quận 10",
-        province: "TP.HCM",
-    },
-    {
-        id: 2,
-        title: "Căn hộ mini đầy đủ tiện nghi",
-        price: 5000000,
-        address: "456 Nguyễn Văn Cừ, Q.5, TP.HCM",
-        area: 35,
-        capacity: 2,
-        type: "Căn hộ mini",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZDXghsEu7ZK32EtXsBIJGs2YAaIqjq6VpXA&s",
-        amenities: ["Bếp riêng", "WC riêng", "Ban công"],
-        district: "Quận 5",
-        province: "TP.HCM",
-    },
-    {
-        id: 3,
-        title: "Phòng ở ghép sinh viên",
-        price: 1800000,
-        address: "789 Võ Văn Tần, Q.3, TP.HCM",
-        area: 20,
-        capacity: 4,
-        type: "Ở ghép",
-        image: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg",
-        amenities: ["WiFi", "Tủ lạnh chung"],
-        district: "Quận 3",
-        province: "TP.HCM",
-    },
-    {
-        id: 4,
-        title: "Ký túc xá cao cấp",
-        price: 2200000,
-        address: "321 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM",
-        area: 15,
-        capacity: 2,
-        type: "Ký túc xá",
-        image: "https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg",
-        amenities: ["An ninh 24/7", "Căng tin"],
-        district: "Quận Bình Thạnh",
-        province: "TP.HCM",
-    },
-    {
-        id: 5,
-        title: "Studio hiện đại trung tâm",
-        price: 6500000,
-        address: "654 Lê Lợi, Q.1, TP.HCM",
-        area: 30,
-        capacity: 1,
-        type: "Studio",
-        image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
-        amenities: ["Gym", "Hồ bơi", "Thang máy"],
-        district: "Quận 1",
-        province: "TP.HCM",
-    },
-    {
-        id: 6,
-        title: "Phòng trọ giá rẻ gần chợ",
-        price: 2800000,
-        address: "987 Phan Văn Trị, Q.Gò Vấp, TP.HCM",
-        area: 18,
-        capacity: 2,
-        type: "Phòng trọ",
-        image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
-        amenities: ["Gần chợ", "Xe ôm"],
-        district: "Quận Gò Vấp",
-        province: "TP.HCM",
-    },
-]
 
-const roomTypes = ["Tất cả", "Phòng trọ", "Căn hộ mini", "Ký túc xá", "Ở ghép", "Studio"]
-const provinces = ["Tất cả", "TP.HCM", "Hà Nội", "Đà Nẵng", "Cần Thơ"]
-const districts = ["Tất cả", "Quận 1", "Quận 3", "Quận 5", "Quận 10", "Quận Bình Thạnh", "Quận Gò Vấp"]
+
+// Utility function to remove Vietnamese tones
+function removeVietnameseTones(str: string) {
+    return str
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
 
 export default function RentalSearch() {
     const [searchTerm, setSearchTerm] = useState("")
@@ -137,6 +62,8 @@ export default function RentalSearch() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 6
+    const [rooms, setRooms] = useState<any[]>([])
+    const [loading, setLoading] = useState(false)
 
     const currentUser = useSelector(selectCurrentUser);
     const dispatch = useDispatch();
@@ -144,19 +71,61 @@ export default function RentalSearch() {
         const result = dispatch(logoutUserAPIs());
     }
 
-    // Filter rooms based on criteria
-    const filteredRooms = rooms.filter((room) => {
-        const matchesSearch =
-            room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            room.address.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesProvince = selectedProvince === "Tất cả" || room.province === selectedProvince
-        const matchesDistrict = selectedDistrict === "Tất cả" || room.district === selectedDistrict
-        const matchesRoomType = selectedRoomType === "Tất cả" || room.type === selectedRoomType
-        const matchesPrice = room.price >= priceRange[0] && room.price <= priceRange[1]
-        const matchesArea = room.area >= areaRange[0] && room.area <= areaRange[1]
+    useEffect(() => {
+        setLoading(true)
+        fetchAPIsBlog()
+            .then((res) => {
+                // Assuming res.data is an array of blogs
+                const filtered = (res.data || []).filter((room: any) => !room._destroy)
+                setRooms(filtered)
+            })
+            .finally(() => setLoading(false))
+    }, [])
 
-        return matchesSearch && matchesProvince && matchesDistrict && matchesRoomType && matchesPrice && matchesArea
-    })
+    // Aggregate all unique utilities from all rooms
+    const allUtilities = Array.from(new Set(
+        rooms
+            .map(blog => blog.roomId?.utilities)
+            .filter(Boolean)
+            .flatMap((utils: string) => utils.split(',').map(u => u.trim()))
+    ));
+    const [selectedUtilities, setSelectedUtilities] = useState<string[]>([]);
+
+    // Filter rooms based on criteria
+    const filteredRooms = rooms.filter((blog) => {
+        const room = blog.roomId || {};
+        const department = room.departmentId || {};
+        // Compose address: village, commune, district, province
+        const address = [department.village, department.commune, department.district, department.province].filter(Boolean).join(", ");
+        const title = `${room.type || "Phòng"} ${room.area ? room.area + "m²" : ""} - ${address}`;
+
+        // Normalize for accent-insensitive search
+        const search = removeVietnameseTones(searchTerm.toLowerCase());
+        const normTitle = removeVietnameseTones(title.toLowerCase());
+        const normAddress = removeVietnameseTones(address.toLowerCase());
+        const normProvince = removeVietnameseTones((department.province || '').toLowerCase());
+        const normDistrict = removeVietnameseTones((department.district || '').toLowerCase());
+        const normRoomType = removeVietnameseTones((room.type || '').toLowerCase());
+        const selectedNormProvince = removeVietnameseTones(selectedProvince.toLowerCase());
+        const selectedNormDistrict = removeVietnameseTones(selectedDistrict.toLowerCase());
+        const selectedNormRoomType = removeVietnameseTones(selectedRoomType.toLowerCase());
+
+        // Utilities filter
+        const roomUtils = (room.utilities || '').split(',').map((u: string) => u.trim());
+        const matchesUtilities = selectedUtilities.length === 0 || selectedUtilities.every(util => roomUtils.includes(util));
+
+        const matchesSearch =
+            normTitle.includes(search) ||
+            normAddress.includes(search);
+        const matchesProvince = selectedProvince === "Tất cả" || normProvince === selectedNormProvince;
+        const matchesDistrict = selectedDistrict === "Tất cả" || normDistrict === selectedNormDistrict;
+        const matchesRoomType = selectedRoomType === "Tất cả" || normRoomType === selectedNormRoomType;
+        const matchesPrice = room.price >= priceRange[0] && room.price <= priceRange[1];
+        const areaNum = parseFloat(room.area) || 0;
+        const matchesArea = areaNum >= areaRange[0] && areaNum <= areaRange[1];
+
+        return matchesSearch && matchesProvince && matchesDistrict && matchesRoomType && matchesPrice && matchesArea && matchesUtilities;
+    });
 
     // Pagination
     const totalPages = Math.ceil(filteredRooms.length / itemsPerPage)
@@ -171,6 +140,20 @@ export default function RentalSearch() {
     }
 
     const navigate = useNavigate();
+
+    // Generate dropdown options dynamically from loaded data
+    const provinceOptions = [
+        "Tất cả",
+        ...Array.from(new Set(rooms.map(blog => blog.roomId?.departmentId?.province).filter(Boolean)))
+    ];
+    const districtOptions = [
+        "Tất cả",
+        ...Array.from(new Set(rooms.map(blog => blog.roomId?.departmentId?.district).filter(Boolean)))
+    ];
+    const roomTypeOptions = [
+        "Tất cả",
+        ...Array.from(new Set(rooms.map(blog => blog.roomId?.type).filter(Boolean)))
+    ];
 
     const AdvancedFilters = () => (
         <div className="space-y-6">
@@ -199,19 +182,30 @@ export default function RentalSearch() {
                 </div>
             </div>
 
-            <div>
-                <Label className="text-sm font-medium mb-3 block">Tiện ích</Label>
-                <div className="space-y-2">
-                    {["Điều hòa", "WiFi", "Máy giặt", "Bếp riêng", "WC riêng", "Ban công"].map((amenity) => (
-                        <div key={amenity} className="flex items-center space-x-2">
-                            <Checkbox id={amenity} />
-                            <Label htmlFor={amenity} className="text-sm">
-                                {amenity}
+            {/* Utilities filter */}
+            {allUtilities.length > 0 && (
+                <div className="flex flex-col gap-2 mb-4">
+                    <span className="text-sm font-medium mr-2">Tiện ích:</span>
+                    {allUtilities.map(util => (
+                        <div key={util} className="flex items-center space-x-2">
+                            <Checkbox
+                                id={`util-${util}`}
+                                checked={selectedUtilities.includes(util)}
+                                onCheckedChange={(checked) => {
+                                    if (checked) {
+                                        setSelectedUtilities([...selectedUtilities, util]);
+                                    } else {
+                                        setSelectedUtilities(selectedUtilities.filter(u => u !== util));
+                                    }
+                                }}
+                            />
+                            <Label htmlFor={`util-${util}`} className="text-sm cursor-pointer">
+                                {util}
                             </Label>
                         </div>
                     ))}
                 </div>
-            </div>
+            )}
         </div>
     )
 
@@ -392,7 +386,7 @@ export default function RentalSearch() {
                                 <SelectValue placeholder="Tỉnh/Thành" />
                             </SelectTrigger>
                             <SelectContent>
-                                {provinces.map((province) => (
+                                {provinceOptions.map((province) => (
                                     <SelectItem key={province} value={province}>
                                         {province}
                                     </SelectItem>
@@ -405,7 +399,7 @@ export default function RentalSearch() {
                                 <SelectValue placeholder="Quận/Huyện" />
                             </SelectTrigger>
                             <SelectContent>
-                                {districts.map((district) => (
+                                {districtOptions.map((district) => (
                                     <SelectItem key={district} value={district}>
                                         {district}
                                     </SelectItem>
@@ -418,7 +412,7 @@ export default function RentalSearch() {
                                 <SelectValue placeholder="Loại phòng" />
                             </SelectTrigger>
                             <SelectContent>
-                                {roomTypes.map((type) => (
+                                {roomTypeOptions.map((type) => (
                                     <SelectItem key={type} value={type}>
                                         {type}
                                     </SelectItem>
@@ -444,6 +438,8 @@ export default function RentalSearch() {
                             </SheetContent>
                         </Sheet>
                     </div>
+
+
                 </div>
             </div>
 
@@ -470,62 +466,70 @@ export default function RentalSearch() {
 
                         {/* Room Listings */}
                         <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>
-                            {paginatedRooms.map((room: any) => (
-                                <Card key={room.id} className="overflow-hidden hover:shadow-lg transition-shadow" >
-                                    <div className={viewMode === "list" ? "flex" : ""}>
-                                        <div className={viewMode === "list" ? "w-48 flex-shrink-0" : ""}>
-                                            <img
-                                                src={room.image || "/placeholder.svg"}
-                                                alt={room.title}
-                                                width={300}
-                                                height={200}
-                                                className={`object-cover ${viewMode === "list" ? "h-full" : "w-full h-48"}`}
-                                            />
-                                        </div>
-                                        <CardContent className={`p-4 ${viewMode === "list" ? "flex-1" : ""}`}>
-                                            <div className="flex items-start justify-between mb-2">
-                                                <Badge variant="secondary" className="text-xs">
-                                                    {room.type}
-                                                </Badge>
-                                                <span className="text-lg font-bold text-blue-600">{formatPrice(room.price)}</span>
+                            {paginatedRooms.map((blog: any) => {
+                                const room = blog.roomId || {};
+                                const department = room.departmentId || {};
+                                // Compose address: village, commune, district, province
+                                const address = [department.village, department.commune, department.district, department.province].filter(Boolean).join(", ");
+                                // Compose title: type + area + address
+                                const title = `${room.type || "Phòng"} ${room.area ? room.area + "m²" : ""} - ${address}`;
+                                return (
+                                    <Card key={blog._id} className="overflow-hidden hover:shadow-lg transition-shadow" >
+                                        <div className={viewMode === "list" ? "flex" : ""}>
+                                            <div className={viewMode === "list" ? "w-48 flex-shrink-0" : ""}>
+                                                <img
+                                                    src={room.image && room.image.length > 0 ? room.image[0] : "/placeholder.svg"}
+                                                    alt={title}
+                                                    width={300}
+                                                    height={200}
+                                                    className={`object-cover ${viewMode === "list" ? "h-full" : "w-full h-48"}`}
+                                                />
                                             </div>
-
-                                            <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{room.title}</h3>
-
-                                            <div className="flex items-center text-gray-600 text-sm mb-2">
-                                                <MapPin className="w-4 h-4 mr-1" />
-                                                <span className="line-clamp-1">{room.address}</span>
-                                            </div>
-
-                                            <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                                                <div className="flex items-center">
-                                                    <Maximize className="w-4 h-4 mr-1" />
-                                                    <span>{room.area}m²</span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <Users className="w-4 h-4 mr-1" />
-                                                    <span>{room.capacity} người</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-wrap gap-1 mb-3">
-                                                {room.amenities.slice(0, 3).map((amenity, index) => (
-                                                    <Badge key={index} variant="outline" className="text-xs">
-                                                        {amenity}
+                                            <CardContent className={`p-4 ${viewMode === "list" ? "flex-1" : ""}`}>
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        {room.type}
                                                     </Badge>
-                                                ))}
-                                                {room.amenities.length > 3 && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        +{room.amenities.length - 3}
-                                                    </Badge>
+                                                    <span className="text-lg font-bold text-blue-600">{formatPrice(room.price)}</span>
+                                                </div>
+
+                                                <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{title}</h3>
+
+                                                <div className="flex items-center text-gray-600 text-sm mb-2">
+                                                    <MapPin className="w-4 h-4 mr-1" />
+                                                    <span className="line-clamp-1">{address}</span>
+                                                </div>
+
+                                                {/* Utilities badges - show above description */}
+                                                {room.utilities && (
+                                                    <div className="flex flex-wrap gap-1 mb-2 items-center">
+                                                        <span className="text-xs text-gray-500 mr-2">Tiện ích:</span>
+                                                        {room.utilities.split(',').map((util: string, idx: number) => (
+                                                            <Badge key={idx} variant="outline" className="text-xs">
+                                                                {util.trim()}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 )}
-                                            </div>
 
-                                            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${room._id ? room._id : "685bc07940ee858bae96e252"}`)}>Xem chi tiết</Button>
-                                        </CardContent>
-                                    </div>
-                                </Card>
-                            ))}
+                                                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                                                    <div className="flex items-center">
+                                                        <Maximize className="w-4 h-4 mr-1" />
+                                                        <span>{room.area}m²</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mb-3 text-sm text-gray-500">
+                                                    {blog.description}
+                                                </div>
+
+
+                                                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${room._id || room.roomId || ""}`)}>Xem chi tiết</Button>
+                                            </CardContent>
+                                        </div>
+                                    </Card>
+                                );
+                            })}
                         </div>
 
                         {/* Pagination */}

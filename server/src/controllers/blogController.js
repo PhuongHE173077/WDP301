@@ -84,8 +84,24 @@ const getBlogById = async (req, res, next) => {
     next(error)
   }
 }
+const getAllBlog = async (req, res, next) => {
+  try {
+    const blogs = await Blog.find().populate({
+      path: 'roomId',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    })
+      .populate('ownerId');
+    res.status(StatusCodes.OK).json(blogs);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const blogController = {
   addRoomToBlog,
-  getBlogById
+  getBlogById,
+  getAllBlog
 };

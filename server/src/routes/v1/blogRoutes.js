@@ -8,6 +8,8 @@ router.route('/:id')
     .post(authMiddlewares.isAuthorized, blogController.addRoomToBlog)
     .get(blogController.getBlogById)
 
+router.route('/')
+    .get(blogController.getAllBlog)
 
 
 
