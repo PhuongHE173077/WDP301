@@ -34,58 +34,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import FormAuth from "../auth/Auth"
 import RentDateDialog from "./components/DialogAdd"
 
-const mockTroDetail = {
-    id: 1,
-    title: "Phòng trọ cao cấp gần ĐH Bách Khoa",
-    price: 3500000,
-    deposit: 7000000,
-    area: 25,
-    address: "123 Lý Thường Kiệt, Phường 7, Quận 10, TP.HCM",
-    description:
-        "Phòng trọ mới xây, đầy đủ nội thất, an ninh tốt, gần trường học và khu vực tiện ích. Phòng có ban công thoáng mát, ánh sáng tự nhiên. Khu vực yên tĩnh, thuận tiện đi lại.",
-    images: [
-        "/placeholder.svg?height=400&width=600",
-        "/placeholder.svg?height=400&width=600",
-        "/placeholder.svg?height=400&width=600",
-        "/placeholder.svg?height=400&width=600",
-        "/placeholder.svg?height=400&width=600",
-    ],
-    amenities: [
-        { name: "Wifi miễn phí", icon: Wifi },
-        { name: "Điều hòa", icon: Wind },
-        { name: "Bảo vệ 24/7", icon: Shield },
-        { name: "Thang máy", icon: Home },
-        { name: "Điện nước", icon: Zap },
-        { name: "Giặt ủi", icon: Droplets },
-    ],
-    utilities: {
-        electricity: "3,500đ/kWh",
-        water: "25,000đ/m³",
-        internet: "Miễn phí",
-        parking: "200,000đ/tháng",
-    },
-    rules: [
-        "Không nuôi thú cưng",
-        "Không hút thuốc trong phòng",
-        "Giữ gìn vệ sinh chung",
-        "Không gây ồn sau 22h",
-        "Khách qua đêm phải báo trước",
-    ],
-    landlord: {
-        name: "Chị Nguyễn Thị Lan",
-        phone: "0901234567",
-        avatar: "/placeholder.svg?height=60&width=60",
-        verified: true,
-    },
-    nearby: [
-        "ĐH Bách Khoa TPHCM - 500m",
-        "Chợ Bến Thành - 2km",
-        "Bệnh viện Chợ Rẫy - 1.5km",
-        "Siêu thị Co.opmart - 300m",
-    ],
-    available: true,
-    postedDate: "2024-01-15",
-}
+
 
 export default function TroDetailPage() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -201,12 +150,12 @@ export default function TroDetailPage() {
                                     className="w-full h-96 object-cover"
                                 />
                                 <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                                    {/* {currentImageIndex + 1} / {blog.room.image.length} */}
+                                    {currentImageIndex + 1} / {blog?.room?.image.length}
                                 </div>
                             </div>
-                            {/* <div className="p-4">
+                            <div className="p-4">
                                 <div className="flex space-x-2 overflow-x-auto">
-                                    {mockTroDetail.images.map((image, index) => (
+                                    {blog?.room?.images?.map((image, index) => (
                                         <img
                                             key={index}
                                             src={image || "/placeholder.svg"}
@@ -217,7 +166,7 @@ export default function TroDetailPage() {
                                         />
                                     ))}
                                 </div>
-                            </div> */}
+                            </div>
                         </Card>
 
                         {/* Basic Info */}
@@ -225,21 +174,21 @@ export default function TroDetailPage() {
                             <CardHeader>
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <CardTitle className="text-2xl mb-2">{mockTroDetail.title}</CardTitle>
+                                        <CardTitle className="text-2xl mb-2">{blog?.room?.type}</CardTitle>
                                         <div className="flex items-center text-gray-600 mb-2">
                                             <MapPin className="h-4 w-4 mr-2" />
                                             <span>{blog?.room?.departmentId?.commune + ", " + blog?.room?.departmentId?.district + ", " + blog?.room?.departmentId?.province}</span>
                                         </div>
                                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                                             <span>Đăng ngày: {new Date(blog?.createdAt).toLocaleDateString("vi-VN")}</span>
-                                            <Badge variant={mockTroDetail.available ? "default" : "destructive"}>
+                                            <Badge variant={blog?.room?.available ? "default" : "destructive"}>
                                                 Còn trống
                                             </Badge>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-3xl font-bold text-red-600 mb-1">{formatPrice(mockTroDetail.price)}</div>
-                                        <div className="text-sm text-gray-500">Cọc: {formatPrice(mockTroDetail.deposit)}</div>
+                                        <div className="text-3xl font-bold text-red-600 mb-1">{formatPrice(blog?.room?.price)}</div>
+                                        <div className="text-sm text-gray-500">Cọc: {formatPrice(blog?.room?.deposit)}</div>
                                     </div>
                                 </div>
                             </CardHeader>
@@ -253,7 +202,7 @@ export default function TroDetailPage() {
                                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                                         <DollarSign className="h-6 w-6 mx-auto mb-2 text-gray-600" />
                                         <div className="text-sm text-gray-600">Giá thuê</div>
-                                        <div className="font-semibold">{formatPrice(blog?.room.price)}</div>
+                                        <div className="font-semibold">{formatPrice(blog?.room?.price)}</div>
                                     </div>
                                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                                         <ZapIcon className="h-6 w-6 mx-auto mb-2 text-gray-600" />
@@ -271,7 +220,7 @@ export default function TroDetailPage() {
 
                                 <div>
                                     <h3 className="font-semibold text-lg mb-3">Mô tả</h3>
-                                    <p className="text-gray-700 leading-relaxed">{mockTroDetail.description}</p>
+                                    <p className="text-gray-700 leading-relaxed">{blog?.room?.description}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -283,10 +232,17 @@ export default function TroDetailPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {mockTroDetail.amenities.map((amenity, index) => (
+                                    {(Array.isArray(blog?.room?.utilities)
+                                        ? blog?.room?.utilities
+                                        : typeof blog?.room?.utilities === "string"
+                                            ? blog?.room?.utilities.split(",")
+                                            : []
+                                    ).map((util: any, index: number) => (
                                         <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                            <amenity.icon className="h-5 w-5 text-blue-600" />
-                                            <span className="text-sm">{amenity.name}</span>
+                                            {util?.icon && typeof util.icon === "function" ? (
+                                                <util.icon className="h-5 w-5 text-blue-600" />
+                                            ) : null}
+                                            <span className="text-sm">{util?.name || (typeof util === "string" ? util.trim() : "")}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -299,35 +255,29 @@ export default function TroDetailPage() {
                                 <CardTitle>Chi phí dịch vụ</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex justify-between py-2">
-                                        <span>Điện:</span>
-                                        <span className="font-semibold">{blog?.room?.departmentId?.electricPrice}</span>
-                                    </div>
-                                    <div className="flex justify-between py-2">
-                                        <span>Nước:</span>
-                                        <span className="font-semibold">{blog?.room?.departmentId?.waterPrice}</span>
-                                    </div>
-                                    <div className="flex justify-between py-2">
-                                        <span>Internet:</span>
-                                        <span className="font-semibold">{mockTroDetail.utilities.internet}</span>
-                                    </div>
-                                    <div className="flex justify-between py-2">
-                                        <span>Gửi xe:</span>
-                                        <span className="font-semibold">{mockTroDetail.utilities.parking}</span>
-                                    </div>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {Array.isArray(blog?.room?.serviceFee) && blog.room.serviceFee.length > 0 ? (
+                                        blog.room.serviceFee.map((fee: any, idx: number) => (
+                                            <div className="flex justify-between py-2" key={idx}>
+                                                <span>{fee.name}:</span>
+                                                <span className="font-semibold">{formatPrice(fee.price)}{fee.unit ? ` / ${fee.unit}` : ''}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <span className="col-span-2 text-gray-500">Không có dữ liệu chi phí dịch vụ</span>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* Rules */}
-                        <Card>
+                        {/* <Card>
                             <CardHeader>
                                 <CardTitle>Nội quy</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <ul className="space-y-2">
-                                    {mockTroDetail.rules.map((rule, index) => (
+                                    {blog?.room?.rules?.map((rule, index) => (
                                         <li key={index} className="flex items-start space-x-2">
                                             <span className="text-red-500 mt-1">•</span>
                                             <span className="text-sm">{rule}</span>
@@ -335,10 +285,10 @@ export default function TroDetailPage() {
                                     ))}
                                 </ul>
                             </CardContent>
-                        </Card>
+                        </Card> */}
 
                         {/* Nearby Places */}
-                        <Card>
+                        {/* <Card>
                             <CardHeader>
                                 <CardTitle>Địa điểm lân cận</CardTitle>
                             </CardHeader>
@@ -352,7 +302,7 @@ export default function TroDetailPage() {
                                     ))}
                                 </ul>
                             </CardContent>
-                        </Card>
+                        </Card> */}
                     </div>
 
                     {/* Sidebar */}

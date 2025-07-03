@@ -184,7 +184,7 @@ export default function RentalSearch() {
 
             {/* Utilities filter */}
             {allUtilities.length > 0 && (
-                <div className="flex flex-col gap-2 mb-4">
+                <div className="flex flex-col gap-2 mb-4 items-start">
                     <span className="text-sm font-medium mr-2">Tiện ích:</span>
                     {allUtilities.map(util => (
                         <div key={util} className="flex items-center space-x-2">
@@ -524,7 +524,7 @@ export default function RentalSearch() {
                                                 </div>
 
 
-                                                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${room._id || room.roomId || ""}`)}>Xem chi tiết</Button>
+                                                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${blog._id}`)}>Xem chi tiết</Button>
                                             </CardContent>
                                         </div>
                                     </Card>
