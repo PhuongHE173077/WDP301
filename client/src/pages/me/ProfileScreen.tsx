@@ -3,6 +3,10 @@ import { Camera, MapPin, Calendar, Mail, Phone, Edit3, Settings, Star, Users, He
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, userSlice } from '@/store/slice/userSlice';
 import { fetchUpdateProfileAPIs } from '@/apis/userAPIs';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { toast } from '@/hooks/use-toast';
+import { PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '@/utils/validators';
 
 const ProfileScreen = () => {
     const userData = useSelector(selectCurrentUser);
@@ -11,6 +15,10 @@ const ProfileScreen = () => {
     const [editData, setEditData] = useState<any>(null);
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [openChangePassword, setOpenChangePassword] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    const [passwordError, setPasswordError] = useState<{ [key: string]: string }>({});
+    const [loadingChange, setLoadingChange] = useState(false);
 
     // Format ngày tháng
     const formatDate = (dateString: string) => {
@@ -83,6 +91,42 @@ const ProfileScreen = () => {
         setEditData({ ...editData, [e.target.name]: e.target.value });
     };
 
+    const handlePasswordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
+    };
+
+    const validatePasswordForm = () => {
+        const errors: { [key: string]: string } = {};
+        if (!passwordForm.currentPassword) errors.currentPassword = 'Vui lòng nhập mật khẩu hiện tại';
+        if (!passwordForm.newPassword) errors.newPassword = 'Vui lòng nhập mật khẩu mới';
+        else if (!PASSWORD_RULE.test(passwordForm.newPassword)) errors.newPassword = PASSWORD_RULE_MESSAGE;
+        if (!passwordForm.confirmPassword) errors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới';
+        else if (passwordForm.newPassword !== passwordForm.confirmPassword) errors.confirmPassword = PASSWORD_CONFIRMATION_MESSAGE;
+        return errors;
+    };
+
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const errors = validatePasswordForm();
+        setPasswordError(errors);
+        if (Object.keys(errors).length > 0) return;
+        setLoadingChange(true);
+        try {
+            const formData = new FormData();
+            formData.append('currentPassword', passwordForm.currentPassword);
+            formData.append('newPassword', passwordForm.newPassword);
+            await fetchUpdateProfileAPIs(formData);
+            toast({ title: 'Đổi mật khẩu thành công', description: 'Mật khẩu của bạn đã được cập nhật.' });
+            setOpenChangePassword(false);
+            setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            setPasswordError({});
+        } catch (err: any) {
+            toast({ title: 'Đổi mật khẩu thất bại', description: err?.response?.data?.message || 'Có lỗi xảy ra', variant: 'destructive' });
+        } finally {
+            setLoadingChange(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-sky-100">
             {/* Header */}
@@ -143,16 +187,16 @@ const ProfileScreen = () => {
                                     <Edit3 className="w-4 h-4 text-blue-600" />
                                 </button>
                             </div>
-                            <p className="text-lg text-blue-600 mb-3 font-medium capitalize">{userData.role}</p>
+                            {/* <p className="text-lg text-blue-600 mb-3 font-medium capitalize">{userData.role}</p> */}
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-gray-600">
                                 <div className="flex items-center gap-2">
-                                    <User className="w-4 h-4 text-blue-500" />
-                                    <span>@{userData.userName}</span>
+                                    <Mail className="w-4 h-4 text-blue-500" />
+                                    <span>{userData.email}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="w-4 h-4 text-blue-500" />
-                                    <span>Tham gia từ {formatDate(userData.createdAt)}</span>
+                                    <span>Tham gia từ {formatDate(userData?.createdAt)}</span>
                                 </div>
                             </div>
                         </div>
@@ -165,19 +209,19 @@ const ProfileScreen = () => {
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Thông tin liên hệ</h3>
 
                             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                <Mail className="w-5 h-5 text-blue-600" />
+                                <User className="w-5 h-5 text-blue-600" />
                                 <div>
-                                    <p className="font-medium text-gray-800">Email</p>
+                                    <p className="font-medium text-gray-800">Tên người dùng</p>
                                     {isEditing ? (
                                         <input
-                                            type="email"
-                                            name="email"
-                                            value={editData.email}
+                                            type="text"
+                                            name="userName"
+                                            value={editData.userName}
                                             onChange={handleChange}
                                             className="text-gray-600 border-b border-blue-300 outline-none bg-transparent"
                                         />
                                     ) : (
-                                        <p className="text-gray-600">{userData.email}</p>
+                                        <p className="text-gray-600">{userData.userName}</p>
                                     )}
                                 </div>
                             </div>
@@ -245,17 +289,7 @@ const ProfileScreen = () => {
                                 <CreditCard className="w-5 h-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium text-gray-800">CCCD</p>
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="CCCD"
-                                            value={editData.CCCD || ''}
-                                            onChange={handleChange}
-                                            className="text-gray-600 border-b border-blue-300 outline-none bg-transparent"
-                                        />
-                                    ) : (
-                                        <p className="text-gray-600">{userData.CCCD}</p>
-                                    )}
+                                    <p className="text-gray-600">{userData.CCCD}</p>
                                 </div>
                             </div>
 
@@ -312,13 +346,42 @@ const ProfileScreen = () => {
                             >
                                 Chỉnh sửa hồ sơ
                             </button>
-                            <button className="flex-1 bg-white text-blue-600 py-3 px-6 rounded-xl font-semibold border-2 border-blue-200 hover:bg-blue-50 transition-colors">
-                                Chia sẻ hồ sơ
+                            <button className="flex-1 bg-white text-blue-600 py-3 px-6 rounded-xl font-semibold border-2 border-blue-200 hover:bg-blue-50 transition-colors" onClick={() => setOpenChangePassword(true)}>
+                                Đổi mật khẩu
                             </button>
                         </>
                     )}
                 </div>
             </div>
+
+            <Dialog open={openChangePassword} onOpenChange={setOpenChangePassword}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Đổi mật khẩu</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleChangePassword} className="space-y-4 mt-2">
+                        <div>
+                            <label className="block font-medium mb-1">Mật khẩu hiện tại</label>
+                            <Input type="password" name="currentPassword" value={passwordForm.currentPassword} onChange={handlePasswordInput} autoComplete="current-password" />
+                            {passwordError.currentPassword && <p className="text-red-500 text-sm mt-1">{passwordError.currentPassword}</p>}
+                        </div>
+                        <div>
+                            <label className="block font-medium mb-1">Mật khẩu mới</label>
+                            <Input type="password" name="newPassword" value={passwordForm.newPassword} onChange={handlePasswordInput} autoComplete="new-password" />
+                            {passwordError.newPassword && <p className="text-red-500 text-sm mt-1">{passwordError.newPassword}</p>}
+                        </div>
+                        <div>
+                            <label className="block font-medium mb-1">Xác nhận mật khẩu mới</label>
+                            <Input type="password" name="confirmPassword" value={passwordForm.confirmPassword} onChange={handlePasswordInput} autoComplete="new-password" />
+                            {passwordError.confirmPassword && <p className="text-red-500 text-sm mt-1">{passwordError.confirmPassword}</p>}
+                        </div>
+                        <DialogFooter>
+                            <button type="button" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg" onClick={() => setOpenChangePassword(false)} disabled={loadingChange}>Hủy</button>
+                            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors" disabled={loadingChange}>{loadingChange ? 'Đang lưu...' : 'Đổi mật khẩu'}</button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
