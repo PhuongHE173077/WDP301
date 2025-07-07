@@ -3,6 +3,7 @@ import Notification from './notification'
 import { Image } from '@radix-ui/react-avatar'
 import { Link } from 'react-router-dom'
 import { NavUser } from '@/pages/auth/components/nav-user'
+import { Wallet } from './wallet'
 
 export const HomeNavbar = () => {
 
@@ -27,8 +28,9 @@ export const HomeNavbar = () => {
       <div className="flex items-center gap-5 ">
         {/* <Input placeholder="Search" className="w-80" /> */}
 
-        <Notification />
 
+        <Wallet />
+        <Notification />
         <div className="flex-shrink-0 items-center  flex gap-4">
 
           <NavUser />
