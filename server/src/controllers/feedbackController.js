@@ -5,24 +5,24 @@ import { pickUser } from "~/utils/algorithms"
 
 // Lấy tất cả feedback theo ownerId
 const getFeedbacksByOwner = async (req, res, next) => {
-    try {
-        const ownerId = req.jwtDecoded._id;
-        const feedback = await Feedback.find({ ownerId: ownerId }).populate("tenantId");
-        const resultData = feedback.map((feedback) => {
-            return {
-                _id: feedback._id,
-                tenantName: feedback.tenantId?.displayName || "",
-                description: feedback.description,
-                images: feedback.images,
-                status: feedback.status,
-                reply: feedback.reply
-            }
-        });
+  try {
+    const ownerId = req.jwtDecoded._id;
+    const feedback = await Feedback.find({ ownerId: ownerId }).populate("tenantId");
+    const resultData = feedback.map((feedback) => {
+      return {
+        _id: feedback._id,
+        tenantName: feedback.tenantId?.displayName || "",
+        description: feedback.description,
+        images: feedback.images,
+        status: feedback.status,
+        reply: feedback.reply
+      }
+    });
 
-        res.status(StatusCodes.OK).json(resultData);
-    } catch (error) {
-        next(error);
-    }
+    res.status(StatusCodes.OK).json(resultData);
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Owner trả lời feedback
@@ -54,10 +54,37 @@ const replyToFeedback = async (req, res) => {
   }
 };
 
+// Tenant send feedback
+const createFeedback = async (req, res) => {
+  try {
+    console.log("BODY:", req.body);
+
+    const ownerId = req.jwtDecoded.ownerId; // hoặc lấy từ mối quan hệ nào đó
+    const tenantId = req.jwtDecoded.tenantId;
+    const { description, images } = req.body;
+
+    const feedback = await Feedback.create({
+      ownerId,
+      tenantId,
+      description,
+      images,
+      status: "Pending",
+      reply: ""
+    });
+
+    res.status(201).json({
+      message: "Feedback đã được gửi",
+      data: feedback,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi tạo feedback", error: error.message });
+  }
+};
 
 
 
 export const feedbackController = {
-    getFeedbacksByOwner,
-    replyToFeedback
+  getFeedbacksByOwner,
+  replyToFeedback,
+  createFeedback
 };

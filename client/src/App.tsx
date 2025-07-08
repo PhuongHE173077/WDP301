@@ -32,6 +32,7 @@ import EditRoom from "./pages/Landlord/Rooms/EditRoom";
 import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
+import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
 
 const persistor = persistStore(store);
 injectStore(store);

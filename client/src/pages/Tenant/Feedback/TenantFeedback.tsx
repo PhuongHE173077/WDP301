@@ -12,11 +12,11 @@ import { Card } from "@/components/ui/card";
 import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis";
 import { CirclePlusIcon, Eye, EyeIcon } from "lucide-react";
 import FeedbackForm from "./components/DialogFeedback"
-// 👈 cần thêm hàm update
+
 
 const PAGE_SIZE = 5;
 
-export default function TenanFeedback() {
+export default function TenantFeedback() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [page, setPage] = useState(1);
   const [editingReplyId, setEditingReplyId] = useState(null);

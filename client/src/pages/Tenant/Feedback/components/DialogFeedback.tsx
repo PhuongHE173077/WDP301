@@ -1,122 +1,172 @@
 import React, { useRef, useState } from 'react'
-import { useForm } from "react-hook-form"
-
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
-    DialogTitle,
 } from "@/components/ui/dialog"
-
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-toastify'
-import { createFeedbackAPIs, uploadImageAPIs } from '@/apis/feedback.apis'
-
-import { CirclePlus, ImagePlus, X, XCircle } from "lucide-react"
+import { createFeedback } from '@/apis/feedback.apis'
+import { createImageUrl } from '@/apis'
 import { singleFileValidator } from "@/utils/validators"
 
-const [formData, setFormData] = useState({
-    description: ""
-  });
 export default function FeedbackForm({ open, setOpen, fetchData }: { open: boolean, setOpen: (val: boolean) => void, fetchData: () => void }) {
-
     const [message, setMessage] = useState('')
-    const [image, setImage] = useState<string>('')
+    const [selectedFileNames, setSelectedFileNames] = useState<string[]>([])
     const fileInputRef = useRef<HTMLInputElement>(null)
-    
-const handleSubmit = async () => {
-    
-  };
+    const [images, setImages] = useState<{ preview: string; url: string }[]>([]);
 
-    const handleImageClick = () => {
-        fileInputRef.current?.click()   
-    }
+    const [form, setForm] = useState({
+        description: '',
+        image: [],
+    })
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const image = await uploadImage(e);
-
-        if (image) setImage(image);
-    }
-    const uploadImage = async (e: any) => {
-        const file = e.target?.files?.[0];
-        const error = singleFileValidator(file);
-        if (error) {
-            toast.error(error);
-            return null;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!message.trim()) {
+            toast.error("Vui lòng nhập nội dung phản hồi.");
+            return;
         }
 
-        let reqData = new FormData();
-        reqData.append('image', file);
-
         try {
-            const response = await toast.promise(
-                uploadImageAPIs(reqData),
-                { pending: 'Uploading...' }
-            );
-            e.target.value = '';
-            return response.data;
-        } catch (err) {
-            toast.error("Upload failed");
-            return null;
+            const payload = {
+                description: message,
+                images: form.image, 
+            };
+
+            await toast.promise(createFeedback(payload), {
+                pending: "Đang gửi phản hồi...",
+                success: "Đã gửi phản hồi thành công!",
+                error: "Lỗi gửi phản hồi.",
+            });
+
+            setMessage("");
+            setForm({ description: "", image: [] });
+            setSelectedFileNames([]);
+            setOpen(false);
+            fetchData(); 
+
+        } catch (error) {
+            console.error(error);
         }
     };
 
+    const handleImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target?.files;
+        if (!files || files.length === 0) return;
+
+        for (const file of Array.from(files)) {
+            const error = singleFileValidator(file);
+            if (error) {
+                toast.error(error);
+                continue;
+            }
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const response = await toast.promise(createImageUrl(formData), {
+                    pending: "Đang tải ảnh...",
+                });
+
+                const imageUrl = response.data; // đường dẫn trả về từ server
+
+                setImages(prev => [
+                    ...prev,
+                    {
+                        preview: URL.createObjectURL(file),
+                        url: imageUrl,
+                    },
+                ]);
+
+                setForm(prev => ({
+                    ...prev,
+                    image: [...prev.image, imageUrl],
+                }));
+
+            } catch (err) {
+                toast.error("Upload ảnh thất bại");
+            }
+        }
+
+        event.target.value = "";
+    };
+
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-teal-100 ">
-                <Card className="w-full max-w-xl shadow-xl rounded-2xl">
-                    <CardContent className="p-8 space-y-6">
-                        <h2 className="text-2xl font-bold text-center text-gray-800">💬 Gửi phản hồi</h2>
-                        <p className="text-center text-sm text-gray-500">Hãy cho chúng tôi biết ý kiến của bạn về dịch vụ!</p>
-                        <form onClick={handleSubmit} className="space-y-4">
-                            <Textarea
-                                placeholder="Nội dung phản hồi..."
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                required
-                                className="min-h-[120px]"
-                            />
-                            <div className="space-y-2">
-                                <div>Ảnh</div>
-                                {image ?
-                                    <div className="flex justify-center">
-                                        <div className="relative group">
-                                            <img src={image} alt="Selected" className="rounded-md max-w-xs " />
-                                            <button
-                                                onClick={() => setImage('')}
-                                                className="absolute top-1 right-1 bg-white border border-gray-300 text-gray-700 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    </div> : <><div
-                                        className="cursor-pointer border-2 border-dashed rounded-md p-4 flex items-center justify-center"
-                                        onClick={handleImageClick}
-                                    >
-                                        <ImagePlus className="h-6 w-6" />
-
+            <DialogContent className="max-w-xl p-0">
+                <div className="bg-gradient-to-br from-blue-100 via-white to-teal-100 rounded-2xl">
+                    <Card className="shadow-xl rounded-2xl">
+                        <CardContent className="p-8 space-y-6">
+                            <h2 className="text-2xl font-bold text-center text-gray-800">💬 Gửi phản hồi</h2>
+                            <p className="text-center text-sm text-gray-500">Hãy cho chúng tôi biết ý kiến của bạn về dịch vụ!</p>
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <Textarea
+                                    placeholder="Nội dung phản hồi..."
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    required
+                                    className="min-h-[120px]"
+                                />
+                                <div>
+                                     <div className="flex gap-2 items-center">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="px-3 py-2"
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            📷 Tải ảnh
+                                        </Button>
                                     </div>
-                                        <Input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageChange}
-                                            className="hidden"
-                                        /></>}
-                            </div>
-                            <Button
-                                type="submit"
-                                className="w-full bg-gradient-to-br from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-semibold rounded-xl py-2"
-                            >
-                                🚀 Gửi phản hồi
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
+                                    <input
+                                        ref={fileInputRef}
+                                        id="imageInput"
+                                        type="file"
+                                        accept="image/*"
+                                        hidden
+                                        multiple
+                                        onChange={handleImage}
+                                    />
+                                    <div className="flex gap-2 flex-wrap mt-2">
+                                        {images.map((img, index) => (
+                                            <div key={index} className="relative w-24 h-24 group">
+                                                <img
+                                                    src={img.preview}
+                                                    alt={`preview-${index}`}
+                                                    className="w-full h-full object-cover rounded-lg border"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setImages(prev => prev.filter((_, i) => i !== index));
+                                                        setForm(prev => ({
+                                                            ...prev,
+                                                            image: prev.image.filter((_, i) => i !== index)
+                                                        }));
+                                                    }}
+                                                    className="absolute top-[-6px] right-[-6px] bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center shadow-lg"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-gradient-to-br from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-semibold rounded-xl py-2"
+                                >
+                                    🚀 Gửi phản hồi
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                </div>
+            </DialogContent>
         </Dialog>
-    )
+    );
 }
