@@ -33,6 +33,7 @@ import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
 import { BookRoom } from "./pages/Tenant/BookRooms";
 import { BookRoomManager } from "./pages/Landlord/BookRooms";
+import { PaymentReturn } from "./pages/Tenant/Payment";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/tim-kiem-tro" element={<RentalSearch />} />
           <Route path="/tro/:id" element={<TroDetailPage />} />
+          <Route path="/payment/success" element={<PaymentReturn />} />
 
           <Route element={<ProtectedRoute />}>
 

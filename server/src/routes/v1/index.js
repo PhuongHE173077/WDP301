@@ -9,6 +9,7 @@ import { roomRouter } from './roomRoute'
 import { blogRouter } from './blogRoutes'
 import { bookRoomRouter } from './bookRoomRouter'
 import { walletRouter } from './WalletRouter'
+import { paymentRouter } from './paymentRoutes'
 
 
 
@@ -47,5 +48,8 @@ Router.use('/book-rooms', bookRoomRouter)
 
 //wallet APIs
 Router.use('/wallet', walletRouter)
+
+//payment APIs
+Router.use('/payment', paymentRouter)
 
 export const APIs_V1 = Router

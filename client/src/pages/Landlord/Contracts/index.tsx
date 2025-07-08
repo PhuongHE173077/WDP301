@@ -225,7 +225,7 @@ export const LandlordContracts = () => {
                                     {signature ? <>
                                         <div className="flex">
                                             <img src={signature} alt="avatar" className='mb-2' width={100} height={100} />
-                                            <XIcon className='cursor-pointer text-red-600' size={15} onClick={() => setSignature('')} />
+                                            {!textPdf && <XIcon className='cursor-pointer text-red-600' size={15} onClick={() => setSignature('')} />}
                                         </div>
                                         <div>{currentUser?.displayName}</div>
                                     </> : <Button onClick={() => setSignatureOpen(true)} className='mt-2'>Ký</Button>
