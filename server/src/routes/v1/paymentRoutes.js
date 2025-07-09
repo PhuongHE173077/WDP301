@@ -12,5 +12,8 @@ Router.route('/create-qr')
 Router.route('/check-payment-vnpay')
     .get(paymentController.checkPayment)
 
+Router.route('/check-payment-contract')
+    .get(authMiddlewares.isAuthorized, paymentController.checkPaymentContract)
+
 
 export const paymentRouter = Router

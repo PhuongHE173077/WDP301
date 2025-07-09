@@ -2,6 +2,16 @@ const { orderBy } = require("lodash");
 const { default: mongoose } = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
+    receiverId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    senderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
     amount: {
         type: Number,
         required: true,
