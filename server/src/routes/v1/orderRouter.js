@@ -16,4 +16,8 @@ Router.route("/tenant")
 Router.route("/:id")
     .get(authMiddlewares.isAuthorized, orderController.getOrderById)
     .put(authMiddlewares.isAuthorized, orderController.updateOrder)
+
+Router.route("/tenant/my-rooms")
+    .get(authMiddlewares.isAuthorized, orderController.getOrdersOfTenant);
+
 export const orderRouter = Router

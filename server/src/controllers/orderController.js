@@ -100,6 +100,38 @@ const getOrderById = async (req, res, next) => {
     }
 }
 
+const getOrdersOfTenant = async (req, res, next) => {
+  try {
+    const tenantId = req.jwtDecoded._id;
+
+    // Lấy các đơn thuê của tenant
+    const orders = await OrderRoom.find({
+      tenantId: tenantId,
+      _destroy: false
+    }).populate("roomId"); // ✅ Lấy đầy đủ room
+
+    const roomData = orders
+      .filter(order => order.roomId) // Đảm bảo phòng tồn tại
+      .map(order => {
+        const room = order.roomId;
+        return {
+          _id: room._id,
+          roomId: room.roomId,
+          image: room.image,
+          price: room.price,
+          area: room.area,
+          utilities: room.utilities,
+          serviceFee: room.serviceFee
+        };
+      });
+
+    res.status(StatusCodes.OK).json(roomData);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 
 export const orderController = {
@@ -107,5 +139,6 @@ export const orderController = {
     updateOrder,
     getTenantOrder,
     updateOrder,
-    getOrderById
+    getOrderById,
+    getOrdersOfTenant
 };
