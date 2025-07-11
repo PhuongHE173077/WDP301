@@ -58,6 +58,10 @@ const userSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    signature: {
+        type: String,
+        default: null
+    },
     _destroy: {
         type: Boolean,
         default: false

@@ -51,12 +51,16 @@ const contractSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending_signature', 'pending_review', 'approved', 'rejected'],
-        default: 'pending_signature'
+        enum: ['unpaid', 'pending_signature', 'approved', 'rejected'],
+        default: 'unpaid'
     },
     reason: {
         type: String,
         default: ''
+    },
+    paid: {
+        type: Boolean,
+        default: false
     },
     userSignedAt: {
         type: Date,

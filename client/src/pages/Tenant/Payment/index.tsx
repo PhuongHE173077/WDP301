@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const OwnerRooms = () => {
+export const PaymentReturn = () => {
     return (
         <div>index</div>
     )

@@ -2,7 +2,7 @@ import { fetchOrderByIdAPIs } from '@/apis/order.apis';
 import Loader from '@/components/ui-customize/Loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Download, FilePlus, NotebookPenIcon, SaveIcon } from 'lucide-react';
+import { ArrowLeft, Download, FilePlus, NotebookPenIcon, SaveIcon, X, XIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
@@ -19,19 +19,33 @@ export const LandlordContracts = () => {
     const [order, setOrder] = useState<any>({});
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
-    const [text, setText] = useState('');
+    const [text, setText] = useState(`* Trách nhiệm của bên A:
+
+- Tạo mọi điều kiện thuận lợi để bên B thực hiện theo hợp đồng.
+- Cung cấp nguồn điện, nước, wifi cho bên B sử dụng.
+
+* Trách nhiệm của bên B:
+
+- Thanh toán đầy đủ các khoản tiền theo đúng thỏa thuận.
+- Bảo quản các trang thiết bị và cơ sở vật chất của bên A trang bị ban đầu (làm hỏng phải sửa, mất phải đền).
+- Không được tự ý sửa chữa, cải tạo cơ sở vật chất khi chưa được sự đồng ý của bên A.
+- Giữ gìn vệ sinh trong và ngoài khuôn viên của phòng trọ.
+- Bên B phải chấp hành mọi quy định của pháp luật Nhà nước và quy định của địa phương.
+- Nếu bên B cho khách ở qua đêm thì phải báo và được sự đồng ý của chủ nhà, đồng thời phải chịu trách nhiệm về các hành vi vi phạm pháp luật của khách trong thời gian ở lại.`);
+
     const [signatureOpen, setSignatureOpen] = useState(false);
 
     const searchParam = new URLSearchParams(window.location.search);
     const orderId = searchParam.get('orderId');
-    const [signature, setSignature] = useState('');
     const [textPdf, setTextPdf] = useState(false);
 
     const currentUser = useSelector(selectCurrentUser);
+    const [signature, setSignature] = useState(currentUser?.signature || '');
+
 
     const [loadingUpload, setLoadingUpload] = useState(false);
 
-    const [deposit, setDeposit] = useState(0);
+    const [deposit, setDeposit] = useState(2000000);
 
     const navigate = useNavigate();
 
@@ -209,11 +223,13 @@ export const LandlordContracts = () => {
                             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 60 }}>
                                 <div><b>ĐẠI DIỆN BÊN A</b><br /><br />
                                     {signature ? <>
-                                        <img src={signature} alt="avatar" className='mb-2' width={100} height={100} />
+                                        <div className="flex">
+                                            <img src={signature} alt="avatar" className='mb-2' width={100} height={100} />
+                                            {!textPdf && <XIcon className='cursor-pointer text-red-600' size={15} onClick={() => setSignature('')} />}
+                                        </div>
                                         <div>{currentUser?.displayName}</div>
                                     </> : <Button onClick={() => setSignatureOpen(true)} className='mt-2'>Ký</Button>
                                     }
-
 
                                 </div>
                                 <div><b>ĐẠI DIỆN BÊN B</b><br /><br /><br />_________________</div>

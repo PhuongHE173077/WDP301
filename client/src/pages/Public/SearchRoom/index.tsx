@@ -521,7 +521,7 @@ export default function RentalSearch() {
                                                 )}
                                             </div>
 
-                                            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${room._id ? room._id : "685bc07940ee858bae96e252"}`)}>Xem chi tiết</Button>
+                                            <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/tro/${room._id ? room._id : "685f6abaafab88a89472bebc"}`)}>Xem chi tiết</Button>
                                         </CardContent>
                                     </div>
                                 </Card>

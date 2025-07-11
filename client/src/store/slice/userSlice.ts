@@ -26,6 +26,13 @@ export const LoginTenantAPIs = createAsyncThunk(
   }
 );
 
+export const RegisterTenantAPIs = createAsyncThunk(
+  "tenant/register",
+  async (userData: any) => {
+    const result = await axiosCustomize.post("api/v1/tenants/register", userData);
+    return result.data
+  }
+);
 export const updateUserAPIs = createAsyncThunk("user/update", async (userData: any) => {
   // If userData is FormData (contains file), don't set Content-Type header
   // Axios will automatically set the correct Content-Type with boundary
@@ -54,6 +61,9 @@ export const userSlice = createSlice({
       state.currentUser = action.payload;
     });
     builder.addCase(LoginTenantAPIs.fulfilled, (state, action) => {
+      state.currentUser = action.payload;
+    });
+    builder.addCase(RegisterTenantAPIs.fulfilled, (state, action) => {
       state.currentUser = action.payload;
     });
   },
