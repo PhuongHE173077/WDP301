@@ -70,7 +70,28 @@ const login = async (req, res, next) => {
     }
 }
 
+const register = async (req, res, next) => {
+    try {
+        const { email, password, displayName } = req.body
+
+        const userExits = await Tenant.findOne({ email })
+        if (userExits) return next(new ApiError(StatusCodes.BAD_REQUEST, 'Email đã tồn tại !'))
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const newTenant = await Tenant.create({
+            email,
+            password: hashedPassword,
+            userName: email.split('@')[0],
+            displayName
+        })
+
+        res.status(StatusCodes.OK).json(newTenant)
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const tenantController = {
     getAll,
-    login
+    login,
+    register
 }
