@@ -3,6 +3,7 @@ import { userRouter } from './userRoute'
 import { orderRouter } from './orderRouter'
 import { departmentRouter } from './departmentRoute'
 import { tenantRouter } from './tenantRouter'
+import { feedbackRouter } from './feedbackRoute'
 import { contractRouter } from './contractRoute'
 import { imageRouter } from './imageRoute'
 import { roomRouter } from './roomRoute'
@@ -30,6 +31,9 @@ Router.use('/departments', departmentRouter)
 
 //tenant APIs
 Router.use('/tenants', tenantRouter)
+
+//feedback APIs
+Router.use('/feedbacks', feedbackRouter)
 
 //contract APIs
 Router.use('/contracts', contractRouter)

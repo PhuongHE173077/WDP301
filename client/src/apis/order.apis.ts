@@ -15,3 +15,7 @@ export const fetchOrderByIdAPIs = async (id: string) => {
 export const fetchOrderByContractIdAPIs = async (id: string) => {
     return await axiosCustomize.get(`api/v1/orders/${id}?findBy=contract`);
 };
+
+export const getTenantRooms = async () => {
+  return await axiosCustomize.get('/api/v1/orders/tenant/my-rooms');
+};

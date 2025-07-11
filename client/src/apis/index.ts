@@ -4,7 +4,7 @@ export const fetchAllUserAPIs = async () => {
     return await axiosCustomize.get('api/v1/list')
 }
 export const fetchTenants = async () => {
-    return await axiosCustomize.get('api/v1/orders/users')
+    return await axiosCustomize.get('api/v1/orders/tenant')
 }
 
 export const createImageUrl = async (data: any) => {
