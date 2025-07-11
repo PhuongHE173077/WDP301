@@ -67,15 +67,12 @@ const App = () => (
               <Route path="/tenants" element={<Tenants />} />
               <Route path="/departments/:id" element={<DepartmentDetail />} />
               <Route path="/feedback" element={<Feedback />} />
-            </Route>
-            <Route>
+              <Route path="/book-room-manager" element={<BookRoomManager />} />
               <Route path="/departments/create" element={<CreateDepartment />} />
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
-              <Route path="/book-room-manager" element={<BookRoomManager />} />
-
             </Route>
 
             {/* Tenant router */}
