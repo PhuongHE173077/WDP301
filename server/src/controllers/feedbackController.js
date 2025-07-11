@@ -59,13 +59,13 @@ const createFeedback = async (req, res) => {
   try {
     console.log("BODY:", req.body);
 
-    const ownerId = req.jwtDecoded.ownerId; // hoặc lấy từ mối quan hệ nào đó
-    const tenantId = req.jwtDecoded.tenantId;
+    const ownerId = req.jwtDecoded._id; // hoặc lấy từ mối quan hệ nào đó
+    const tenantId = req.jwtDecoded._id;
     const { description, images } = req.body;
 
     const feedback = await Feedback.create({
-      ownerId,
       tenantId,
+      ownerId,
       description,
       images,
       status: "Pending",
@@ -77,7 +77,7 @@ const createFeedback = async (req, res) => {
       data: feedback,
     });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi tạo feedback", error: error.message });
+    next(error);
   }
 };
 

@@ -108,10 +108,10 @@ const getOrdersOfTenant = async (req, res, next) => {
     const orders = await OrderRoom.find({
       tenantId: tenantId,
       _destroy: false
-    }).populate("roomId"); // ✅ Lấy đầy đủ room
+    }).populate("roomId"); 
 
     const roomData = orders
-      .filter(order => order.roomId) // Đảm bảo phòng tồn tại
+      .filter(order => order.roomId) 
       .map(order => {
         const room = order.roomId;
         return {
