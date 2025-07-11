@@ -15,3 +15,7 @@ export const checkRoomStatus = (roomId: string) => {
 export const fetchAPIsBlogById = (id: string) => {
   return axiosCustomize.get(`/api/v1/blogs/${id}`);
 };
+
+export const fetchAPIsBlog = () => {
+  return axiosCustomize.get(`/api/v1/blogs`);
+};

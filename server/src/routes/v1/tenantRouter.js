@@ -13,6 +13,9 @@ Router.route('/')
 Router.route('/login')
     .post(tenantController.login)
 
+Router.route('/register')
+    .post(tenantController.register)
+
 
 
 export const tenantRouter = Router

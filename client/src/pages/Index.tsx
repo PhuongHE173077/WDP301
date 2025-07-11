@@ -44,7 +44,7 @@ const Index = () => {
         <Features />
         <DashboardShowcase />
         <Benefits />
-        <Pricing />
+
         <Testimonials />
         <CTA />
       </main>

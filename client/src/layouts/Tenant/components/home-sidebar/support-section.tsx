@@ -6,7 +6,7 @@ import { Link, useLocation } from 'react-router-dom'
 const items = [
   {
     title: 'Feedback',
-    url: "/feedback",
+    url: "/feedback-tenant",
     icon: MessageSquareIcon
   }
 ]

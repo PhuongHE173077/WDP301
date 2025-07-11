@@ -11,5 +11,9 @@ router.route('/:id')
 
 router.route('/check-status/:roomId')
     .get(authMiddlewares.isAuthorized, blogController.checkRoomStatus)
+router.route('/')
+    .get(blogController.getAllBlog)
+
+
 
 export const blogRouter = router

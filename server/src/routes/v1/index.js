@@ -3,11 +3,14 @@ import { userRouter } from './userRoute'
 import { orderRouter } from './orderRouter'
 import { departmentRouter } from './departmentRoute'
 import { tenantRouter } from './tenantRouter'
+import { feedbackRouter } from './feedbackRoute'
 import { contractRouter } from './contractRoute'
 import { imageRouter } from './imageRoute'
 import { roomRouter } from './roomRoute'
 import { blogRouter } from './blogRoutes'
 import { bookRoomRouter } from './bookRoomRouter'
+import { walletRouter } from './WalletRouter'
+import { paymentRouter } from './paymentRoutes'
 
 
 
@@ -29,6 +32,9 @@ Router.use('/departments', departmentRouter)
 //tenant APIs
 Router.use('/tenants', tenantRouter)
 
+//feedback APIs
+Router.use('/feedbacks', feedbackRouter)
+
 //contract APIs
 Router.use('/contracts', contractRouter)
 
@@ -43,5 +49,11 @@ Router.use('/blogs', blogRouter)
 
 //book room APIs
 Router.use('/book-rooms', bookRoomRouter)
+
+//wallet APIs
+Router.use('/wallet', walletRouter)
+
+//payment APIs
+Router.use('/payment', paymentRouter)
 
 export const APIs_V1 = Router

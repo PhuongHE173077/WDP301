@@ -62,10 +62,12 @@ const getContractsByTenantId = async (req, res, next) => {
                 owner: pickUser(c.ownerId),
                 room: c.roomId,
                 contractURI: c.contractURI,
+                deposit: c.deposit,
                 reason: c.reason,
                 image1CCCD: c.image1CCCD,
                 image2CCCD: c.image2CCCD,
                 status: c.status,
+                paid: c.paid,
                 createdAt: c.createdAt
             }
         }))

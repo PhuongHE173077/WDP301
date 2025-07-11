@@ -3,7 +3,7 @@ import React from 'react';
 
 function Notification() {
   return (
-    <div>
+    <div className='cursor-pointer'>
       <BellIcon className='h-5 w-5 text-gray-500' />
     </div>
   );

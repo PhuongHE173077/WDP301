@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { StatusCodes } from "http-status-codes";
 import { pickUser } from "~/utils/algorithms";
 import { sendEmail } from "~/providers/MailProvider";
+import ApiError from "~/utils/ApiError";
 
 const addRoomToBlog = async (req, res) => {
   const roomId = req.params.id;
@@ -136,10 +137,27 @@ const getBlogById = async (req, res, next) => {
     next(error)
   }
 }
+const getAllBlog = async (req, res, next) => {
+  try {
+    const blogs = await Blog.find().populate({
+      path: 'roomId',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    })
+      .populate('ownerId');
+    res.status(StatusCodes.OK).json(blogs);
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const blogController = {
   addRoomToBlog,
   getBlogById, 
   checkRoomStatus, 
   removeRoomFromBlog
+  getBlogById,
+  getAllBlog
 };

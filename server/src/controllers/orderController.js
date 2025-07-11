@@ -7,9 +7,9 @@ const getOrderByOwnerId = async (req, res, next) => {
     try {
         const owner = req.jwtDecoded._id
 
-        const orders = await OrderRoom.find({ ownerId: owner, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
+        const orders = await OrderRoom.find({ ownerId: owner }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
 
-        const resultData = orders.map((order) => {
+        const resultData = orders.filter((order) => order.roomId?._destroy === false).map((order) => {
             return {
                 _id: order._id,
                 room: order.roomId,
@@ -49,7 +49,10 @@ const getTenantOrder = async (req, res, next) => {
 
         const orders = await OrderRoom.find({ ownerId: ownerId, _destroy: false }).populate('roomId').populate('tenantId')
 
-        const filterRs = orders.filter((order) => order.tenantId?.length > 0)
+        console.log(orders);
+
+        // const filterRs = orders.filter((order) => order.tenantId.length > 0)
+        const filterRs = orders.filter((order) => Array.isArray(order.tenantId) && order.tenantId.length > 0)
         const uniqueTenantIds = [
             ...new Set(
                 filterRs.flatMap(item => item.tenantId.map(t => t))
@@ -97,6 +100,38 @@ const getOrderById = async (req, res, next) => {
     }
 }
 
+const getOrdersOfTenant = async (req, res, next) => {
+  try {
+    const tenantId = req.jwtDecoded._id;
+
+    // Lấy các đơn thuê của tenant
+    const orders = await OrderRoom.find({
+      tenantId: tenantId,
+      _destroy: false
+    }).populate("roomId"); 
+
+    const roomData = orders
+      .filter(order => order.roomId) 
+      .map(order => {
+        const room = order.roomId;
+        return {
+          _id: room._id,
+          roomId: room.roomId,
+          image: room.image,
+          price: room.price,
+          area: room.area,
+          utilities: room.utilities,
+          serviceFee: room.serviceFee
+        };
+      });
+
+    res.status(StatusCodes.OK).json(roomData);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 
 
 export const orderController = {
@@ -104,5 +139,6 @@ export const orderController = {
     updateOrder,
     getTenantOrder,
     updateOrder,
-    getOrderById
+    getOrderById,
+    getOrdersOfTenant
 };
