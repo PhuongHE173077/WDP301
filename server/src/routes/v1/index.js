@@ -11,6 +11,7 @@ import { blogRouter } from './blogRoutes'
 import { bookRoomRouter } from './bookRoomRouter'
 import { walletRouter } from './WalletRouter'
 import { paymentRouter } from './paymentRoutes'
+import { packageRouter } from './packageRoute'
 
 
 
@@ -56,4 +57,6 @@ Router.use('/wallet', walletRouter)
 //payment APIs
 Router.use('/payment', paymentRouter)
 
+//package APIs
+Router.use('/packages', packageRouter)
 export const APIs_V1 = Router

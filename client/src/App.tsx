@@ -39,6 +39,8 @@ import { ErrorPayment } from "./pages/Tenant/Payment/ErrorPayment";
 import { PaymentSuccess } from "./pages/Tenant/Payment/PaymentSuccess";
 import RegisterPage from "./pages/auth/Register";
 import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
+import { ManagementPackage } from "./pages/Admin/ManagerPackage";
+import PackageManager from "./pages/Admin/ManagerPackage/PackageCreate";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -88,6 +90,10 @@ const App = () => (
             <Route element={<LayoutAdmin />} >
               <Route path="/dashboard" element={<Page />} />
               <Route path="/manage-user" element={<ManagerUser />} />
+              <Route path = "/package" element={<ManagementPackage/>}/>
+              <Route path = "/packages/create" element={<PackageManager/>}/>
+              <Route path = "/packages/edit/:id" element={<PackageManager/>}/>
+
             </Route>
 
           </Route>
