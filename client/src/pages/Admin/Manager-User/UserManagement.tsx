@@ -12,7 +12,7 @@ const UserManagement = () => {
 
       <Tabs defaultValue="users" className="w-full">
         <TabsList className="mx-auto">
-          <TabsTrigger value="users">Tất cả người dùng</TabsTrigger>
+          <TabsTrigger value="users">Chủ trọ</TabsTrigger>
           <TabsTrigger value="tenants">Khách thuê</TabsTrigger>
         </TabsList>
 

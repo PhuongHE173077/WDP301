@@ -4,7 +4,6 @@ import Room from "~/models/roomModel";
 import dayjs from "dayjs";
 import { StatusCodes } from "http-status-codes";
 import { pickUser } from "~/utils/algorithms";
-import { sendEmail } from "~/providers/MailProvider";
 import ApiError from "~/utils/ApiError";
 
 const addRoomToBlog = async (req, res) => {
@@ -62,7 +61,7 @@ const addRoomToBlog = async (req, res) => {
     availableFrom: availableFrom ? new Date(availableFrom) : new Date(),
     _destroy: false
   });
-  sendEmail()
+  
   room.post = true;
   await room.save();
 
@@ -157,7 +156,7 @@ export const blogController = {
   addRoomToBlog,
   getBlogById, 
   checkRoomStatus, 
-  removeRoomFromBlog
+  removeRoomFromBlog,
   getBlogById,
   getAllBlog
 };
