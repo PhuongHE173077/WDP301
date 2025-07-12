@@ -31,6 +31,7 @@ import EditRoom from "./pages/Landlord/Rooms/EditRoom";
 import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
+import Transaction from "./pages/Public/Transaction/Index";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/tenant-rooms" element={<TenantRooms />} />
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract-detail/:id" element={<ContractDetail />} />
+              <Route path="/transactions" element={<Transaction />} />
 
             </Route>
 
