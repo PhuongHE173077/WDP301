@@ -41,6 +41,7 @@ import RegisterPage from "./pages/auth/Register";
 import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
 import { ManagementPackage } from "./pages/Admin/ManagerPackage";
 import PackageManager from "./pages/Admin/ManagerPackage/PackageCreate";
+import { PackageList } from "./pages/Landlord/Packages/Package";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -75,6 +76,8 @@ const App = () => (
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
+              <Route path="/packages" element={<PackageList />} />
+
             </Route>
 
             {/* Tenant router */}

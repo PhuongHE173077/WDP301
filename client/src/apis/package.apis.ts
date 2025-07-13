@@ -15,3 +15,7 @@ export const deletePackageAPIs = (id: string) => {
 export const updatePackageAPIs = (id: string, data: any) => {
   return axiosCustomize.put(`/api/v1/packages/${id}`, data);
 };
+
+export const buyPackageAPIs = (id: string) => {
+  return axiosCustomize.post(`/api/v1/packages/${id}`);
+};
