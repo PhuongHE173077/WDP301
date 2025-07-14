@@ -5,28 +5,30 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { toast } from 'react-toastify';
+import { createBillAPIs } from '@/apis/bill.apis';
 
 export const DialogCreateBill = ({ open, setOpen, orderRooms, departments }: { open: boolean, setOpen: (value: boolean) => void, orderRooms: any, departments: any }) => {
     const [date, setDate] = useState("");
     const [house, setHouse] = useState("all");
     const [room, setRoom] = useState("all");
-    const [recalculate, setRecalculate] = useState(false);
 
-    // Dummy data for houses and rooms, replace with real data
-    const houses = [
-        { value: "all", label: "Tất cả" },
-        { value: "house1", label: "Nhà 1" },
-        { value: "house2", label: "Nhà 2" },
-    ];
-    const rooms = [
-        { value: "all", label: "Tất cả" },
-        { value: "room1", label: "Phòng 1" },
-        { value: "room2", label: "Phòng 2" },
-    ];
 
     const handleSubmit = () => {
-        // Xử lý logic tính tiền ở đây
-        setOpen(false);
+        const data = {
+            date,
+            roomId: room
+        }
+        toast.promise(
+            createBillAPIs(data),
+            {
+                pending: 'Đang tạo hóa đơn...',
+                success: 'Tạo hóa đơn thành công!',
+            }
+        ).then(() => {
+
+            setOpen(false);
+        })
     };
 
     return (
@@ -82,7 +84,7 @@ export const DialogCreateBill = ({ open, setOpen, orderRooms, departments }: { o
                 </div>
                 <DialogFooter className="mt-4 flex gap-2 justify-center">
                     <Button type="button" onClick={handleSubmit} className="flex items-center gap-2" size='sm'>
-                        <span className="i-mdi-calculator" /> Tính tiền
+                        <span className="i-mdi-calculator" /> Tạo hóa đơn
                     </Button>
                     <Button type="button" variant="destructive" onClick={() => setOpen(false)} size='sm'>
                         X Đóng
