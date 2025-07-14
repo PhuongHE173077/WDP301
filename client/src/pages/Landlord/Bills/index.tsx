@@ -1,0 +1,174 @@
+
+import { getDepartmentsByOwner } from '@/apis/departmentApi';
+import { fetchOrders } from '@/apis/order.apis';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, Delete, DeleteIcon, EditIcon, NotepadText, ViewIcon } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { DialogCreateBill } from './components/DialogCreateBill';
+import { useNavigate } from 'react-router-dom';
+
+const houses = [
+    { label: 'Tất cả', value: '' },
+    { label: 'Nhà Q7', value: 'Q7' },
+    { label: 'Nhà Nhà Bè', value: 'NB' },
+];
+
+export const Bills = () => {
+    const [orderRooms, setOrderRooms] = useState<any[]>([]);
+    const [month, setMonth] = useState('2024-02');
+    const [departments, setDepartments] = useState<any[]>([]);
+    const [house, setHouse] = useState('');
+    const [roomCode, setRoomCode] = useState('');
+    const [openDialogCreate, setOpenDialogCreate] = useState(false);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchOrders().then(res => {
+                setOrderRooms(res.data.filter((item: any) => item.startAt));
+            });
+            await getDepartmentsByOwner().then(res => {
+                setDepartments(res.data);
+            });
+        };
+        fetchData();
+    }, []);
+
+    // Dummy data for UI demo
+    const data = [
+        {
+            time: '02/2024',
+            house: 'Nhà Q7',
+            room: '100A',
+            guest: 'Vũ Văn Thiết',
+            amount: 6907345,
+            paid: 0,
+            remain: 6907345,
+        },
+        {
+            time: '02/2024',
+            house: 'Nhà Q7',
+            room: '101B',
+            guest: 'Nguyễn Nhật Linh',
+            amount: 8428104,
+            paid: 0,
+            remain: 8428104,
+        },
+        {
+            time: '02/2024',
+            house: 'Nhà Nhà Bè',
+            room: 'A201',
+            guest: 'Tạ Thị Lan',
+            amount: 4592069,
+            paid: 0,
+            remain: 4592069,
+        },
+        {
+            time: '02/2024',
+            house: 'Nhà Q7',
+            room: '100A',
+            guest: 'Vũ Văn Thiết',
+            amount: 6907345,
+            paid: 0,
+            remain: 6907345,
+        },
+        {
+            time: '02/2024',
+            house: 'Nhà Nhà Bè',
+            room: 'A201',
+            guest: 'Tạ Thị Lan',
+            amount: 4592069,
+            paid: 0,
+            remain: 4592069,
+        },
+    ];
+
+    return (
+        <div className="">
+            <div className="flex justify-between items-center mb-2">
+                <div className="flex">
+                    <NotepadText className="text-2xl text-gray-700 mr-2" />
+                    <h2 className="font-bold text-lg mb-4">Tính tiền</h2>
+                </div>
+                <div className="flex gap-10">
+                    <Button className="bg-green-600 text-white px-4 py-1 rounded" size='sm' onClick={() => setOpenDialogCreate(true)}>Tính tiền</Button>
+                    <Button className="bg-orange-500 text-white px-4 py-1 rounded" size='sm'>Xuất dữ liệu</Button>
+                </div>
+            </div>
+            <div className="bg-white rounded shadow">
+                <div className="font-semibold mb-2 rounded bg-gray-100 p-1 flex">
+                    <ChevronDown className="text-2xl text-gray-700 mr-2" />
+                    <span>Bộ lọc tìm kiếm</span>
+                </div>
+                <div className="mb-4 flex flex-wrap gap-6 p-4 items-center">
+                    <div>
+                        <label className="mr-2">Tháng/năm:</label>
+                        <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="border rounded px-2 py-1" />
+                    </div>
+                    <div>
+                        <label className="mr-2">Tòa:</label>
+                        <select value={house} onChange={e => setHouse(e.target.value)} className="border rounded px-2 py-1 min-w-20">
+                            {departments.map(h => (
+                                <option key={h._id} value={h._id}>{h.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="mr-2">Mã phòng:</label>
+                        <input type="text" value={roomCode} onChange={e => setRoomCode(e.target.value)} placeholder="Nhập mã phòng ..." className="border rounded px-2 py-1" />
+                    </div>
+
+                </div>
+            </div>
+            <div className="p-6 bg-white rounded shadow mt-5">
+
+
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="border px-2 py-1">STT</th>
+                                <th className="border px-2 py-1">Thời gian</th>
+                                <th className="border px-2 py-1">Nhà</th>
+                                <th className="border px-2 py-1">Phòng</th>
+                                <th className="border px-2 py-1">Tên khách</th>
+                                <th className="border px-2 py-1">Số tiền (VND)</th>
+                                <th className="border px-2 py-1">Đã trả (VND)</th>
+                                <th className="border px-2 py-1">Còn lại (VND)</th>
+                                <th className="border px-2 py-1">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.map((row: any, idx) => (
+                                <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                    <td className="border px-2 py-1 text-center">{idx + 1}</td>
+                                    <td className="border px-2 py-1 text-center">{row.time}</td>
+                                    <td className="border px-2 py-1 text-center">{row.house}</td>
+                                    <td className="border px-2 py-1 text-center">{row.room}</td>
+                                    <td className="border px-2 py-1">{row.guest}</td>
+                                    <td className="border px-2 py-1 text-right">{row.amount.toLocaleString()}</td>
+                                    <td className="border px-2 py-1 text-right">{row.paid.toLocaleString()}</td>
+                                    <td className="border px-2 py-1 text-right">{row.remain.toLocaleString()}</td>
+                                    <td className="border px-2 py-1 text-center">
+                                        <div className="flex gap-2 justify-center">
+                                            <button title="Xem" className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"><ViewIcon className='w-4 h-4' /></button>
+                                            <button title="Sửa" onClick={() => navigate(`/calculate-bill/${row._id}`)} className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded"><EditIcon className='w-4 h-4' /></button>
+                                            <button title="Xóa" className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"><Delete className='w-4 h-4' /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="flex justify-between items-center mt-4">
+                    <div>1 to 5 of 5</div>
+                    <div>Page 1 of 1</div>
+                </div>
+            </div>
+            <DialogCreateBill open={openDialogCreate} setOpen={setOpenDialogCreate} orderRooms={orderRooms} departments={departments} />
+        </div>
+
+    );
+}
