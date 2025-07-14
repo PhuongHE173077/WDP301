@@ -16,7 +16,7 @@ import { DialogView } from "./components/DialogView";
 
 type User = {
     id: number;
-    displayName: string;
+    userName: string;
     phone: string;
     email: string;
     birthYear: number;

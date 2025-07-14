@@ -10,6 +10,7 @@ import { DialogUpdateCCCD } from './DialogUpload';
 import { toast } from 'react-toastify';
 import html2pdf from 'html2pdf.js';
 import { uploadContractAPIs } from '@/apis/contract.apis';
+import { createPaymentContract } from '@/apis/payment.apis';
 
 export const ContractDetail = () => {
     const { id } = useParams();
@@ -41,8 +42,14 @@ export const ContractDetail = () => {
         setSignature(image);
     }
 
-    const handleCreate = () => {
-        setOpenCCCD(true);
+    const handleCreate = async () => {
+        const data = {
+            amount: order?.contract?.deposit,
+            _id: order?._id
+        }
+        await createPaymentContract(data).then((res) => {
+            window.location.href = res.data;
+        });
     }
     const handleSubmit = async () => {
         const element = document.getElementById('contract-content');
@@ -165,7 +172,7 @@ export const ContractDetail = () => {
 
             </div>
             <SignatureDialog open={open} setOpen={setOpen} onSave={handleSave} />
-            <DialogUpdateCCCD open={openCCCD} setOpen={setOpenCCCD} imageFront={imageFront} setImageFront={setImageFront} imageBack={imageBack} setImageBack={setImageBack} handleSave={handleSubmit} />
+            {/* <DialogUpdateCCCD open={openCCCD} setOpen={setOpenCCCD} imageFront={imageFront} setImageFront={setImageFront} imageBack={imageBack} setImageBack={setImageBack} handleSave={handleSubmit} /> */}
         </>
 
     )

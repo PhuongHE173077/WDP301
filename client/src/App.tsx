@@ -19,6 +19,7 @@ import { TenantRooms } from "./pages/Tenant/Rooms";
 import { Contracts } from "./pages/Tenant/Contracts";
 import DepartmentList from "./pages/Landlord/Rooms/DepartmentList";
 import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
+import Feedback from "./pages/Landlord/Feedback/Feedback";
 import "react-datepicker/dist/react-datepicker.css"
 import { LandlordContracts } from "./pages/Landlord/Contracts";
 import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDetail";
@@ -32,6 +33,13 @@ import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
 import Transaction from "./pages/Public/Transaction/Index";
+import { BookRoom } from "./pages/Tenant/BookRooms";
+import { BookRoomManager } from "./pages/Landlord/BookRooms";
+import { PaymentReturn } from "./pages/Tenant/Payment";
+import { ErrorPayment } from "./pages/Tenant/Payment/ErrorPayment";
+import { PaymentSuccess } from "./pages/Tenant/Payment/PaymentSuccess";
+import RegisterPage from "./pages/auth/Register";
+import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -42,13 +50,14 @@ const App = () => (
 
       <BrowserRouter>
         <Routes>
-
           <Route path="/" element={<Index />} />
 
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/tim-kiem-tro" element={<RentalSearch />} />
           <Route path="/tro/:id" element={<TroDetailPage />} />
-
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/error" element={<ErrorPayment />} />
           <Route element={<ProtectedRoute />}>
 
             {/* Landlord router */}
@@ -57,14 +66,14 @@ const App = () => (
               <Route path="/order-rooms" element={<OrderRooms />} />
               <Route path="/landlord/contract" element={<LandlordContracts />} />
               <Route path="/tenants" element={<Tenants />} />
-              <Route path="/rooms" element={<Rooms />} />
               <Route path="/departments/:id" element={<DepartmentDetail />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/book-room-manager" element={<BookRoomManager />} />
               <Route path="/departments/create" element={<CreateDepartment />} />
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
-
             </Route>
 
             {/* Tenant router */}
@@ -73,7 +82,9 @@ const App = () => (
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract-detail/:id" element={<ContractDetail />} />
               <Route path="/transactions" element={<Transaction />} />
+              <Route path="/book-rooms" element={<BookRoom />} />
 
+              <Route path="/feedback-tenant" element={<TenanFeedback />} />
             </Route>
 
             <Route element={<LayoutAdmin />} >
