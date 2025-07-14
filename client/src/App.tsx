@@ -27,7 +27,8 @@ import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
 import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
 import TroDetailPage from "./pages/Public/RoomDetail";
 import RentalSearch from "./pages/Public/SearchRoom";
-import ProfileScreen from "./pages/me/ProfileScreen";
+import ProfileScreenLandlord from "./pages/me/ProfileScreen";
+import ProfileScreenTenant from "./pages/Tenant/me/ProfileScreen";
 import EditRoom from "./pages/Landlord/Rooms/EditRoom";
 import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
@@ -40,6 +41,7 @@ import { ErrorPayment } from "./pages/Tenant/Payment/ErrorPayment";
 import { PaymentSuccess } from "./pages/Tenant/Payment/PaymentSuccess";
 import RegisterPage from "./pages/auth/Register";
 import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
+import LandlordTransaction from './pages/Landlord/Transaction/Index';
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -73,7 +75,8 @@ const App = () => (
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
-              <Route path="/profile" element={<ProfileScreen />} />
+              <Route path="/profile" element={<ProfileScreenLandlord />} />
+              <Route path="/landlord/transactions" element={<LandlordTransaction />} />
             </Route>
 
             {/* Tenant router */}
@@ -85,6 +88,7 @@ const App = () => (
               <Route path="/book-rooms" element={<BookRoom />} />
 
               <Route path="/feedback-tenant" element={<TenanFeedback />} />
+              <Route path="/tenant/profile" element={<ProfileScreenTenant />} />
             </Route>
 
             <Route element={<LayoutAdmin />} >

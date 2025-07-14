@@ -85,7 +85,7 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem className="flex gap-2">
+              <DropdownMenuItem className="flex gap-2" onClick={() => navigate("/tenant/profile")}>
                 <UserCircleIcon />
                 Tài khoản
               </DropdownMenuItem>
