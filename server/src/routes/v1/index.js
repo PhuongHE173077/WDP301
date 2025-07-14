@@ -8,6 +8,7 @@ import { imageRouter } from './imageRoute'
 import { roomRouter } from './roomRoute'
 import { blogRouter } from './blogRoutes'
 import { bookRoomRouter } from './bookRoomRouter'
+import { transactionRouter } from './transactionRouter'
 
 
 
@@ -43,5 +44,8 @@ Router.use('/blogs', blogRouter)
 
 //book room APIs
 Router.use('/book-rooms', bookRoomRouter)
+
+//Transaction APIs
+Router.use('/transaction', transactionRouter)
 
 export const APIs_V1 = Router

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,9 @@ import {
     SearchIcon,
     XIcon
 } from "lucide-react";
+import { useSelector } from "react-redux";
+import { fetchTransactionsByUserId } from "@/apis/transaction";
+import { selectCurrentUser } from "@/store/slice/userSlice";
 
 // Types
 interface Transaction {
@@ -52,82 +55,7 @@ interface FilterBarProps {
     activeFilters: any;
 }
 
-// Mock data
-const mockTransactions: Transaction[] = [
-    {
-        id: "1",
-        type: "income",
-        amount: 3500000,
-        description: "Thu tiền phòng 201",
-        category: "Tiền phòng",
-        room: "Phòng 201",
-        tenant: "Nguyễn Văn A",
-        date: "15/12/2024"
-    },
-    {
-        id: "2",
-        type: "income",
-        amount: 3000000,
-        description: "Thu tiền phòng 202",
-        category: "Tiền phòng",
-        room: "Phòng 202",
-        tenant: "Trần Thị B",
-        date: "15/12/2024"
-    },
-    {
-        id: "3",
-        type: "expense",
-        amount: 500000,
-        description: "Sửa chữa điện nước phòng 201",
-        category: "Bảo trì",
-        room: "Phòng 201",
-        date: "14/12/2024"
-    },
-    {
-        id: "4",
-        type: "expense",
-        amount: 200000,
-        description: "Mua đồ vệ sinh chung",
-        category: "Vật tư",
-        date: "14/12/2024"
-    },
-    {
-        id: "5",
-        type: "income",
-        amount: 2800000,
-        description: "Thu tiền phòng 203",
-        category: "Tiền phòng",
-        room: "Phòng 203",
-        tenant: "Lê Văn C",
-        date: "13/12/2024"
-    },
-    {
-        id: "6",
-        type: "expense",
-        amount: 1500000,
-        description: "Tiền điện tháng 12",
-        category: "Hóa đơn",
-        date: "12/12/2024"
-    },
-    {
-        id: "7",
-        type: "income",
-        amount: 3200000,
-        description: "Thu tiền phòng 204",
-        category: "Tiền phòng",
-        room: "Phòng 204",
-        tenant: "Phạm Thị D",
-        date: "10/12/2024"
-    },
-    {
-        id: "8",
-        type: "expense",
-        amount: 800000,
-        description: "Tiền nước tháng 12",
-        category: "Hóa đơn",
-        date: "10/12/2024"
-    }
-];
+
 
 // Components
 function StatCard({ title, amount, icon: Icon, type, trend }: StatCardProps) {
@@ -365,14 +293,40 @@ function FilterBar({ onFilterChange, activeFilters }: FilterBarProps) {
 // Main Component
 export default function Index() {
     const [filters, setFilters] = useState<any>({});
+    const [transactions, setTransactions] = useState<any[]>([]);
+    const currentUser = useSelector(selectCurrentUser);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!currentUser?._id) return;
+            try {
+                const res = await fetchTransactionsByUserId(currentUser._id);
+                // Map dữ liệu backend về đúng định dạng Transaction nếu cần
+                const data = (res.data || []).map((item: any) => ({
+                    id: item._id,
+                    type: item.amount > 0 ? 'income' : 'expense',
+                    amount: Math.abs(item.amount),
+                    description: item.description || '',
+                    category: item.cardType || '',
+                    room: item.orderInfo?.roomId?.name || '',
+                    tenant: item.receiverId?.fullName || '',
+                    date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '',
+                }));
+                setTransactions(data);
+            } catch (e) {
+                setTransactions([]);
+            }
+        };
+        fetchData();
+    }, [currentUser]);
 
     // Calculate statistics
     const stats = useMemo(() => {
-        const totalIncome = mockTransactions
+        const totalIncome = transactions
             .filter(t => t.type === 'income')
             .reduce((sum, t) => sum + t.amount, 0);
 
-        const totalExpense = mockTransactions
+        const totalExpense = transactions
             .filter(t => t.type === 'expense')
             .reduce((sum, t) => sum + t.amount, 0);
 
@@ -383,11 +337,11 @@ export default function Index() {
             totalExpense,
             balance
         };
-    }, []);
+    }, [transactions]);
 
     // Filter transactions
     const filteredTransactions = useMemo(() => {
-        return mockTransactions.filter(transaction => {
+        return transactions.filter(transaction => {
             if (filters.type && transaction.type !== filters.type) {
                 return false;
             }
@@ -404,7 +358,7 @@ export default function Index() {
 
             return true;
         });
-    }, [filters]);
+    }, [filters, transactions]);
 
     return (
         <div className="min-h-screen bg-background">
@@ -415,12 +369,12 @@ export default function Index() {
                         <h1 className="text-3xl font-bold text-blue-400">
                             Lịch Sử Giao Dịch
                         </h1>
-                        <p className="text-muted-foreground mt-1">
+                        {/* <p className="text-muted-foreground mt-1">
                             Quản lý và theo dõi các giao dịch thu chi của nhà trọ
-                        </p>
+                        </p> */}
                     </div>
 
-                    <div className="flex gap-2">
+                    {/* <div className="flex gap-2">
                         <Button variant="outline" size="sm" className="hover:bg-primary/10 transition-colors duration-200">
                             <DownloadIcon className="h-4 w-4 mr-2" />
                             Xuất Excel
@@ -429,11 +383,11 @@ export default function Index() {
                             <PlusIcon className="h-4 w-4 mr-2" />
                             Thêm Giao Dịch
                         </Button>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Statistics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <StatCard
                         title="Tổng Thu Nhập"
                         amount={stats.totalIncome}
@@ -455,7 +409,7 @@ export default function Index() {
                         type="balance"
                         trend={{ value: 15.7, isPositive: true }}
                     />
-                </div>
+                </div> */}
 
                 {/* Filters */}
                 <Card className="p-6 mb-6 bg-gradient-card border-0 shadow-soft animate-scale-in">
