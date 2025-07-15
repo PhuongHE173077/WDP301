@@ -37,7 +37,11 @@ const orderSchema = new mongoose.Schema({
     },
     oldElectricNumber: {
         type: Number,
-        required: false
+        default: 0
+    },
+    oldWaterNumber: {
+        type: Number,
+        default: 0
     },
     history: {
         type: Array,
