@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis"; // 👈 cần thêm hàm update
+import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis"; 
 
 const PAGE_SIZE = 5;
 
