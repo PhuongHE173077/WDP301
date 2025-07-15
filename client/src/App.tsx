@@ -39,6 +39,8 @@ import { ErrorPayment } from "./pages/Tenant/Payment/ErrorPayment";
 import { PaymentSuccess } from "./pages/Tenant/Payment/PaymentSuccess";
 import RegisterPage from "./pages/auth/Register";
 import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
+import { Bills } from "./pages/Landlord/Bills";
+import { CalculateBill } from "./pages/Landlord/Bills/CalculateBill";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -73,6 +75,10 @@ const App = () => (
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
+              <Route path="/book-room-manager" element={<BookRoomManager />} />
+
+              <Route path="/bills" element={<Bills />} />
+              <Route path="/calculate-bill/:id" element={<CalculateBill />} />
             </Route>
 
             {/* Tenant router */}

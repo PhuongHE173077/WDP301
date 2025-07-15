@@ -81,6 +81,7 @@ const register = async (req, res, next) => {
             email,
             password: hashedPassword,
             userName: email.split('@')[0],
+            phone: req.body.phone,
             displayName
         })
 
