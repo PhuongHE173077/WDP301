@@ -11,7 +11,14 @@ const getBills = async (req, res, next) => {
         const bills = await Bill.find({ ownerId: userId })
             .populate('ownerId', 'displayName email')
             .populate('tenantId', 'displayName email')
-            .populate('roomId', 'roomId departmentId')
+            .populate({
+                path: 'roomId',
+                select: 'roomId departmentId',
+                populate: {
+                    path: 'departmentId',
+                    select: 'electricPrice waterPrice '
+                }
+            })
             .sort({ createdAt: -1 });
 
         res.status(StatusCodes.OK).json(bills);
@@ -49,7 +56,28 @@ const createBill = async (req, res, next) => {
         next(error);
     }
 }
+
+const getBillById = async (req, res, next) => {
+    try {
+        const billId = req.params.id;
+        const userId = req.jwtDecoded._id;
+
+        const bill = await Bill.findById(billId)
+            .populate('ownerId', 'displayName email')
+            .populate('tenantId', 'displayName email')
+            .populate('roomId', 'roomId departmentId');
+
+        if (!bill) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Bill not found');
+        }
+
+        res.status(StatusCodes.OK).json(bill);
+    } catch (error) {
+        next(error);
+    }
+}
 export const billController = {
     getBills,
-    createBill
+    createBill,
+    getBillById
 }

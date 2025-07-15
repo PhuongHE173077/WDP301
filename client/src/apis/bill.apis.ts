@@ -7,3 +7,7 @@ export const fetchBillsAPIs = async () => {
 export const createBillAPIs = async (data: any) => {
     return await axiosCustomize.post('/api/v1/bills', data)
 }
+
+export const fetchBillByIdAPIs = async (id: string) => {
+    return await axiosCustomize.get(`/api/v1/bills/${id}`)
+}

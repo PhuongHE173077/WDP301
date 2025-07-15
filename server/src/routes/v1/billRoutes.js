@@ -8,6 +8,7 @@ router.route('/')
     .get(authMiddlewares.isAuthorized, billController.getBills)
     .post(authMiddlewares.isAuthorized, billController.createBill)
 
-
+router.route('/:id')
+    .get(authMiddlewares.isAuthorized, billController.getBillById)
 
 export const billRouter = router
