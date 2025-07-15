@@ -19,6 +19,7 @@ const ProfileScreen = () => {
     const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [passwordError, setPasswordError] = useState<{ [key: string]: string }>({});
     const [loadingChange, setLoadingChange] = useState(false);
+    const [loadingSave, setLoadingSave] = useState(false);
 
     // Format ngày tháng
     const formatDate = (dateString: string) => {
@@ -46,6 +47,7 @@ const ProfileScreen = () => {
     };
 
     const handleSave = async () => {
+        setLoadingSave(true);
         const formData = new FormData();
         Object.keys(editData).forEach(key => {
             if (key === 'avatar' && avatarFile) return;
@@ -66,6 +68,8 @@ const ProfileScreen = () => {
             setAvatarFile(null);
         } catch (error) {
             console.error('Failed to update profile:', error);
+        } finally {
+            setLoadingSave(false);
         }
     };
 
@@ -306,7 +310,7 @@ const ProfileScreen = () => {
                     </div>
 
                     {/* Account Details */}
-                    <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg border border-blue-100 p-4">
+                    {/* <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg border border-blue-100 p-4">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">Chi tiết tài khoản</h3>
                         <div className="grid md:grid-cols-2 gap-4 text-sm">
                             <div>
@@ -318,7 +322,7 @@ const ProfileScreen = () => {
                                 <span className="ml-2 text-gray-600 capitalize">{userData.role}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Action Buttons */}
@@ -328,12 +332,14 @@ const ProfileScreen = () => {
                             <button
                                 className="flex-1 bg-gradient-to-r from-blue-500 to-sky-500 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-sky-600 transition-all duration-200 shadow-lg"
                                 onClick={handleSave}
+                                disabled={loadingSave}
                             >
-                                Lưu
+                                {loadingSave ? 'Đang lưu...' : 'Lưu'}
                             </button>
                             <button
                                 className="flex-1 bg-white text-blue-600 py-3 px-6 rounded-xl font-semibold border-2 border-blue-200 hover:bg-blue-50 transition-colors"
                                 onClick={handleCancel}
+                                disabled={loadingSave}
                             >
                                 Hủy
                             </button>

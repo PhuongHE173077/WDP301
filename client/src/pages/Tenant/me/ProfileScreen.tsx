@@ -2,11 +2,12 @@ import React, { useState, useRef } from 'react';
 import { Camera, MapPin, Calendar, Mail, Phone, Edit3, Settings, Star, Users, Heart, MessageCircle, User, CreditCard, Shield } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, userSlice } from '@/store/slice/userSlice';
-import { fetchUpdateProfileAPIs } from '@/apis/userAPIs';
+
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '@/utils/validators';
+import { fetchUpdateTenantProfileAPIs } from '@/apis/tenant.apis';
 
 const ProfileScreen = () => {
     const userData = useSelector(selectCurrentUser);
@@ -19,6 +20,7 @@ const ProfileScreen = () => {
     const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [passwordError, setPasswordError] = useState<{ [key: string]: string }>({});
     const [loadingChange, setLoadingChange] = useState(false);
+    const [loadingSave, setLoadingSave] = useState(false);
 
     // Format ngày tháng
     const formatDate = (dateString: string) => {
@@ -46,6 +48,7 @@ const ProfileScreen = () => {
     };
 
     const handleSave = async () => {
+        setLoadingSave(true);
         const formData = new FormData();
         Object.keys(editData).forEach(key => {
             if (key === 'avatar' && avatarFile) return;
@@ -59,13 +62,15 @@ const ProfileScreen = () => {
         }
 
         try {
-            const response = await fetchUpdateProfileAPIs(formData);
+            const response = await fetchUpdateTenantProfileAPIs(formData);
             dispatch(userSlice.actions.setUser(response.data));
             setIsEditing(false);
             setEditData(null);
             setAvatarFile(null);
         } catch (error) {
             console.error('Failed to update profile:', error);
+        } finally {
+            setLoadingSave(false);
         }
     };
 
@@ -115,7 +120,7 @@ const ProfileScreen = () => {
             const formData = new FormData();
             formData.append('currentPassword', passwordForm.currentPassword);
             formData.append('newPassword', passwordForm.newPassword);
-            await fetchUpdateProfileAPIs(formData);
+            await fetchUpdateTenantProfileAPIs(formData);
             toast({ title: 'Đổi mật khẩu thành công', description: 'Mật khẩu của bạn đã được cập nhật.' });
             setOpenChangePassword(false);
             setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -289,11 +294,21 @@ const ProfileScreen = () => {
                                 <CreditCard className="w-5 h-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium text-gray-800">CCCD</p>
-                                    <p className="text-gray-600">{userData.CCCD}</p>
+                                    {isEditing ? (
+                                        <input
+                                            type="text"
+                                            name="CCCD"
+                                            value={editData.CCCD || ''}
+                                            onChange={handleChange}
+                                            className="text-gray-600 border-b border-blue-300 outline-none bg-transparent"
+                                        />
+                                    ) : (
+                                        <p className="text-gray-600">{userData.CCCD}</p>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            {/* <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                                 <Shield className="w-5 h-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium text-gray-800">Trạng thái tài khoản</p>
@@ -301,12 +316,12 @@ const ProfileScreen = () => {
                                         {userData.isActive ? 'Đang hoạt động' : 'Không hoạt động'}
                                     </p>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
 
                     {/* Account Details */}
-                    <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg border border-blue-100 p-4">
+                    {/* <div className="bg-gradient-to-br from-blue-50 to-sky-50 rounded-lg border border-blue-100 p-4">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">Chi tiết tài khoản</h3>
                         <div className="grid md:grid-cols-2 gap-4 text-sm">
                             <div>
@@ -318,7 +333,7 @@ const ProfileScreen = () => {
                                 <span className="ml-2 text-gray-600 capitalize">{userData.role}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Action Buttons */}
@@ -328,12 +343,14 @@ const ProfileScreen = () => {
                             <button
                                 className="flex-1 bg-gradient-to-r from-blue-500 to-sky-500 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-600 hover:to-sky-600 transition-all duration-200 shadow-lg"
                                 onClick={handleSave}
+                                disabled={loadingSave}
                             >
-                                Lưu
+                                {loadingSave ? 'Đang lưu...' : 'Lưu'}
                             </button>
                             <button
                                 className="flex-1 bg-white text-blue-600 py-3 px-6 rounded-xl font-semibold border-2 border-blue-200 hover:bg-blue-50 transition-colors"
                                 onClick={handleCancel}
+                                disabled={loadingSave}
                             >
                                 Hủy
                             </button>
