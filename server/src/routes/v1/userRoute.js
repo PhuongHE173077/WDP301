@@ -23,4 +23,7 @@ Router.route('/profile')
 Router.route('/:id')
     .delete(authMiddlewares.isAdmin,userController.deleteUser)
     .patch(authMiddlewares.isAdmin, userController.restoreUser)
+
+Router.route('/time')
+    .get(authMiddlewares.isAuthorized, userController.getTimeExpried)
 export const userRouter = Router

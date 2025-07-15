@@ -8,7 +8,7 @@ import { buyPackageAPIs, getPackagesAPIs } from '@/apis/package.apis';
 export const PackageList = () => {
   const [packages, setPackages] = useState<any[]>([]);
   const navigate = useNavigate();
-
+  const [isPaying, setIsPaying] = useState(false);
   useEffect(() => {
     getPackagesAPIs()
       .then(res => setPackages(res.data))
@@ -28,11 +28,23 @@ export const PackageList = () => {
       cancelButtonText: 'Huỷ',
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setIsPaying(true);
         try {
+          Swal.fire({
+          title: 'Đang xử lý...',
+          text: 'Vui lòng chờ trong giây lát',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
           await buyPackageAPIs(id);
           Swal.fire('Thành công', 'Mua gói thành công!', 'success');
           navigate('/rooms');
+          window.location.reload();
         } catch (error: any) {
+          Swal.close();
+          setIsPaying(false);
           if (error.response?.status === 402) {
             Swal.fire('Số dư không đủ', 'Vui lòng nạp thêm tiền để mua gói.', 'warning');
           } else {
@@ -61,10 +73,11 @@ export const PackageList = () => {
               Giá: <span className="text-green-600 font-bold">{pkg.price.toLocaleString()} VND</span>
             </div>
             <Button
+              disabled={isPaying}
               className="w-full bg-sky-200 text-sky-800 hover:bg-sky-300"
               onClick={() => handleBuy(pkg._id, pkg.name, pkg.availableTime, pkg.price)}
             >
-              Mua ngay
+              {isPaying ? 'Đang xử lý...' : 'Mua ngay'}
             </Button>
           </CardContent>
         </Card>

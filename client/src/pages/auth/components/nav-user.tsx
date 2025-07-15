@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/sidebar"
 import { useDispatch, useSelector } from "react-redux"
 import { logoutUserAPIs, selectCurrentUser } from "@/store/slice/userSlice"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
@@ -39,6 +39,7 @@ export function NavUser() {
   const handleLogout = () => {
     const result = dispatch(logoutUserAPIs());
   }
+  const navigate = useNavigate();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -87,7 +88,7 @@ export function NavUser() {
                 <UserCircleIcon />
                 <Link to="/profile">Tài khoản</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex gap-2">
+              <DropdownMenuItem className="flex gap-2" onClick={() => navigate('/packages')}>
                 <CreditCardIcon />
                 Nâng cấp
               </DropdownMenuItem>

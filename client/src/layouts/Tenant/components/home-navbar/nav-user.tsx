@@ -93,7 +93,7 @@ export function NavUser() {
                 <SearchIcon className="h-5 w-5" />
                 Tìm kiếm trọ
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex gap-2">
+              <DropdownMenuItem className="flex gap-2" >
                 <CreditCardIcon />
                 Nâng cấp
               </DropdownMenuItem>

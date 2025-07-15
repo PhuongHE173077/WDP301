@@ -171,7 +171,16 @@ const restoreUser = async (req, res, next) => {
   }
 };
 
-
+const getTimeExpried = async ( req,res, next) => {
+    try{
+        const userId = req.jwtDecoded?._id;
+        const user = await User.findOne({_id: userId, _destroy: false})
+        const time = user.timeExpired;
+       return res.status(200).json(time)
+    }catch(err){
+        return res.status(500).json({message: 'Lỗi server.'})
+    }
+}
 
 export const userController = {
     login,
@@ -180,5 +189,6 @@ export const userController = {
     getProfile,
     updateProfile,
     deleteUser,
-    restoreUser
+    restoreUser,
+    getTimeExpried
 }

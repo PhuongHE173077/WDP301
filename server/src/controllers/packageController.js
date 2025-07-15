@@ -58,84 +58,78 @@ const deletePackage = async (req, res) => {
 };
 
 const buyPackage = async (req, res, next) => {
-  const userId    = req.jwtDecoded._id;
+  const userId = req.jwtDecoded._id;
   const packageId = req.params.id;
 
+  const session = await mongoose.startSession();
   try {
-    // 1. Lấy gói và 2 ví
-    const [pkg, userWallet, adminWallet] = await Promise.all([
-      Package.findById(packageId),
-      Wallet.findOne({ userId, status: 'active' }),
-      Wallet.findOne({ userId: ADMIN_USER_ID, status: 'active' })
-    ]);
-
-    if (!pkg)        throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy gói.');
-    if (!userWallet) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy ví người dùng.');
-    if (!adminWallet)throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy ví admin.');
-
-    // 2. Kiểm tra số dư
-    if (userWallet.balance < pkg.price) {
-      return res.status(StatusCodes.PAYMENT_REQUIRED).json({
-        message:        'Số dư không đủ',
-        currentBalance: userWallet.balance,
-        needRecharge:   pkg.price - userWallet.balance
-      });
-    }
-
-    // 3. Bắt đầu session/transaction
-    const session = await mongoose.startSession();
     await session.withTransaction(async () => {
-      /* ---- 3.1 Trừ & cộng tiền ---- */
-      userWallet.balance  -= pkg.price;
-      adminWallet.balance += pkg.price;
-      await Promise.all([
-        userWallet.save({ session }),
-        adminWallet.save({ session })
-      ]);
+      // 1. Lấy gói, ví user, ví admin
+      const pkg = await Package.findById(packageId).session(session);
+      if (!pkg) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy gói.');
 
-      /* ---- 3.2 Tạo Transaction ---- */
+      const [userWallet, adminWallet] = await Promise.all([
+        Wallet.findOne({ userId, status: 'active' }).session(session),
+        Wallet.findOne({ userId: ADMIN_USER_ID, status: 'active' }).session(session)
+      ]);
+      if (!userWallet)  throw new ApiError(404, 'Không tìm thấy ví người dùng.');
+      if (!adminWallet) throw new ApiError(404, 'Không tìm thấy ví admin.');
+
+      // 2. Trừ tiền an toàn
+      const updatedUserWallet = await Wallet.findOneAndUpdate(
+        { _id: userWallet._id, balance: { $gte: pkg.price } },
+        { $inc: { balance: -pkg.price } },
+        { new: true, session }
+      );
+      if (!updatedUserWallet) {
+        throw new ApiError(StatusCodes.PAYMENT_REQUIRED, 'Số dư không đủ hoặc lỗi khi cập nhật.');
+      }
+
+      // 3. Cộng tiền vào ví admin
+      await Wallet.updateOne(
+        { _id: adminWallet._id },
+        { $inc: { balance: pkg.price } },
+        { session }
+      );
+
+      // 4. Tạo giao dịch
       await Transaction.create([{
         senderId:   userId,
         receiverId: ADMIN_USER_ID,
         amount:     pkg.price,
-        bank:       '-',
-        cardType:   '-',
+        txnRef:     uuidv4(), 
         orderInfo:  packageId,
-        txnRef:     uuidv4(),
-        description:`Nâng cấp gói ${pkg.name} (${pkg.availableTime} tháng)`,
-        status:     'success'
+        description:`Nâng cấp gói ${pkg.name}`,
+        status:     'success',
+        bank: '-',
+        cardType: '-'
       }], { session });
 
-      /* ---- 3.3 Gia hạn timeExpired ---- */
+      // 5. Cập nhật thời gian hết hạn
       const user = await User.findById(userId).session(session);
       const now  = new Date();
-
-      let baseTime = user.timeExpired && user.timeExpired > now
-        ? new Date(user.timeExpired)   // còn hạn → cộng tiếp
-        : now;                         // hết hạn / chưa có → tính từ hiện tại
+      const baseTime = user.timeExpired && user.timeExpired > now
+        ? new Date(user.timeExpired)
+        : now;
 
       baseTime.setMonth(baseTime.getMonth() + pkg.availableTime);
-      user.timeExpired = baseTime;
 
       await User.findByIdAndUpdate(
-  userId,
-  { $set: { timeExpired: baseTime } },
-  { session }
-);
-
+        userId,
+        { $set: { timeExpired: baseTime } },
+        { session }
+      );
     });
 
-    session.endSession();
-
-    // 4. Phản hồi
     return res.status(StatusCodes.OK).json({
-      message:     'Thanh toán gói thành công.',
-      newBalance:  userWallet.balance
+      message: 'Thanh toán gói thành công!'
     });
 
-  } catch (error) {
+  } catch (error) {  
     next(error);
-  }
+  }finally {
+  await session.endSession();  
+}
 };
 
 export const packageController = {
