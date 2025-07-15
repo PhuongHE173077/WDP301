@@ -302,16 +302,24 @@ export default function Index() {
             try {
                 const res = await fetchTransactionsByUserId(currentUser._id);
                 // Map dữ liệu backend về đúng định dạng Transaction nếu cần
-                const data = (res.data || []).map((item: any) => ({
-                    id: item._id,
-                    type: item.amount > 0 ? 'income' : 'expense',
-                    amount: Math.abs(item.amount),
-                    description: item.description || '',
-                    category: item.cardType || '',
-                    room: item.orderInfo?.roomId?.name || '',
-                    tenant: item.receiverId?.fullName || '',
-                    date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '',
-                }));
+                const data = (res.data || []).map((item: any) => {
+                    let type: 'income' | 'expense' = 'income';
+                    if (item.senderId?.toString() === currentUser._id?.toString()) {
+                        type = 'expense';
+                    } else if (item.receiverId?.toString() === currentUser._id?.toString()) {
+                        type = 'income';
+                    }
+                    return {
+                        id: item._id,
+                        type,
+                        amount: Math.abs(item.amount),
+                        description: item.description || '',
+                        category: item.cardType || '',
+                        room: item.orderInfo?.roomId?.name || '',
+                        tenant: item.receiverId?.fullName || '',
+                        date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '',
+                    };
+                });
                 setTransactions(data);
             } catch (e) {
                 setTransactions([]);
