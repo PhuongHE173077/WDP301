@@ -16,6 +16,7 @@ Router.route('/login')
 Router.route('/register')
     .post(tenantController.register)
 
-
+Router.route('/create-and-assign')
+    .post(authMiddlewares.isAuthorized, tenantController.createAndAssign)
 
 export const tenantRouter = Router

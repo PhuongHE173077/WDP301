@@ -12,7 +12,7 @@ import { Search, User, CalendarCheck, CheckCircle2, Phone } from "lucide-react"
 import DatePicker from "react-datepicker"
 import { format } from "date-fns"
 import { updateOrderAPIs } from "@/apis/order.apis"
-import { createTenantAPI } from "@/apis/tenant.apis"
+import { createTenantAndAssignAPI } from "@/apis/tenant.apis"
 
 export default function AddUserDialog({ open, setOpen, users, order, fetchData }: {
     open: boolean,
@@ -32,6 +32,7 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
         displayName: "",
         email: "",
         password: "",
+        phone: "",
     })
 
     useEffect(() => {
@@ -71,44 +72,33 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
         })
 
     }
-    
+
     const handleCreateAccount = async () => {
-    const { displayName, email, password } = newUserData
-
-    if (!displayName || !email || !password) {
-        alert("Vui lòng nhập đầy đủ thông tin")
-        return
-    }
-
-    try {
-        // Gọi API tạo user
-        const res = await createTenantAPI({ displayName, email, password }) // bạn cần import và xác định API phù hợp
-
-        const newUser = res.data.user
-        if (!newUser?._id) {
-            toast.error("Tạo tài khoản thất bại")
+        const { displayName, email, password, phone } = newUserData
+        if (!displayName || !email || !password || !phone || !startDate) {
+            alert("Vui lòng nhập đầy đủ thông tin")
             return
         }
 
-        // Tạo lịch sử thuê giống như handleAddUser
-        const updateData = {
-            tenantId: newUser._id,
-            startAt: startDate ? format(startDate, "yyyy-MM-dd") : "",
-            endAt: endDate ? format(endDate, "yyyy-MM-dd") : "",
-            oldElectricNumber: parseInt(electricityNumber, 10),
-            contract: null,
+        try {
+            const res = await createTenantAndAssignAPI({
+                displayName,
+                email,
+                password,
+                phone,
+                orderId: order._id,
+                startAt: startDate ? format(startDate, "yyyy-MM-dd") : "",
+                endAt: endDate ? format(endDate, "yyyy-MM-dd") : "", 
+            })
+
+            toast.success("Tạo tài khoản và gán phòng thành công")
+            setOpen(false)
+            fetchData()
+        } catch (err) {
+            console.error(err)
+            toast.error("Tạo tài khoản thất bại")
         }
-
-        await updateOrderAPIs(order._id, updateData)
-        toast.success("Tạo tài khoản và gán phòng thành công")
-        setOpen(false)
-        fetchData()
-    } catch (error) {
-        console.error(error)
-        toast.error("Đã có lỗi xảy ra khi tạo tài khoản")
     }
-}
-
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -272,12 +262,51 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
                                 />
                             </div>
 
+                            <div>
+                                <label className="font-medium">SĐT</label>
+                                <Input
+                                    value={newUserData.phone}
+                                    onChange={(e) => setNewUserData({ ...newUserData, phone: e.target.value })}
+                                    placeholder="Số điện thoại"
+                                />
+                            </div>
+
+                            {/* Chọn ngày bắt đầu */}
+                            <div className="flex items-center gap-3 mt-4">
+                                <label className="w-1/3 flex items-center gap-2 font-medium">
+                                    <CalendarCheck className="w-4 h-4 text-gray-600" />
+                                    Ngày bắt đầu:
+                                </label>
+                                <DatePicker
+                                    selected={startDate}
+                                    onChange={(date) => setStartDate(date)}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    className="w-2/3 px-3 py-2 border rounded-md"
+                                />
+                            </div>
+
+                            {/* Chọn ngày kết thúc */}
+                            <div className="flex items-center gap-3 mt-4">
+                                <label className="w-1/3 flex items-center gap-2 font-medium">
+                                    <CalendarCheck className="w-4 h-4 text-gray-600" />
+                                    Ngày kết thúc:
+                                </label>
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={(date) => setEndDate(date)}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    className="w-2/3 px-3 py-2 border rounded-md"
+                                />
+                            </div>
+
                             <div className="mt-4 flex justify-end">
                                 <Button
                                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl"
                                     onClick={handleCreateAccount}
                                 >
-                                    ✅ Tạo tài khoản và gán phòng
+                                    Tạo tài khoản và gán phòng
                                 </Button>
                             </div>
                         </div>

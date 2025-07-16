@@ -4,10 +4,6 @@ export const fetchTenantAPIs = async () => {
     return await axiosCustomize.get('api/v1/tenants');
 };
 
-export const createTenantAPI = async (data: {
-    displayName: string
-    email: string
-    password: string
-}) => {
-    return await axiosCustomize.post("api/v1/tenants", data)
+export const createTenantAndAssignAPI = async (data: any) => {
+    return await axiosCustomize.post('api/v1/tenants/create-and-assign', data)
 }
