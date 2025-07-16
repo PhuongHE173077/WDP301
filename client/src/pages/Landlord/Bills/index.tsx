@@ -1,4 +1,3 @@
-
 import { getDepartmentsByOwner } from '@/apis/departmentApi';
 import { fetchOrders } from '@/apis/order.apis';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import Loader from '@/components/ui-customize/Loader';
 import { deleteBillAPIs, fetchBillsAPIs } from '@/apis/bill.apis';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
-
+import DialogViewBill from './components/DialogViewBill';
 
 export const Bills = () => {
     const [orderRooms, setOrderRooms] = useState<any[]>([]);
@@ -19,6 +18,8 @@ export const Bills = () => {
     const [house, setHouse] = useState('');
     const [roomCode, setRoomCode] = useState('');
     const [openDialogCreate, setOpenDialogCreate] = useState(false);
+    const [openDialogView, setOpenDialogView] = useState(false); // State cho Dialog xem
+    const [selectedBill, setSelectedBill] = useState<any>(null); // Bill được chọn để xem
     const [loading, setLoading] = useState(false);
     const [bills, setBills] = useState<any[]>([]);
 
@@ -61,9 +62,13 @@ export const Bills = () => {
                 })
             }
         });
-
-
     }
+
+    // Hàm xử lý khi click nút "Xem"
+    const handleViewBill = (bill: any) => {
+        setSelectedBill(bill);
+        setOpenDialogView(true);
+    };
 
     if (loading) return <Loader />
 
@@ -102,7 +107,6 @@ export const Bills = () => {
                         <label className="mr-2">Mã phòng:</label>
                         <input type="text" value={roomCode} onChange={e => setRoomCode(e.target.value)} placeholder="Nhập mã phòng ..." className="border rounded px-2 py-1" />
                     </div>
-
                 </div>
             </div>
             <div className="p-6 bg-white rounded shadow mt-5">
@@ -150,7 +154,15 @@ export const Bills = () => {
                                             </td>
                                             <td className="border px-2 py-1 text-center">
                                                 <div className="flex gap-2 justify-center">
-                                                    {row.status && <button title="Xem" className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"><ViewIcon className='w-4 h-4' /></button>}
+                                                    {row.status && (
+                                                        <button
+                                                            title="Xem"
+                                                            onClick={() => handleViewBill(row)}
+                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                                                        >
+                                                            <ViewIcon className='w-4 h-4' />
+                                                        </button>
+                                                    )}
                                                     <button title="Sửa" onClick={() => navigate(`/calculate-bill/${row._id}`)} className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded"><EditIcon className='w-4 h-4' /></button>
                                                     <button title="Xóa" onClick={() => handleDeleteBill(row._id)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"><Delete className='w-4 h-4' /></button>
                                                 </div>
@@ -167,7 +179,14 @@ export const Bills = () => {
                     </>}
             </div>
             <DialogCreateBill open={openDialogCreate} setOpen={setOpenDialogCreate} orderRooms={orderRooms} departments={departments} fetchData={fetchData} />
-        </div>
 
+            {/* Dialog xem hóa đơn */}
+            <DialogViewBill
+                open={openDialogView}
+                setOpen={setOpenDialogView}
+                billData={selectedBill}
+                departments={departments}
+            />
+        </div>
     );
 }

@@ -31,7 +31,7 @@ export const CalculateBill = () => {
             setNewWater(data.newWater || 0);
             setOldWater(data.oldWater || 0);
             setPrepay(data.prepay || 0);
-            setDeadline(data.time?.slice(0, 10) || "");
+            setDeadline(data.duration || data.time?.slice(0, 10));
             const elec = data.serviceFee.find((s: any) => s.name === "Điện");
             const water = data.serviceFee.find((s: any) => s.name === "Nước");
             setElectricityPrice(elec?.price || 0);

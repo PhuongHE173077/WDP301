@@ -9,8 +9,8 @@ const getBills = async (req, res, next) => {
         const userId = req.jwtDecoded._id;
 
         const bills = await Bill.find({ ownerId: userId })
-            .populate('ownerId', 'displayName email')
-            .populate('tenantId', 'displayName email')
+            .populate('ownerId', 'displayName email phone')
+            .populate('tenantId', 'displayName email phone')
             .populate({
                 path: 'roomId',
                 select: 'roomId departmentId price',
@@ -64,7 +64,7 @@ const getBillById = async (req, res, next) => {
 
         const bill = await Bill.findById(billId)
             .populate('ownerId', 'displayName email')
-            .populate('tenantId', 'displayName email')
+            .populate('tenantId', 'displayName email phone')
             .populate('roomId', 'roomId departmentId price');
 
         if (!bill) {
@@ -93,7 +93,7 @@ const updateBill = async (req, res, next) => {
             oldWater: req.body.oldWater,
             newWater: req.body.newWater,
             prepay: req.body.prepay,
-            time: new Date(req.body.deadline),
+            duration: new Date(req.body.deadline),
             total: req.body.total,
             status: true
         }
