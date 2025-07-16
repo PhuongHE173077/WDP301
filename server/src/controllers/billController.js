@@ -129,10 +129,34 @@ const deleteBill = async (req, res, next) => {
     }
 }
 
+const getBillsByTenant = async (req, res, next) => {
+    try {
+        const tenantId = req.jwtDecoded._id;
+
+        const bills = await Bill.find({ tenantId: tenantId })
+            .populate('ownerId', 'displayName email phone')
+            .populate('tenantId', 'displayName email phone')
+            .populate({
+                path: 'roomId',
+                select: 'roomId departmentId price',
+                populate: {
+                    path: 'departmentId',
+                    select: 'electricPrice waterPrice '
+                }
+            })
+            .sort({ createdAt: -1 });
+
+        res.status(StatusCodes.OK).json(bills);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const billController = {
     getBills,
     createBill,
     getBillById,
     updateBill,
-    deleteBill
+    deleteBill,
+    getBillsByTenant
 }

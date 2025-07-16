@@ -58,6 +58,10 @@ const billSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    isPaid: {
+        type: Boolean,
+        default: false
+    },
     status: {
         type: Boolean,
         default: false

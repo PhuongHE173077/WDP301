@@ -8,6 +8,9 @@ router.route('/')
     .get(authMiddlewares.isAuthorized, billController.getBills)
     .post(authMiddlewares.isAuthorized, billController.createBill)
 
+router.route('/tenant')
+    .get(authMiddlewares.isAuthorized, billController.getBillsByTenant)
+
 router.route('/:id')
     .get(authMiddlewares.isAuthorized, billController.getBillById)
     .put(authMiddlewares.isAuthorized, billController.updateBill)

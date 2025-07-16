@@ -19,7 +19,7 @@ const items = [
 
   {
     title: 'Hóa Đơn ',
-    url: "/bills",
+    url: "/bill-tenant",
     icon: FileBadgeIcon,
   },
   {

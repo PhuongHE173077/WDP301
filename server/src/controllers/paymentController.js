@@ -8,6 +8,8 @@ import Transaction from '~/models/transactionModel';
 import ApiError from '~/utils/ApiError';
 import { WEBSITE_DOMAIN } from '../utils/constants';
 import Wallet from '~/models/walletModel';
+import Bill from '~/models/billModel';
+import dayjs from 'dayjs';
 const createPayment = async (req, res, next) => {
     try {
         const data = req.body;
@@ -21,13 +23,16 @@ const createPayment = async (req, res, next) => {
             loggerFn: ignoreLogger,
         });
 
+
         const vnpayResponse = await vnpay.buildPaymentUrl({
             vnp_Amount: data.amount,
             vnp_IpAddr: req.ip,
             vnp_TxnRef: uuidv4(),
             vnp_OrderInfo: data._id,
             vnp_OrderType: ProductCode.Other,
-            vnp_ReturnUrl: typePayment === 'contract' ? 'http://localhost:8081/api/v1/payment/check-payment-contract' : 'http://localhost:8081/api/v1/payment/check-payment-vnpay',
+            vnp_ReturnUrl: typePayment === 'contract' ? 'http://localhost:8081/api/v1/payment/check-payment-contract' :
+                typePayment === 'bill' ? 'http://localhost:8081/api/v1/payment/check-payment-bill' :
+                    'http://localhost:8081/api/v1/payment/check-payment-vnpay',
             vnp_Locale: VnpLocale.VN,
             vnp_CreateDate: dateFormat(new Date()),
             vnp_ExpireDate: dateFormat(new Date(Date.now() + 15 * 60 * 1000)),
@@ -69,7 +74,7 @@ const checkPaymentContract = async (req, res, next) => {
             bank: data.vnp_BankCode,
             orderInfo: data.vnp_OrderInfo,
             cardType: data.vnp_CardType,
-            description: `Thanh toán thuê phòng trọ từ ${new Date(orderRoom.startAt).toLocaleString()} - ${new Date(orderRoom.endAt).toLocaleString()}`,
+            description: `Thanh toán thuê phòng trọ từ ${dayjs(orderRoom.startAt).format('DD/MM/YYYY')} - ${dayjs(orderRoom.endAt).format('DD/MM/YYYY')}`,
             txnRef: data.vnp_TxnRef,
             status: data.vnp_ResponseCode === '00' ? 'success' : 'failed',
         }
@@ -88,8 +93,46 @@ const checkPaymentContract = async (req, res, next) => {
     }
 }
 
+const checkPaymentBill = async (req, res, next) => {
+    try {
+        const data = req.query;
+        const userId = req.jwtDecoded._id;
+        const bill = await Bill.findById(data.vnp_OrderInfo).populate({
+            path: 'roomId',
+            populate: {
+                path: 'departmentId'
+            }
+        })
+
+        const newTransaction = {
+            receiverId: bill.ownerId,
+            senderId: userId,
+            amount: data.vnp_Amount / 100,
+            bank: data.vnp_BankCode,
+            orderInfo: data.vnp_OrderInfo,
+            cardType: data.vnp_CardType,
+            description: `Thanh toán thuê hóa đơn tháng ${dayjs(bill.time).format('MM/YYYY')} cho phòng ${bill.roomId.roomId} - ${bill.roomId.departmentId.name}`,
+            txnRef: data.vnp_TxnRef,
+            status: data.vnp_ResponseCode === '00' ? 'success' : 'failed',
+        }
+
+        if (req.query.vnp_ResponseCode == '00') {
+            await Transaction.create(newTransaction);
+            await Bill.findByIdAndUpdate(bill._id, { prepay: data.vnp_Amount / 100, isPaid: true });
+            await Wallet.findOneAndUpdate({ userId: bill.ownerId }, { $inc: { balance: newTransaction.amount } });
+            return res.redirect(`${WEBSITE_DOMAIN}/payment/success?type=bill`);
+        } else {
+            return res.redirect(`${WEBSITE_DOMAIN}/payment/error`);
+        }
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const paymentController = {
     createPayment,
     checkPayment,
-    checkPaymentContract
+    checkPaymentContract,
+    checkPaymentBill
 }

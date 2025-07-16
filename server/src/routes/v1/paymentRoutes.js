@@ -15,5 +15,8 @@ Router.route('/check-payment-vnpay')
 Router.route('/check-payment-contract')
     .get(authMiddlewares.isAuthorized, paymentController.checkPaymentContract)
 
+Router.route('/check-payment-bill')
+    .get(authMiddlewares.isAuthorized, paymentController.checkPaymentBill)
+
 
 export const paymentRouter = Router

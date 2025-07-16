@@ -41,6 +41,7 @@ import RegisterPage from "./pages/auth/Register";
 import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
 import { Bills } from "./pages/Landlord/Bills";
 import { CalculateBill } from "./pages/Landlord/Bills/CalculateBill";
+import { BillsTenant } from "./pages/Tenant/Bills";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -76,7 +77,6 @@ const App = () => (
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/profile" element={<ProfileScreen />} />
               <Route path="/book-room-manager" element={<BookRoomManager />} />
-
               <Route path="/bills" element={<Bills />} />
               <Route path="/calculate-bill/:id" element={<CalculateBill />} />
             </Route>
@@ -87,7 +87,7 @@ const App = () => (
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract-detail/:id" element={<ContractDetail />} />
               <Route path="/book-rooms" element={<BookRoom />} />
-
+              <Route path="/bill-tenant" element={<BillsTenant />} />
               <Route path="/feedback-tenant" element={<TenanFeedback />} />
             </Route>
 

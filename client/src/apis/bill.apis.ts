@@ -19,3 +19,7 @@ export const updateBillAPIs = async (id: string, data: any) => {
 export const deleteBillAPIs = async (id: string) => {
     return await axiosCustomize.delete(`/api/v1/bills/${id}`)
 }
+
+export const fetchBillsByTenantAPIs = async () => {
+    return await axiosCustomize.get('/api/v1/bills/tenant')
+}
