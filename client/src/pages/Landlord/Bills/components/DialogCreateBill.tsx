@@ -8,7 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { toast } from 'react-toastify';
 import { createBillAPIs } from '@/apis/bill.apis';
 
-export const DialogCreateBill = ({ open, setOpen, orderRooms, departments }: { open: boolean, setOpen: (value: boolean) => void, orderRooms: any, departments: any }) => {
+export const DialogCreateBill = ({ open, setOpen, orderRooms, departments, fetchData }: { open: boolean, setOpen: (value: boolean) => void, orderRooms: any, departments: any, fetchData: () => void }) => {
     const [date, setDate] = useState("");
     const [house, setHouse] = useState("all");
     const [room, setRoom] = useState("all");
@@ -26,7 +26,7 @@ export const DialogCreateBill = ({ open, setOpen, orderRooms, departments }: { o
                 success: 'Tạo hóa đơn thành công!',
             }
         ).then(() => {
-
+            fetchData();
             setOpen(false);
         })
     };

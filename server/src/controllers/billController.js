@@ -13,7 +13,7 @@ const getBills = async (req, res, next) => {
             .populate('tenantId', 'displayName email')
             .populate({
                 path: 'roomId',
-                select: 'roomId departmentId',
+                select: 'roomId departmentId price',
                 populate: {
                     path: 'departmentId',
                     select: 'electricPrice waterPrice '
@@ -42,7 +42,7 @@ const createBill = async (req, res, next) => {
             roomId: req.body.roomId,
             tenantId: orderRoom.tenantId[0],
             ownerId: userId,
-            price: req.body.price,
+            price: room.price,
             serviceFee: room.serviceFee,
             oldElectricity: orderRoom.oldElectricNumber || 0,
             oldWater: orderRoom.oldWaterNumber || 0,
@@ -65,7 +65,7 @@ const getBillById = async (req, res, next) => {
         const bill = await Bill.findById(billId)
             .populate('ownerId', 'displayName email')
             .populate('tenantId', 'displayName email')
-            .populate('roomId', 'roomId departmentId');
+            .populate('roomId', 'roomId departmentId price');
 
         if (!bill) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Bill not found');
@@ -76,8 +76,63 @@ const getBillById = async (req, res, next) => {
         next(error);
     }
 }
+
+const updateBill = async (req, res, next) => {
+    try {
+        const billId = req.params.id;
+        const userId = req.jwtDecoded._id;
+
+        const bill = await Bill.findById(billId);
+        if (!bill) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Bill not found');
+        }
+
+        const dataUpdate = {
+            oldElectricity: req.body.oldElectricity,
+            newElectricity: req.body.newElectricity,
+            oldWater: req.body.oldWater,
+            newWater: req.body.newWater,
+            prepay: req.body.prepay,
+            time: new Date(req.body.deadline),
+            total: req.body.total,
+            status: true
+        }
+
+        const updatedBill = await Bill.findByIdAndUpdate(billId, dataUpdate, { new: true });
+        res.status(StatusCodes.OK).json(updatedBill);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const deleteBill = async (req, res, next) => {
+    try {
+        const billId = req.params.id;
+        const userId = req.jwtDecoded._id;
+
+        const bill = await Bill.findById(billId);
+
+        // Check if the bill exists
+        if (!bill) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Bill not found');
+        }
+
+        // Check if the user is authorized to delete the bill
+        if (bill.ownerId.toString() !== userId) {
+            throw new ApiError(StatusCodes.FORBIDDEN, 'You do not have permission to delete this bill');
+        }
+
+        const deletedBill = await Bill.findByIdAndDelete(billId);
+        res.status(StatusCodes.OK).json(deletedBill);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const billController = {
     getBills,
     createBill,
-    getBillById
+    getBillById,
+    updateBill,
+    deleteBill
 }

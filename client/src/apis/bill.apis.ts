@@ -11,3 +11,11 @@ export const createBillAPIs = async (data: any) => {
 export const fetchBillByIdAPIs = async (id: string) => {
     return await axiosCustomize.get(`/api/v1/bills/${id}`)
 }
+
+export const updateBillAPIs = async (id: string, data: any) => {
+    return await axiosCustomize.put(`/api/v1/bills/${id}`, data)
+}
+
+export const deleteBillAPIs = async (id: string) => {
+    return await axiosCustomize.delete(`/api/v1/bills/${id}`)
+}

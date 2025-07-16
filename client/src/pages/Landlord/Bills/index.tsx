@@ -7,14 +7,10 @@ import React, { useEffect, useState } from 'react';
 import { DialogCreateBill } from './components/DialogCreateBill';
 import { useNavigate } from 'react-router-dom';
 import Loader from '@/components/ui-customize/Loader';
-import { fetchBillsAPIs } from '@/apis/bill.apis';
+import { deleteBillAPIs, fetchBillsAPIs } from '@/apis/bill.apis';
 import dayjs from 'dayjs';
+import Swal from 'sweetalert2';
 
-const houses = [
-    { label: 'Tất cả', value: '' },
-    { label: 'Nhà Q7', value: 'Q7' },
-    { label: 'Nhà Nhà Bè', value: 'NB' },
-];
 
 export const Bills = () => {
     const [orderRooms, setOrderRooms] = useState<any[]>([]);
@@ -29,72 +25,45 @@ export const Bills = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            await fetchOrders().then(res => {
-                setOrderRooms(res.data.filter((item: any) => item.startAt));
-            });
-            await getDepartmentsByOwner().then(res => {
-                setDepartments(res.data);
-            });
-            await fetchBillsAPIs().then(res => {
-                setBills(res.data);
-            });
-            setLoading(false);
-        };
         fetchData();
     }, []);
 
+    const fetchData = async () => {
+        setLoading(true);
+        await fetchOrders().then(res => {
+            setOrderRooms(res.data.filter((item: any) => item.startAt));
+        });
+        await getDepartmentsByOwner().then(res => {
+            setDepartments(res.data);
+        });
+        await fetchBillsAPIs().then(res => {
+            setBills(res.data);
+        });
+        setLoading(false);
+    };
+
+    const handleDeleteBill = async (id: string) => {
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xóa hóa đơn này?',
+            text: "Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await deleteBillAPIs(id).then(() => {
+                    fetchBillsAPIs().then(res => {
+                        setBills(res.data);
+                    });
+                })
+            }
+        });
 
 
-    // Dummy data for UI demo
-    const data = [
-        {
-            time: '02/2024',
-            house: 'Nhà Q7',
-            room: '100A',
-            guest: 'Vũ Văn Thiết',
-            amount: 6907345,
-            paid: 0,
-            remain: 6907345,
-        },
-        {
-            time: '02/2024',
-            house: 'Nhà Q7',
-            room: '101B',
-            guest: 'Nguyễn Nhật Linh',
-            amount: 8428104,
-            paid: 0,
-            remain: 8428104,
-        },
-        {
-            time: '02/2024',
-            house: 'Nhà Nhà Bè',
-            room: 'A201',
-            guest: 'Tạ Thị Lan',
-            amount: 4592069,
-            paid: 0,
-            remain: 4592069,
-        },
-        {
-            time: '02/2024',
-            house: 'Nhà Q7',
-            room: '100A',
-            guest: 'Vũ Văn Thiết',
-            amount: 6907345,
-            paid: 0,
-            remain: 6907345,
-        },
-        {
-            time: '02/2024',
-            house: 'Nhà Nhà Bè',
-            room: 'A201',
-            guest: 'Tạ Thị Lan',
-            amount: 4592069,
-            paid: 0,
-            remain: 4592069,
-        },
-    ];
+    }
 
     if (loading) return <Loader />
 
@@ -106,7 +75,7 @@ export const Bills = () => {
                     <h2 className="font-bold text-lg mb-4">Tính tiền</h2>
                 </div>
                 <div className="flex gap-10">
-                    <Button className="bg-green-600 text-white px-4 py-1 rounded" size='sm' onClick={() => setOpenDialogCreate(true)}>Tính tiền</Button>
+                    <Button className="bg-green-600 text-white px-4 py-1 rounded" size='sm' onClick={() => setOpenDialogCreate(true)}>Tạo hóa đơn</Button>
                     <Button className="bg-orange-500 text-white px-4 py-1 rounded" size='sm'>Xuất dữ liệu</Button>
                 </div>
             </div>
@@ -161,20 +130,20 @@ export const Bills = () => {
                                         <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                             <td className="border px-2 py-1 text-center">{idx + 1}</td>
                                             <td className="border px-2 py-1 text-center">{dayjs(row?.time).format("MM/YYYY")}</td>
-                                            <td className="border px-2 py-1 text-center">{departments.find(d => d._id === row?.roomId?.departmentId)?.name}</td>
+                                            <td className="border px-2 py-1 text-center">{departments.find(d => d._id === row?.roomId?.departmentId._id)?.name}</td>
                                             <td className="border px-2 py-1 text-center">{row?.roomId?.roomId}</td>
                                             <td className="border px-2 py-1">{row?.tenantId.displayName}</td>
-                                            <td className="border px-2 py-1 text-right">{row?.status ? row?.total :
+                                            <td className="border px-2 py-1 text-right">{row?.status ? row?.total.toLocaleString() :
                                                 <div className='bg-yellow-100 text-yellow-800 px-2 w-fit rounded'>
                                                     chưa cập nhật
                                                 </div>
                                             } </td>
-                                            <td className="border px-2 py-1 text-right">{row?.status ? row?.paid : <div className='bg-yellow-100 text-yellow-800 px-2 w-fit rounded'>
+                                            <td className="border px-2 py-1 text-right">{row?.status ? row?.prepay.toLocaleString() : <div className='bg-yellow-100 text-yellow-800 px-2 w-fit rounded'>
                                                 chưa cập nhật
                                             </div>
                                             }</td>
                                             <td className="border px-2 py-1 text-right">
-                                                {row?.status ? row?.total - row?.paid : <div className='bg-yellow-100 text-yellow-800 px-2 w-fit rounded'>
+                                                {row?.status ? (row?.total - row?.prepay).toLocaleString() : <div className='bg-yellow-100 text-yellow-800 px-2 w-fit rounded'>
                                                     chưa cập nhật
                                                 </div>
                                                 }
@@ -183,7 +152,7 @@ export const Bills = () => {
                                                 <div className="flex gap-2 justify-center">
                                                     {row.status && <button title="Xem" className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"><ViewIcon className='w-4 h-4' /></button>}
                                                     <button title="Sửa" onClick={() => navigate(`/calculate-bill/${row._id}`)} className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded"><EditIcon className='w-4 h-4' /></button>
-                                                    <button title="Xóa" className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"><Delete className='w-4 h-4' /></button>
+                                                    <button title="Xóa" onClick={() => handleDeleteBill(row._id)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"><Delete className='w-4 h-4' /></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -197,7 +166,7 @@ export const Bills = () => {
                         </div>
                     </>}
             </div>
-            <DialogCreateBill open={openDialogCreate} setOpen={setOpenDialogCreate} orderRooms={orderRooms} departments={departments} />
+            <DialogCreateBill open={openDialogCreate} setOpen={setOpenDialogCreate} orderRooms={orderRooms} departments={departments} fetchData={fetchData} />
         </div>
 
     );

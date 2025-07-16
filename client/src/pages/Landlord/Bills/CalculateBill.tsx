@@ -1,11 +1,12 @@
-import { fetchBillByIdAPIs } from "@/apis/bill.apis";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { fetchBillByIdAPIs, updateBillAPIs } from "@/apis/bill.apis";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const CalculateBill = () => {
     const { id } = useParams();
@@ -19,140 +20,203 @@ export const CalculateBill = () => {
     const [waterPrice, setWaterPrice] = useState(0);
     const [prepay, setPrepay] = useState(0);
     const [deadline, setDeadline] = useState("");
-    const handleSave = () => {
-        // TODO: Xử lý lưu bill, có thể gọi API cập nhật bill ở đây
-        alert("Đã lưu hóa đơn!");
-    };
+
     useEffect(() => {
-        if (!id) {
-            navigate('/not-found');
-        }
-        fetchBillByIdAPIs(id)
-            .then(response => {
-                setBill(response.data);
-                // Set initial values from bill
-                setOldElectricity(response.data.oldElectricity || 0);
-                setOldWater(response.data.oldWater || 0);
-                setPrepay(response.data.prepay || 0);
-                setDeadline(response.data.time ? response.data.time.slice(0, 10) : "");
-                // Find service prices
-                if (response.data.serviceFee) {
-                    const elec = response.data.serviceFee.find((s: any) => s.name === "Điện");
-                    const water = response.data.serviceFee.find((s: any) => s.name === "Nước");
-                    setElectricityPrice(elec?.price || 0);
-                    setWaterPrice(water?.price || 0);
-                }
-            })
-    }, [])
+        if (!id) return navigate('/not-found');
+        fetchBillByIdAPIs(id).then(res => {
+            const data = res.data;
+            setBill(data);
+            setOldElectricity(data.oldElectricity || 0);
+            setNewElectricity(data.newElectricity || 0);
+            setNewWater(data.newWater || 0);
+            setOldWater(data.oldWater || 0);
+            setPrepay(data.prepay || 0);
+            setDeadline(data.time?.slice(0, 10) || "");
+            const elec = data.serviceFee.find((s: any) => s.name === "Điện");
+            const water = data.serviceFee.find((s: any) => s.name === "Nước");
+            setElectricityPrice(elec?.price || 0);
+            setWaterPrice(water?.price || 0);
+        });
+    }, []);
+
+    const serviceList = bill?.serviceFee?.filter((s: any) => s.name !== "Điện" && s.name !== "Nước") || [];
+    const dien = bill?.serviceFee?.find((s: any) => s.name === "Điện");
+    const nuoc = bill?.serviceFee?.find((s: any) => s.name === "Nước");
+
+    const allServices = [
+        ...serviceList,
+        { name: "Phòng", price: bill?.roomId?.price || 0, _id: "room" },
+        ...(dien ? [dien] : []),
+        ...(nuoc ? [nuoc] : [])
+    ];
 
     const totalElectricity = (newElectricity - oldElectricity) * electricityPrice;
     const totalWater = (newWater - oldWater) * waterPrice;
-    const otherServices = bill?.serviceFee?.filter((s: any) => s.name !== "Điện" && s.name !== "Nước") || [];
-    const otherServicesTotal = otherServices.reduce((sum: number, s: any) => sum + s.price, 0);
-    const total = totalElectricity + totalWater + otherServicesTotal - prepay;
+    const roomPrice = bill?.roomId?.price || 0;
+    const otherTotal = serviceList.reduce((sum: number, s: any) => sum + s.price, 0);
+    const total = totalElectricity + totalWater + roomPrice + otherTotal;
+    const remain = total - prepay;
+
+    const handleSave = async () => {
+        const payload = {
+            oldElectricity,
+            newElectricity,
+            oldWater,
+            newWater,
+            prepay,
+            deadline,
+            total
+        }
+        console.log("🚀 ~ handleSave ~ payload:", payload)
+
+        await updateBillAPIs(id, payload)
+            .then(() => {
+                toast.success("Cập nhật hóa đơn thành công!");
+                setTimeout(() => {
+                    navigate("/bills");
+                }, 500);
+            })
+    };
 
     return (
-        <Card className="max-w-2xl mx-auto mt-8">
-            <CardHeader>
-                <CardTitle className="text-blue-700">Chi tiết hóa đơn phòng trọ</CardTitle>
-            </CardHeader>
-            <Separator />
-            <CardContent>
-                {bill ? (
-                    <>
-                        <div className="mb-4 grid grid-cols-2 gap-4">
-                            <div>
-                                <Label className="font-semibold">Phòng:</Label> {bill.roomId?.roomId}
-                            </div>
-                            <div>
-                                <Label className="font-semibold">Người thuê:</Label> {bill.tenantId?.displayName}
-                            </div>
-                            <div>
-                                <Label className="font-semibold">Chủ nhà:</Label> {bill.ownerId?.displayName}
-                            </div>
-                            <div>
-                                <Label className="font-semibold">Ngày tạo:</Label> {bill.createdAt?.slice(0, 10)}
-                            </div>
-                        </div>
-                        <Separator className="my-4" />
-                        <div className="mb-6">
-                            <h3 className="font-semibold text-lg mb-2 text-gray-700">Điện</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label>Số điện cũ</Label>
-                                    <Input type="number" value={oldElectricity} onChange={e => setOldElectricity(Number(e.target.value))} />
-                                </div>
-                                <div>
-                                    <Label>Số điện mới</Label>
-                                    <Input type="number" value={newElectricity} onChange={e => setNewElectricity(Number(e.target.value))} />
-                                </div>
-                                <div>
-                                    <Label>Giá điện (VNĐ/kWh)</Label>
-                                    <Input type="number" value={electricityPrice} onChange={e => setElectricityPrice(Number(e.target.value))} />
-                                </div>
-                                <div className="flex items-center">
-                                    <span className="font-semibold">Thành tiền:</span> <span className="ml-2 text-blue-600">{totalElectricity.toLocaleString()} VNĐ</span>
-                                </div>
-                            </div>
-                        </div>
-                        <Separator className="my-4" />
-                        <div className="mb-6">
-                            <h3 className="font-semibold text-lg mb-2 text-gray-700">Nước</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label>Số nước cũ</Label>
-                                    <Input type="number" value={oldWater} onChange={e => setOldWater(Number(e.target.value))} />
-                                </div>
-                                <div>
-                                    <Label>Số nước mới</Label>
-                                    <Input type="number" value={newWater} onChange={e => setNewWater(Number(e.target.value))} />
-                                </div>
-                                <div>
-                                    <Label>Giá nước (VNĐ/m³)</Label>
-                                    <Input type="number" value={waterPrice} onChange={e => setWaterPrice(Number(e.target.value))} />
-                                </div>
-                                <div className="flex items-center">
-                                    <span className="font-semibold">Thành tiền:</span> <span className="ml-2 text-blue-600">{totalWater.toLocaleString()} VNĐ</span>
-                                </div>
-                            </div>
-                        </div>
-                        <Separator className="my-4" />
-                        <div className="mb-6">
-                            <h3 className="font-semibold text-lg mb-2 text-gray-700">Dịch vụ khác</h3>
-                            <ul className="list-disc ml-6">
-                                {otherServices.map((s: any) => (
-                                    <li key={s._id} className="flex justify-between">
-                                        <span>{s.name}</span>
-                                        <span className="text-blue-600">{s.price.toLocaleString()} VNĐ</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="mt-2 font-semibold">Tổng dịch vụ khác: <span className="text-blue-600">{otherServicesTotal.toLocaleString()} VNĐ</span></div>
-                        </div>
-                        <Separator className="my-4" />
-                        <div className="mb-6 grid grid-cols-2 gap-4">
-                            <div>
-                                <Label>Hạn ngày nhập</Label>
-                                <Input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} />
-                            </div>
-                            <div>
-                                <Label>Tiền đã trả trước</Label>
-                                <Input type="number" value={prepay} onChange={e => setPrepay(Number(e.target.value))} />
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <div className="text-center text-gray-500">Đang tải hóa đơn...</div>
-                )}
-            </CardContent>
-            <Separator />
-            <CardFooter className="flex justify-between items-center">
+        <div className="max-w-4xl mx-auto p-4 space-y-4">
+            {/* Compact Header */}
+            <div className="flex items-center justify-between mb-4">
                 <div>
-                    <span className="font-semibold text-lg">Tổng tiền cần thanh toán:</span>
-                    <span className="text-2xl text-green-600 font-bold ml-4">{total.toLocaleString()} VNĐ</span>
+                    <h1 className="text-lg font-semibold">Hóa đơn thanh toán</h1>
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
+                        <span>Phòng: <strong className="text-foreground">{bill?.roomId?.roomId}</strong></span>
+                        <span>Người thuê: <strong className="text-foreground">{bill?.tenantId?.displayName}</strong></span>
+                    </div>
                 </div>
-                <Button onClick={handleSave} className="ml-auto">Lưu</Button>
-            </CardFooter>
-        </Card>
-    )
-}
+                <div className="text-sm text-right">
+                    <div>Ngày tạo: <strong>{bill?.createdAt?.slice(0, 10)}</strong></div>
+                    <div className="flex items-center gap-2 mt-1">
+                        <Label className="text-xs">Hạn thanh toán:</Label>
+                        <Input
+                            type="date"
+                            value={deadline}
+                            onChange={e => setDeadline(e.target.value)}
+                            className="h-8 text-xs w-36"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Services Table */}
+            <Card className="overflow-hidden">
+                <Table>
+                    <TableHeader className="bg-gray-100">
+                        <TableRow>
+                            <TableHead className="w-[50px]">STT</TableHead>
+                            <TableHead>Nội dung</TableHead>
+                            <TableHead className="text-right">Đơn giá</TableHead>
+                            <TableHead className="text-center">Chỉ số cũ</TableHead>
+                            <TableHead className="text-center">Chỉ số mới</TableHead>
+                            <TableHead className="text-center">Số lượng</TableHead>
+                            <TableHead className="text-right">Thành tiền</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {allServices.map((service, idx) => {
+                            let oldIdx = 0, newIdx = 0, qty = 1, total = service.price;
+                            if (service.name === "Điện") {
+                                oldIdx = oldElectricity;
+                                newIdx = newElectricity;
+                                qty = newElectricity - oldElectricity;
+                                total = qty * electricityPrice;
+                            } else if (service.name === "Nước") {
+                                oldIdx = oldWater;
+                                newIdx = newWater;
+                                qty = newWater - oldWater;
+                                total = qty * waterPrice;
+                            }
+
+                            return (
+                                <TableRow key={service._id}>
+                                    <TableCell className="font-medium">{idx + 1}</TableCell>
+                                    <TableCell>{service.name}</TableCell>
+                                    <TableCell className="text-right">
+                                        {service.price?.toLocaleString()} VNĐ
+                                    </TableCell>
+                                    <TableCell>
+                                        {service.name === "Điện" || service.name === "Nước" ? (
+                                            <Input
+                                                type="number"
+                                                className="w-16 h-7 text-sm text-center"
+                                                value={oldIdx}
+                                                onChange={e => service.name === "Điện"
+                                                    ? setOldElectricity(+e.target.value)
+                                                    : setOldWater(+e.target.value)}
+                                            />
+                                        ) : (
+                                            <div className="text-center text-sm">-</div>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {service.name === "Điện" || service.name === "Nước" ? (
+                                            <Input
+                                                type="number"
+                                                className="w-16 h-7 text-sm text-center"
+                                                value={newIdx}
+                                                onChange={e => service.name === "Điện"
+                                                    ? setNewElectricity(+e.target.value)
+                                                    : setNewWater(+e.target.value)}
+                                            />
+                                        ) : (
+                                            <div className="text-center text-sm">-</div>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-center text-sm">
+                                        {service.name === "Điện" || service.name === "Nước" ? qty : "-"}
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        {total?.toLocaleString()} VNĐ
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </Card>
+
+            {/* Summary Section */}
+            <div className="space-y-2">
+                <div className="flex justify-end items-center p-3 gap-2 bg-gray-50 rounded-md">
+                    <Label className="text-sm">Tổng cộng:</Label>
+                    <span className="font-semibold text-blue-600">
+                        {total.toLocaleString()} VNĐ
+                    </span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                    <div className="flex items-center space-x-2">
+                        <Label className="text-sm">Trả trước:</Label>
+                        <Input
+                            type="number"
+                            value={prepay}
+                            onChange={e => setPrepay(+e.target.value)}
+                            className="w-24 h-8 text-sm"
+                        />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Label className="text-sm text-red-600">Còn lại:</Label>
+                        <span className="font-semibold text-red-600">
+                            {remain.toLocaleString()} VNĐ
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-between pt-4">
+                <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+                    Quay lại
+                </Button>
+                <Button size="sm" onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
+                    Lưu hóa đơn
+                </Button>
+            </div>
+        </div>
+    );
+};

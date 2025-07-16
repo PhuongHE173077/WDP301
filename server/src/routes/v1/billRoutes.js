@@ -10,5 +10,7 @@ router.route('/')
 
 router.route('/:id')
     .get(authMiddlewares.isAuthorized, billController.getBillById)
+    .put(authMiddlewares.isAuthorized, billController.updateBill)
+    .delete(authMiddlewares.isAuthorized, billController.deleteBill)
 
 export const billRouter = router

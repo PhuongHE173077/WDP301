@@ -18,6 +18,7 @@ const billSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
+        required: true
     },
     oldElectricity: {
         type: Number,
