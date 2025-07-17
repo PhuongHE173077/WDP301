@@ -55,10 +55,22 @@ export const OrderRooms = () => {
         });
     }
 
-
-
-
-
+    // Helper function to render contract status beautifully
+    const renderContractStatus = (tenant: any) => {
+        if (tenant?.contract?.status === "pending_signature" && tenant?.contract?.paid) {
+            return <span className="px-2 py-1 rounded bg-green-100 text-green-700 font-medium">Đã thanh toán</span>;
+        }
+        if (tenant?.contract?.status === "pending_signature") {
+            return <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700 font-medium">Đang đợi phản hồi của người thuê</span>;
+        }
+        if (tenant?.contract?.status === "rejected") {
+            return <span className="px-2 py-1 rounded bg-red-100 text-red-700 font-medium">Bị từ chối</span>;
+        }
+        if (tenant?.tenants) {
+            return <span className="px-2 py-1 rounded bg-gray-100 text-gray-700 font-medium">Chưa tạo hợp đồng</span>;
+        }
+        return "";
+    }
 
     if (loading) return <Loader />
     return (
@@ -119,12 +131,7 @@ export const OrderRooms = () => {
                                         </TooltipContent>
                                     </Tooltip> : ""
                                 }</TableCell>
-                                <TableCell>{tenant?.contract?.status === "pending_signature" ? "Đang đợi phản hồi người thuê"
-                                    : tenant?.contract?.status === "pending_review" ? "Đang đợi đuyệt" :
-                                        tenant?.contract?.status === "approved" ? "Đã duyệt hợp đồng" :
-                                            tenant?.contract?.status === "rejected" ? "Bị từ chối" :
-                                                tenant?.tenants ? "Chưa tạo hợp đồng" :
-                                                    ""}</TableCell>
+                                <TableCell>{renderContractStatus(tenant)}</TableCell>
                                 <TableCell className="text-right space-x-2">
                                     {tenant.tenants && <Button variant={"destructive"} size="icon" onClick={() => handleDelete(tenant)}>
 
