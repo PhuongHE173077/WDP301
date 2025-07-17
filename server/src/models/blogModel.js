@@ -11,9 +11,9 @@ const blogSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  title: {
+    type: String,
+    required: true
   },
   availableFrom: {
     type: Date
@@ -21,8 +21,12 @@ const blogSchema = new mongoose.Schema({
   description: {
     type: String,
     default: ''
+  },
+  _destroy: {
+    type: Boolean,
+    default: false
   }
-});
+}, { timestamps: true });
 
 const Blog = mongoose.model('Blog', blogSchema, 'blogs');
 export default Blog;

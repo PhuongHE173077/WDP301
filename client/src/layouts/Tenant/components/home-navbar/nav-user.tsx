@@ -39,7 +39,7 @@ export function NavUser() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = () => {
-    const result = dispatch(logoutUserAPIs());
+    dispatch(logoutUserAPIs() as any);
   }
   return (
     <SidebarMenu>
@@ -85,7 +85,7 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem className="flex gap-2">
+              <DropdownMenuItem className="flex gap-2" onClick={() => navigate("/tenant/profile")}>
                 <UserCircleIcon />
                 Tài khoản
               </DropdownMenuItem>
@@ -93,9 +93,9 @@ export function NavUser() {
                 <SearchIcon className="h-5 w-5" />
                 Tìm kiếm trọ
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex gap-2">
+              <DropdownMenuItem className="flex gap-2" onClick={() => navigate("/transactions")}>
                 <CreditCardIcon />
-                Nâng cấp
+                Giao dịch
               </DropdownMenuItem>
 
             </DropdownMenuGroup>

@@ -2,11 +2,12 @@ import React, { useState, useRef } from 'react';
 import { Camera, MapPin, Calendar, Mail, Phone, Edit3, Settings, Star, Users, Heart, MessageCircle, User, CreditCard, Shield } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectCurrentUser, userSlice } from '@/store/slice/userSlice';
-import { fetchUpdateProfileAPIs } from '@/apis/userAPIs';
+
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '@/utils/validators';
+import { fetchUpdateTenantProfileAPIs } from '@/apis/tenant.apis';
 
 const ProfileScreen = () => {
     const userData = useSelector(selectCurrentUser);
@@ -61,7 +62,7 @@ const ProfileScreen = () => {
         }
 
         try {
-            const response = await fetchUpdateProfileAPIs(formData);
+            const response = await fetchUpdateTenantProfileAPIs(formData);
             dispatch(userSlice.actions.setUser(response.data));
             setIsEditing(false);
             setEditData(null);
@@ -119,7 +120,7 @@ const ProfileScreen = () => {
             const formData = new FormData();
             formData.append('currentPassword', passwordForm.currentPassword);
             formData.append('newPassword', passwordForm.newPassword);
-            await fetchUpdateProfileAPIs(formData);
+            await fetchUpdateTenantProfileAPIs(formData);
             toast({ title: 'Đổi mật khẩu thành công', description: 'Mật khẩu của bạn đã được cập nhật.' });
             setOpenChangePassword(false);
             setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -293,11 +294,21 @@ const ProfileScreen = () => {
                                 <CreditCard className="w-5 h-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium text-gray-800">CCCD</p>
-                                    <p className="text-gray-600">{userData.CCCD}</p>
+                                    {isEditing ? (
+                                        <input
+                                            type="text"
+                                            name="CCCD"
+                                            value={editData.CCCD || ''}
+                                            onChange={handleChange}
+                                            className="text-gray-600 border-b border-blue-300 outline-none bg-transparent"
+                                        />
+                                    ) : (
+                                        <p className="text-gray-600">{userData.CCCD}</p>
+                                    )}
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            {/* <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
                                 <Shield className="w-5 h-5 text-blue-600" />
                                 <div>
                                     <p className="font-medium text-gray-800">Trạng thái tài khoản</p>
@@ -305,7 +316,7 @@ const ProfileScreen = () => {
                                         {userData.isActive ? 'Đang hoạt động' : 'Không hoạt động'}
                                     </p>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
 

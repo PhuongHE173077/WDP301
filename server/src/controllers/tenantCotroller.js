@@ -7,6 +7,9 @@ import ApiError from "~/utils/ApiError"
 import bcrypt from 'bcryptjs'
 
 import Tenant from "~/models/tenantModel"
+import { cloudinaryProvider } from "~/providers/CloudinaryProvider"
+import { generateDeleteAccountHTML, generateRestoreAccountHTML } from "~/utils/form-html"
+import { sendEmail } from "~/providers/MailProvider"
 
 const getAll = async (req, res, next) => {
     try {
@@ -91,8 +94,88 @@ const register = async (req, res, next) => {
     }
 }
 
+const updateProfile = async (req, res, next) => {
+    try {
+        const user = await Tenant.findById(req.jwtDecoded._id)
+
+        if (!user) throw new ApiError(StatusCodes.NOT_FOUND, 'User not found')
+
+        const updateData = { ...req.body };
+
+        if (req.file) {
+            const result = await cloudinaryProvider.streamUpload(req.file.buffer, "users")
+            updateData.avatar = result.secure_url;
+        }
+
+        if (req.body.currentPassword && req.body.newPassword) {
+            if (!bcrypt.compareSync(req.body.currentPassword, user.password)) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'The current password is incorrect!')
+            updateData.password = bcrypt.hashSync(req.body.newPassword, 10)
+            delete updateData.currentPassword;
+            delete updateData.newPassword;
+        }
+        const updatedUser = await Tenant.findByIdAndUpdate(req.jwtDecoded._id, updateData, { new: true })
+        res.status(StatusCodes.OK).json(updatedUser)
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+const deleteTenant = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const me = req.jwtDecoded?._id;
+
+        if (id === me) {
+            return res.status(400).json({ message: 'Bạn không thể tự xoá tài khoản của chính mình.' });
+        }
+
+        const user = await Tenant.findOne({ _id: id, _destroy: false });
+        if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+
+        user._destroy = true;
+        await user.save({ validateBeforeSave: false });
+
+
+        const html = generateDeleteAccountHTML('RoomRentPro', user.displayName);
+        await sendEmail('RoomRentPro', user.email, 'Thông báo xoá tài khoản', html);
+
+        return res.status(200).json({ message: 'Xoá người dùng và gửi email thành công.' });
+    } catch (err) {
+        console.error('Lỗi xoá user:', err);
+        return res.status(500).json({ message: 'Lỗi server.' });
+    }
+};
+
+const restoreTenant = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const me = req.jwtDecoded?._id;
+
+        if (id === me) {
+            return res.status(400).json({ message: 'Bạn không thể tự xoá tài khoản của chính mình.' });
+        }
+
+        const user = await Tenant.findOne({ _id: id, _destroy: true });
+        if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+
+        user._destroy = false;
+        await user.save({ validateBeforeSave: false });
+
+        const html = generateRestoreAccountHTML('RoomRentPro', user.displayName);
+        await sendEmail('RoomRentPro', user.email, 'Thông báo khôi phục tài khoản', html);
+
+        return res.status(200).json({ message: 'Khôi phục thành công!' });
+    } catch (err) {
+        console.error('Lỗi xoá user:', err);
+        return res.status(500).json({ message: 'Lỗi server.' });
+    }
+};
 export const tenantController = {
     getAll,
     login,
-    register
+    register,
+    deleteTenant,
+    restoreTenant,
+    updateProfile
 }

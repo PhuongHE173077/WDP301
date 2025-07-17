@@ -191,7 +191,7 @@ export default function CreateDepartment() {
         <div className="flex justify-end gap-3 mt-6">
           <Button
             variant="outline"
-            onClick={() => navigate("/departments")}
+            onClick={() => navigate("/rooms")}
           >
             Quay lại
           </Button>

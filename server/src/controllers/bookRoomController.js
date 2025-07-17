@@ -28,7 +28,6 @@ export const getBookRoom = async (req, res, next) => {
         const userId = req.jwtDecoded._id
 
         const isRole = req.query.isRole
-        console.log("🚀 ~ getBookRoom ~ isRole:", isRole)
 
         let bookRoom
         if (isRole === USER_ROLES.TENANT) {

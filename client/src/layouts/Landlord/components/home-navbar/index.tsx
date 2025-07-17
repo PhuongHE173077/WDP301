@@ -4,12 +4,13 @@ import { Image } from '@radix-ui/react-avatar'
 import { Link } from 'react-router-dom'
 import { NavUser } from '@/pages/auth/components/nav-user'
 import { Wallet } from './wallet'
+import { AccountExpireInfo } from './timeExpired'
 
 export const HomeNavbar = () => {
 
 
   return (
-    <nav className="flex top-0 left-0 w-full h-16 bg-[#F8FAFD] border-b items-center justify-between px-4" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+    <nav className="flex top-0 left-0 w-full h-18 bg-[#F8FAFD] border-b items-center justify-between px-4" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
       <div className="flex items-center flex-shrink-0">
         <SidebarTrigger />
         <Link to='/' >
@@ -26,9 +27,9 @@ export const HomeNavbar = () => {
 
       </div>
       <div className="flex items-center gap-5 ">
-        {/* <Input placeholder="Search" className="w-80" /> */}
+      
 
-
+        <AccountExpireInfo/>
         <Wallet />
         <Notification />
         <div className="flex-shrink-0 items-center  flex gap-4">

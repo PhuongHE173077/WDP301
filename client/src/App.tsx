@@ -27,11 +27,13 @@ import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
 import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
 import TroDetailPage from "./pages/Public/RoomDetail";
 import RentalSearch from "./pages/Public/SearchRoom";
-import ProfileScreen from "./pages/me/ProfileScreen";
+import ProfileScreenLandlord from "./pages/me/ProfileScreen";
+import ProfileScreenTenant from "./pages/Tenant/me/ProfileScreen";
 import EditRoom from "./pages/Landlord/Rooms/EditRoom";
 import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
+import Transaction from "./pages/Public/Transaction/Index";
 import { BookRoom } from "./pages/Tenant/BookRooms";
 import { BookRoomManager } from "./pages/Landlord/BookRooms";
 import { PaymentReturn } from "./pages/Tenant/Payment";
@@ -42,6 +44,10 @@ import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
 import { Bills } from "./pages/Landlord/Bills";
 import { CalculateBill } from "./pages/Landlord/Bills/CalculateBill";
 import { BillsTenant } from "./pages/Tenant/Bills";
+import LandlordTransaction from './pages/Landlord/Transaction/Index';
+import { ManagementPackage } from "./pages/Admin/ManagerPackage";
+import PackageManager from "./pages/Admin/ManagerPackage/PackageCreate";
+import { PackageList } from "./pages/Landlord/Packages/Package";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -75,10 +81,14 @@ const App = () => (
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
-              <Route path="/profile" element={<ProfileScreen />} />
+              {/* <Route path="/profile" element={<ProfileScreen />} /> */}
               <Route path="/book-room-manager" element={<BookRoomManager />} />
               <Route path="/bills" element={<Bills />} />
               <Route path="/calculate-bill/:id" element={<CalculateBill />} />
+              <Route path="/profile" element={<ProfileScreenLandlord />} />
+              <Route path="/landlord/transactions" element={<LandlordTransaction />} />
+              <Route path="/packages" element={<PackageList />} />
+
             </Route>
 
             {/* Tenant router */}
@@ -86,14 +96,20 @@ const App = () => (
               <Route path="/tenant-rooms" element={<TenantRooms />} />
               <Route path="/contracts" element={<Contracts />} />
               <Route path="/contract-detail/:id" element={<ContractDetail />} />
+              <Route path="/transactions" element={<Transaction />} />
               <Route path="/book-rooms" element={<BookRoom />} />
               <Route path="/bill-tenant" element={<BillsTenant />} />
               <Route path="/feedback-tenant" element={<TenanFeedback />} />
+              <Route path="/tenant/profile" element={<ProfileScreenTenant />} />
             </Route>
 
             <Route element={<LayoutAdmin />} >
               <Route path="/dashboard" element={<Page />} />
               <Route path="/manage-user" element={<ManagerUser />} />
+              <Route path="/package" element={<ManagementPackage />} />
+              <Route path="/packages/create" element={<PackageManager />} />
+              <Route path="/packages/edit/:id" element={<PackageManager />} />
+
             </Route>
 
           </Route>

@@ -53,8 +53,8 @@ const data = {
             icon: UsersIcon,
         },
         {
-            title: "Bills ",
-            url: "#",
+            title: "Package ",
+            url: "/package",
             icon: Receipt,
         },
         {
@@ -96,7 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             className="data-[slot=sidebar-menu-button]:!p-1.5"
                         >
                             <a href="#">
-                                <img src="/favicon.ico" className="h-6 w-6" />
+                                <img title="icon" src="/favicon.ico" className="h-6 w-6" />
                                 <span className="text-base font-semibold text-rental-500">RoomPro</span>
                             </a>
                         </SidebarMenuButton>
