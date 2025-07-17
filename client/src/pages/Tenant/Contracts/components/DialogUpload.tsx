@@ -11,6 +11,7 @@ import { singleFileValidator } from '@/utils/validators'
 
 export function DialogUpdateCCCD({ open, setOpen, imageFront, imageBack, setImageFront, setImageBack, handleSave }: any) {
 
+    const [loadingSave, setLoadingSave] = useState(false);
 
     const handleFileChangeImage1 = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const image = await uploadImage(event);
@@ -100,7 +101,13 @@ export function DialogUpdateCCCD({ open, setOpen, imageFront, imageBack, setImag
                 </div>
 
                 <DialogFooter>
-                    <Button onClick={handleSave}>Lưu</Button>
+                    <Button onClick={async () => {
+                        setLoadingSave(true);
+                        await handleSave();
+                        setLoadingSave(false);
+                    }} disabled={loadingSave}>
+                        {loadingSave ? 'Đang lưu...' : 'Lưu'}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

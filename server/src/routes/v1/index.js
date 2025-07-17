@@ -9,6 +9,7 @@ import { imageRouter } from './imageRoute'
 import { roomRouter } from './roomRoute'
 import { blogRouter } from './blogRoutes'
 import { bookRoomRouter } from './bookRoomRouter'
+import { transactionRouter } from './transactionRouter'
 import { walletRouter } from './WalletRouter'
 import { paymentRouter } from './paymentRoutes'
 import { billRouter } from './billRoutes'
@@ -51,6 +52,8 @@ Router.use('/blogs', blogRouter)
 //book room APIs
 Router.use('/book-rooms', bookRoomRouter)
 
+//Transaction APIs
+Router.use('/transaction', transactionRouter)
 //wallet APIs
 Router.use('/wallet', walletRouter)
 
