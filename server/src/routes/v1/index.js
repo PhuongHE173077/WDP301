@@ -13,6 +13,7 @@ import { transactionRouter } from './transactionRouter'
 import { walletRouter } from './WalletRouter'
 import { paymentRouter } from './paymentRoutes'
 import { billRouter } from './billRoutes'
+import { packageRouter } from './packageRoute'
 
 
 
@@ -63,4 +64,6 @@ Router.use('/payment', paymentRouter)
 //bill APIs
 Router.use('/bills', billRouter)
 
+//package APIs
+Router.use('/packages', packageRouter)
 export const APIs_V1 = Router

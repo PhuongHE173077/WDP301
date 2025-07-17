@@ -45,6 +45,9 @@ import { Bills } from "./pages/Landlord/Bills";
 import { CalculateBill } from "./pages/Landlord/Bills/CalculateBill";
 import { BillsTenant } from "./pages/Tenant/Bills";
 import LandlordTransaction from './pages/Landlord/Transaction/Index';
+import { ManagementPackage } from "./pages/Admin/ManagerPackage";
+import PackageManager from "./pages/Admin/ManagerPackage/PackageCreate";
+import { PackageList } from "./pages/Landlord/Packages/Package";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -84,6 +87,8 @@ const App = () => (
               <Route path="/calculate-bill/:id" element={<CalculateBill />} />
               <Route path="/profile" element={<ProfileScreenLandlord />} />
               <Route path="/landlord/transactions" element={<LandlordTransaction />} />
+              <Route path="/packages" element={<PackageList />} />
+
             </Route>
 
             {/* Tenant router */}
@@ -101,6 +106,10 @@ const App = () => (
             <Route element={<LayoutAdmin />} >
               <Route path="/dashboard" element={<Page />} />
               <Route path="/manage-user" element={<ManagerUser />} />
+              <Route path="/package" element={<ManagementPackage />} />
+              <Route path="/packages/create" element={<PackageManager />} />
+              <Route path="/packages/edit/:id" element={<PackageManager />} />
+
             </Route>
 
           </Route>

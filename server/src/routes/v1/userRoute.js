@@ -20,5 +20,10 @@ Router.route('/logout')
 Router.route('/profile')
     .put(authMiddlewares.isAuthorized, multerUploadMiddlewares.upload.single('avatar'), userController.updateProfile)
 
+Router.route('/:id')
+    .delete(authMiddlewares.isAdmin,userController.deleteUser)
+    .patch(authMiddlewares.isAdmin, userController.restoreUser)
 
+Router.route('/time')
+    .get(authMiddlewares.isAuthorized, userController.getTimeExpried)
 export const userRouter = Router
