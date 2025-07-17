@@ -1,6 +1,6 @@
 import React from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Label } from "@/components/ui/label";
 import dayjs from "dayjs";
 
@@ -17,48 +17,40 @@ export const DialogView = ({
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-lg bg-white shadow-xl rounded-2xl p-6">
-                <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center text-gray-800">
-                        Thông Tin Người Thuê
-                    </DialogTitle>
-                </DialogHeader>
-
-                <div className="flex flex-col items-center gap-3 mt-4">
-                    <Avatar className="w-24 h-24 border-4 border-gray-300 shadow-md">
-                        <AvatarImage src={user.avatar} alt={user.userName} />
-                    </Avatar>
-
-                    <div className="text-center mt-2">
-                        <h2 className="text-xl font-semibold text-gray-900">{user.userName}</h2>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+            <DialogContent className="max-w-md bg-gradient-to-br from-blue-50 to-white shadow-2xl rounded-2xl p-0 overflow-hidden border border-blue-100">
+                <div className="flex flex-col items-center py-8 px-6">
+                    <div className="mb-3">
+                        <UserAvatar src={user.avatar} alt={user.userName} size={64} />
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4 mt-6 text-sm">
-                    <div>
-                        <Label className="text-gray-600">Số điện thoại</Label>
-                        <p className="text-gray-800 font-medium">{user.phone}</p>
-                    </div>
-                    <div>
-                        <Label className="text-gray-600">CCCD</Label>
-                        <p className="text-gray-800 font-medium">{user.CCCD}</p>
-                    </div>
-                    <div className="col-span-2">
-                        <Label className="text-gray-600">Địa chỉ</Label>
-                        <p className="text-gray-800 font-medium">{user.address}</p>
-                    </div>
-                    <div>
-                        <Label className="text-gray-600">Ngày sinh</Label>
-                        <p className="text-gray-800 font-medium">
-                            {dayjs(user.dob).format("DD/MM/YYYY")}
-                        </p>
-                    </div>
-                    <div>
-                        <Label className="text-gray-600">Tạo hồ sơ</Label>
-                        <p className="text-gray-800 font-medium">
-                            {dayjs(user.createdAt).format("DD/MM/YYYY HH:mm")}
-                        </p>
+                    <h2 className="text-lg font-bold text-blue-700 mb-1">{user.displayName || user.userName}</h2>
+                    <p className="text-sm text-gray-500 mb-2">{user.email || <span className="text-gray-400">Chưa cập nhật</span>}</p>
+                    <div className="w-full mt-4">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                            <div>
+                                <Label className="text-gray-500">Số điện thoại</Label>
+                                <p className="text-gray-800 font-medium">{user.phone || <span className="text-gray-400">Chưa cập nhật</span>}</p>
+                            </div>
+                            <div>
+                                <Label className="text-gray-500">CCCD</Label>
+                                <p className="text-gray-800 font-medium">{user.CCCD || <span className="text-gray-400">Chưa cập nhật</span>}</p>
+                            </div>
+                            <div className="col-span-2">
+                                <Label className="text-gray-500">Địa chỉ</Label>
+                                <p className="text-gray-800 font-medium">{user.address || <span className="text-gray-400">Chưa cập nhật</span>}</p>
+                            </div>
+                            <div>
+                                <Label className="text-gray-500">Ngày sinh</Label>
+                                <p className="text-gray-800 font-medium">
+                                    {user.dob ? dayjs(user.dob).format("DD/MM/YYYY") : <span className="text-gray-400">Chưa cập nhật</span>}
+                                </p>
+                            </div>
+                            <div>
+                                <Label className="text-gray-500">Tạo hồ sơ</Label>
+                                <p className="text-gray-800 font-medium">
+                                    {user.createdAt ? dayjs(user.createdAt).format("DD/MM/YYYY HH:mm") : <span className="text-gray-400">Chưa cập nhật</span>}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </DialogContent>

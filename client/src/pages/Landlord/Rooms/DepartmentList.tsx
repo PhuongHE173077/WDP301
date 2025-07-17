@@ -132,7 +132,7 @@ const DepartmentList: React.FC = () => {
           <span> Tạo tòa nhà</span>
         </Button>
 
-         
+
       </div>
 
       {departments.length === 0 ? (
@@ -152,7 +152,7 @@ const DepartmentList: React.FC = () => {
       ) : (
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {departments.map(dep => (
-            <div key={dep._id} className="mb-8">
+            <div key={dep._id} className="mb-2">
               <div
                 className={`rounded-xl shadow-md p-4 border cursor-pointer flex items-center justify-between transition-all duration-200
                   ${selectedDepartment?._id === dep._id

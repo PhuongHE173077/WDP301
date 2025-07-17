@@ -56,7 +56,6 @@ export const Contracts = () => {
                             <TableRow className="bg-muted">
                                 <TableHead className="font-semibold text-gray-700">Mã Phòng</TableHead>
                                 <TableHead className="font-semibold text-gray-700">Chủ Phòng</TableHead>
-                                <TableHead className="font-semibold text-gray-700">Người Thuê</TableHead>
                                 <TableHead className="font-semibold text-gray-700">Tiền cọc </TableHead>
                                 <TableHead className="font-semibold text-gray-700">Hợp Đồng</TableHead>
                                 <TableHead className="font-semibold text-gray-700">Trạng thái </TableHead>
@@ -74,13 +73,7 @@ export const Contracts = () => {
 
                                         <span>{contract.owner.displayName}</span>
                                     </TableCell>
-                                    <TableCell className="py-4">
-                                        {contract.tenant.map((t, i) => (
-                                            <span key={i} className="inline-flex items-center gap-1 mr-2">
-                                                {t.displayName}
-                                            </span>
-                                        ))}
-                                    </TableCell>
+
                                     <TableCell className="py-4 font-semibold text-green-600">{contract?.deposit?.toLocaleString()} VND</TableCell>
                                     <TableCell className="py-4">
                                         <Tooltip>
@@ -163,7 +156,7 @@ export const Contracts = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                         {/* Nút từ chối */}
-                                        {contract.status === 'pending_signature' && (
+                                        {contract.status === 'pending_signature' && !contract.paid && (
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button

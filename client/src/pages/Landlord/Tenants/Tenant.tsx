@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import {
     Table,
     TableBody,
@@ -33,8 +34,12 @@ export default function Tenant() {
     const totalPages = Math.ceil(tenants.length / PAGE_SIZE);
     const [activeUser, setActiveUser] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
+    const [search, setSearch] = useState("");
 
-    const paginatedData = tenants.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const filteredTenants = tenants.filter(
+        (user) => user.displayName?.toLowerCase().includes(search.toLowerCase())
+    );
+    const paginatedData = filteredTenants.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     useEffect(() => {
         fetchData();
@@ -45,15 +50,29 @@ export default function Tenant() {
         })
     }
 
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
 
     return (
         <Card className="p-4 space-y-4">
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h1 className="text-xl sm:text-2xl font-bold text-blue-700 tracking-tight">Người thuê trọ</h1>
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm theo tên..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 w-full sm:w-64 bg-white shadow"
+                />
+            </div>
             {/* Desktop Table */}
-            <div className="hidden md:block overflow-x-auto rounded-lg border ">
-                <Table className="min-w-[700px] bg-white">
+            <div className="hidden md:block overflow-x-auto rounded-lg border bg-gradient-to-br from-blue-50 to-white shadow-lg">
+                <Table className="min-w-[700px] bg-white rounded-lg">
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-10">#</TableHead>
+                            <TableHead>Ảnh</TableHead>
                             <TableHead>Tên</TableHead>
                             <TableHead>SĐT</TableHead>
                             <TableHead>Email</TableHead>
@@ -61,24 +80,35 @@ export default function Tenant() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {paginatedData.map((user, idx) => (
-                            <TableRow key={user.id}>
-                                <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
-                                <TableCell>{user.displayName}</TableCell>
-                                <TableCell>{user.phone}</TableCell>
-                                <TableCell>{user.email}</TableCell>
-                                <TableCell>
-                                    <div className="flex gap-2">
-                                        <Button size="sm" onClick={() => {
-                                            setActiveUser(user);
-                                            setOpenDialog(true);
-                                        }}>
-                                            Xem
-                                        </Button>                                        
-                                    </div>
-                                </TableCell>
+                        {paginatedData.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8 text-gray-400">Không có người thuê phù hợp.</TableCell>
                             </TableRow>
-                        ))}
+                        ) : (
+                            paginatedData.map((user, idx) => (
+                                <TableRow key={user.id} className="hover:bg-gray-50 transition">
+                                    <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
+                                    <TableCell>
+                                        <UserAvatar src={user.avatar} alt={user.userName} size={32} />
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="font-semibold text-gray-800">{user.displayName || user.userName}</span>
+                                    </TableCell>
+                                    <TableCell>{user.phone || <span className="text-gray-400">Chưa cập nhật</span>}</TableCell>
+                                    <TableCell>{user.email || <span className="text-gray-400">Chưa cập nhật</span>}</TableCell>
+                                    <TableCell>
+                                        <div className="flex gap-2">
+                                            <Button size="sm" variant="outline" className="rounded-full px-4 py-1 text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => {
+                                                setActiveUser(user);
+                                                setOpenDialog(true);
+                                            }}>
+                                                Xem
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </div>
@@ -86,17 +116,14 @@ export default function Tenant() {
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
-                    <p className="text-sm">
-                        Trang <strong>{page}</strong> / {totalPages}
+                    <p className="text-sm text-gray-600">
+                        Trang <strong className="text-blue-600">{page}</strong> / <span className="font-semibold">{totalPages}</span>
                     </p>
                     <div className="flex gap-2">
-                        <Button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
+                        <Button variant="outline" className="rounded-full px-4 py-1" onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
                             Trước
                         </Button>
-                        <Button
-                            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                            disabled={page === totalPages}
-                        >
+                        <Button variant="outline" className="rounded-full px-4 py-1" onClick={() => setPage((p) => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
                             Sau
                         </Button>
                     </div>
