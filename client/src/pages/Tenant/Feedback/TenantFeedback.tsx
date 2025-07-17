@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis";
+import { fetchFeedback, updateFeedbackReply, getTenantsOfTenant } from "@/apis/feedback.apis";
 import { CirclePlusIcon, Eye, EyeIcon } from "lucide-react";
 import FeedbackForm from "./components/DialogFeedback"
 
@@ -31,7 +31,7 @@ export default function TenantFeedback() {
   }, []);
 
   const fetchData = async () => {
-    const res = await fetchFeedback();
+    const res = await getTenantsOfTenant();
     setFeedbacks(res.data);
   };
 
@@ -48,6 +48,7 @@ export default function TenantFeedback() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-10">#</TableHead>
+              <TableHead>Owner</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Images</TableHead>
               <TableHead>Status</TableHead>
@@ -58,6 +59,7 @@ export default function TenantFeedback() {
             {paginatedData.map((fb, idx) => (
               <TableRow key={fb._id}>
                 <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
+                <TableCell>{fb.ownerName}</TableCell>
                 <TableCell>{fb.description}</TableCell>
                 <TableCell>
                   <div className="flex gap-2 max-w-[200px] overflow-x-auto">

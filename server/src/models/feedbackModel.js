@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const feedbackSchema = new mongoose.Schema({
   tenantId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", 
+    ref: "Tenant", 
     required: true,
   },
   ownerId: {

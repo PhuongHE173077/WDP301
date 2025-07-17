@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { toast } from 'react-toastify'
-import { createFeedback } from '@/apis/feedback.apis'
+import { createFeedback, getOwnersOfTenant } from '@/apis/feedback.apis'
 import { createImageUrl } from '@/apis'
 import { singleFileValidator } from "@/utils/validators"
 
@@ -16,6 +16,9 @@ export default function FeedbackForm({ open, setOpen, fetchData }: { open: boole
     const [selectedFileNames, setSelectedFileNames] = useState<string[]>([])
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [images, setImages] = useState<{ preview: string; url: string }[]>([]);
+    const [owners, setOwners] = useState<{ _id: string, displayName: string }[]>([]);
+    const [selectedOwner, setSelectedOwner] = useState<string>('');
+
 
     const [form, setForm] = useState({
         description: '',
@@ -29,10 +32,16 @@ export default function FeedbackForm({ open, setOpen, fetchData }: { open: boole
             return;
         }
 
+        if (!selectedOwner) {
+            toast.error("Vui lòng chọn chủ trọ để gửi phản hồi.");
+            return;
+        }
+
         try {
             const payload = {
                 description: message,
-                images: form.image, 
+                images: form.image,
+                ownerId: selectedOwner
             };
 
             await toast.promise(createFeedback(payload), {
@@ -44,8 +53,9 @@ export default function FeedbackForm({ open, setOpen, fetchData }: { open: boole
             setMessage("");
             setForm({ description: "", image: [] });
             setSelectedFileNames([]);
+            setSelectedOwner("");
             setOpen(false);
-            fetchData(); 
+            fetchData();
 
         } catch (error) {
             console.error(error);
@@ -94,6 +104,22 @@ export default function FeedbackForm({ open, setOpen, fetchData }: { open: boole
         event.target.value = "";
     };
 
+    useEffect(() => {
+        const fetchOwners = async () => {
+            try {
+                const response = await getOwnersOfTenant(); // gọi API
+                setOwners(response.data);
+            } catch (error) {
+                console.error("Lỗi lấy danh sách chủ trọ", error);
+                toast.error("Không thể tải danh sách chủ trọ.");
+            }
+        };
+
+        if (open) {
+            fetchOwners();
+        }
+    }, [open]);
+
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -112,7 +138,24 @@ export default function FeedbackForm({ open, setOpen, fetchData }: { open: boole
                                     className="min-h-[120px]"
                                 />
                                 <div>
-                                     <div className="flex gap-2 items-center">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Chọn chủ trọ</label>
+                                    <select
+                                        className="w-full border border-gray-300 rounded-lg p-2"
+                                        value={selectedOwner}
+                                        onChange={(e) => setSelectedOwner(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">-- Chọn một chủ trọ --</option>
+                                        {owners.map(owner => (
+                                            <option key={owner._id} value={owner._id}>
+                                                {owner.displayName}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                </div>
+                                <div>
+                                    <div className="flex gap-2 items-center">
                                         <Button
                                             type="button"
                                             variant="outline"
