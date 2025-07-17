@@ -57,7 +57,6 @@ const replyToFeedback = async (req, res) => {
 // Tenant send feedback
 const createFeedback = async (req, res) => {
   try {
-    console.log("BODY:", req.body);
 
     const ownerId = req.jwtDecoded._id; // hoặc lấy từ mối quan hệ nào đó
     const tenantId = req.jwtDecoded._id;
