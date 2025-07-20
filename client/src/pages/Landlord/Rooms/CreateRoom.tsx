@@ -26,9 +26,9 @@ const CreateRoom = () => {
     utilities: [...defaultUtilities],
     serviceFee: [...defaultServiceFees],
     departmentId: '',
-    post: true,        
-  status: true,      
-  type: 'Phòng trọ'
+    post: false,
+    status: false,
+    type: 'Phòng trọ'
   })
 
   const [newUtility, setNewUtility] = useState('')
@@ -51,7 +51,6 @@ const CreateRoom = () => {
             serviceFee: [
               { name: 'Tiền điện', price: first.electricPrice || '', unit: 'kWh' },
               { name: 'Tiền nước', price: first.waterPrice || '', unit: 'm³' },
-              { name: 'Tiền vệ sinh', price: '', unit: 'phòng/tháng' }
             ]
           }))
         }
@@ -78,7 +77,6 @@ const CreateRoom = () => {
       serviceFee: [
         { name: 'Tiền điện', price: dep?.electricPrice || '', unit: 'kWh' },
         { name: 'Tiền nước', price: dep?.waterPrice || '', unit: 'm³' },
-        { name: 'Tiền vệ sinh', price: '', unit: 'phòng/tháng' }
       ]
     }))
   }
@@ -161,6 +159,10 @@ const CreateRoom = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    if (form.image.length === 0) {
+    toast.error('Vui lòng chọn ít nhất một ảnh cho phòng!');
+    return;
+  }
     const payload = {
       ...form,
       utilities: form.utilities.join(', '),
@@ -169,12 +171,28 @@ const CreateRoom = () => {
     }
 
     try {
-      await createRoom(payload)
-      toast.success('Tạo phòng thành công')
-      navigate('/rooms')
-    } catch {
-      toast.error('Tạo phòng thất bại')
-    }
+  await createRoom(payload);
+  toast.success('Tạo phòng thành công');
+  navigate('/rooms');
+}   catch (error) {
+  const resData = error?.response?.data;
+  const rawError = resData?.error || error?.message || '';
+  let message = '';
+
+  if (rawError.includes('E11000') && rawError.includes('roomId')) {
+    const match = rawError.match(/dup key: \{ roomId: "(.*?)" \}/);
+    const duplicatedId = match?.[1];
+    message = duplicatedId
+      ? `Phòng với mã "${duplicatedId}" đã tồn tại!`
+      : 'Mã phòng đã tồn tại!';
+  } else if (resData?.message) {
+    message = resData.message;
+  } else {
+    message = 'Tạo phòng thất bại!';
+  }
+
+  toast.error(message);
+}
   }
 
   return (
@@ -250,38 +268,38 @@ const CreateRoom = () => {
             />
           </div>
         </div>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Chọn tòa nhà */}
-        <div>
-          <label className="text-sm font-medium">Chọn tòa nhà</label>
-          <select
-            title='Toà nhà'
-            name="departmentId"
-            value={form.departmentId}
-            onChange={handleDepartmentChange}
-            className="w-full border rounded-md px-3 py-2"
-            required
-          >
-            {departments.map(dep => (
-              <option key={dep._id} value={dep._id}>{dep.name}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Chọn tòa nhà */}
+          <div>
+            <label className="text-sm font-medium">Chọn tòa nhà</label>
+            <select
+              title='Toà nhà'
+              name="departmentId"
+              value={form.departmentId}
+              onChange={handleDepartmentChange}
+              className="w-full border rounded-md px-3 py-2"
+              required
+            >
+              {departments.map(dep => (
+                <option key={dep._id} value={dep._id}>{dep.name}</option>
+              ))}
+            </select>
+          </div>
+          {/* Chọn loại phòng */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Loại phòng</label>
+            <select
+              title='Loại phòng'
+              name="type"
+              value={form.type}
+              onChange={handleInputChange}
+              className="w-full border rounded-md px-3 py-2"
+            >
+              <option value="Phòng trọ">Phòng trọ</option>
+              <option value="Căn hộ mini">Căn hộ mini</option>
+            </select>
+          </div>
         </div>
-        {/* Chọn loại phòng */}
-        <div>
-  <label className="block text-sm font-medium mb-1">Loại phòng</label>
-  <select
-  title='Loại phòng'
-    name="type"
-    value={form.type}
-    onChange={handleInputChange}
-    className="w-full border rounded-md px-3 py-2"
-  >
-    <option value="Phòng trọ">Phòng trọ</option>
-    <option value="Căn hộ mini">Căn hộ mini</option>
-  </select>
-</div>
-</div>
         {/* Phí dịch vụ */}
         <div>
           <h3 className="text-lg font-semibold mb-2">Phí dịch vụ</h3>
@@ -298,7 +316,7 @@ const CreateRoom = () => {
                   required
                 />
                 <Input readOnly value={fee.unit} className="w-1/4" />
-                {index > 1 && (
+                {index > 0 && (
                   <MinusCircle className="text-red-500 w-5 h-5 cursor-pointer" onClick={() => handleRemoveService(index)} />
                 )}
               </div>

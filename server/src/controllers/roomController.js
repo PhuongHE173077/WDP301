@@ -43,6 +43,15 @@ const createRoom = async (req, res) => {
       return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
     }
 
+    const existingRoom = await Room.findOne({
+      roomId: roomId,
+      departmentId: departmentId,
+      _destroy: false
+    });
+
+    if (existingRoom) {
+      return res.status(409).json({ message: "Tên phòng đã tồn tại trong tòa nhà!" });
+    }
     // Tạo Room
     const newRoom = await Room.create({
       roomId,
@@ -54,7 +63,8 @@ const createRoom = async (req, res) => {
       departmentId,
       post,
       status,
-      type
+      type,
+      _destroy: false
     });
 
     // Tạo OrderRoom mặc định gắn với Room mới
