@@ -58,8 +58,8 @@ const data = {
             icon: Receipt,
         },
         {
-            title: "Role-Based Control",
-            url: "#",
+            title: "History payment",
+            url: "/history",
             icon: FolderIcon,
         },
 

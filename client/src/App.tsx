@@ -48,6 +48,7 @@ import LandlordTransaction from './pages/Landlord/Transaction/Index';
 import { ManagementPackage } from "./pages/Admin/ManagerPackage";
 import PackageManager from "./pages/Admin/ManagerPackage/PackageCreate";
 import { PackageList } from "./pages/Landlord/Packages/Package";
+import HistoryPayment from "./pages/Admin/HistoryPayment/history";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -109,7 +110,8 @@ const App = () => (
               <Route path="/package" element={<ManagementPackage />} />
               <Route path="/packages/create" element={<PackageManager />} />
               <Route path="/packages/edit/:id" element={<PackageManager />} />
-
+              <Route path="/history" element={<HistoryPayment />} />
+              
             </Route>
 
           </Route>
