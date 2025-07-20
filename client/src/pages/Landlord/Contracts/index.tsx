@@ -2,7 +2,7 @@ import { fetchOrderByIdAPIs } from '@/apis/order.apis';
 import Loader from '@/components/ui-customize/Loader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Download, FilePlus, NotebookPenIcon, SaveIcon, X, XIcon } from 'lucide-react';
+import { ArrowLeft, Download, FilePlus, NotebookPen, NotebookPenIcon, SaveIcon, X, XIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
@@ -128,6 +128,14 @@ export const LandlordContracts = () => {
         setSignatureOpen(false);
     };
 
+    function InfoItem({ label, value }: { label: string; value: React.ReactNode }) {
+        return (
+            <div className="space-y-1">
+                <p className="text-muted-foreground">{label}:</p>
+                <p className="font-medium text-base">{value}</p>
+            </div>
+        )
+    }
 
 
     return (
@@ -238,41 +246,40 @@ export const LandlordContracts = () => {
                 ) : (
                     <>
 
-                        <Card className="shadow-xl">
-                            <CardContent className="p-6 space-y-4">
-                                <h2 className="text-2xl font-bold text-gray-800">Thông tin hợp đồng</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-gray-500">Phòng:</p>
-                                        <p className="font-medium">{order.room.roomId}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">Trạng thái:</p>
-                                        <p className="font-medium text-green-600">Đã tạo</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">Ngày tạo:</p>
-                                        <p className="font-medium">{dayjs(contract?.createdAt).format('DD/MM/YYYY')}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">Ngày kết thúc:</p>
-                                        <p className="font-medium">{dayjs(contract?.endDate).format('DD/MM/YYYY')}</p>
-                                    </div>
+                        <Card className="shadow-xl border rounded-2xl">
+                            <CardContent className="p-6 space-y-6">
+                                <h2 className="text-2xl font-bold text-gray-900">Thông tin hợp đồng</h2>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                                    <InfoItem label="Phòng" value={order?.room?.roomId} />
+                                    <InfoItem label="Trạng thái" value={<span className="text-green-600 font-semibold">Đã tạo</span>} />
+                                    <InfoItem label="Ngày tạo" value={dayjs(contract?.createdAt).format("DD/MM/YYYY")} />
+                                    <InfoItem label="Ngày kết thúc" value={dayjs(contract?.endDate).format("DD/MM/YYYY")} />
+                                    <InfoItem
+                                        label="Tiền cọc"
+                                        value={contract?.deposit?.toLocaleString("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                        })}
+                                    />
+                                    <InfoItem
+                                        label="Tình trạng"
+                                        value={
+                                            <span className={contract?.paid ? "text-green-700" : "text-red-600"}>
+                                                {contract?.paid ? "Đã thanh toán" : "Chưa thanh toán"}
+                                            </span>
+                                        }
+                                    />
                                 </div>
 
-                                <div className="pt-4 flex justify-between ">
-                                    <Button variant="outline" className="flex items-center gap-2" onClick={() => {
-                                        window.open(getDownloadUrl(contract?.contractURI), '_blank');
-                                    }}>
+                                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+                                    <Button variant="outline" onClick={() => window.open(getDownloadUrl(contract?.contractURI), '_blank')} className="gap-2">
                                         <Download className="w-4 h-4" />
                                         Tải xuống hợp đồng
                                     </Button>
-
-                                    <Button variant="outline" className="flex items-center gap-2" onClick={() => {
-                                        window.open(getDownloadUrl(contract?.contractURI), '_blank');
-                                    }}>
-                                        <NotebookPenIcon className="w-4 h-4" />
-                                        Gia hạn hợp đồng
+                                    <Button variant="outline" onClick={() => navigate(`/landlord/contracts/${contract?.contractId}`)} className="gap-2">
+                                        <NotebookPen className="w-4 h-4" />
+                                        Cập nhật hợp đồng
                                     </Button>
                                 </div>
                             </CardContent>

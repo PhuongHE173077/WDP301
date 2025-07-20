@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import dayjs from "dayjs"
-import { ClipboardPenLineIcon, EyeIcon, Trash2, UserPlusIcon } from 'lucide-react'
+import { CirclePlusIcon, ClipboardPenLineIcon, EyeIcon, Trash2, UserPlus2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import AddUserDialog from './components/DialogAdd'
+import { getDepartmentsByOwner } from '@/apis/departmentApi'
+import { DialogExtension } from './components/DialogExtension'
 
 export const OrderRooms = () => {
     const navigate = useNavigate()
@@ -23,6 +25,10 @@ export const OrderRooms = () => {
     const [users, setUsers] = useState([])
     const [loading, setLoading] = useState(false)
     const [openConfirm, setOpenConfirm] = useState(false)
+    const [openExtension, setOpenExtension] = useState(false)
+
+    const [departments, setDepartments] = useState<any[]>([]);
+
     useEffect(() => {
         fetchData()
     }, [])
@@ -30,8 +36,10 @@ export const OrderRooms = () => {
         setLoading(true)
         const orders = await fetchOrders();
         const tenant = await fetchTenantAPIs();
+        const department = await getDepartmentsByOwner();
         setOrders(orders.data);
         setUsers(tenant.data);
+        setDepartments(department.data);
         setLoading(false)
     };
 
@@ -161,26 +169,45 @@ export const OrderRooms = () => {
                                         </TooltipContent>
                                     </Tooltip>
 
-                                    <Button variant="outline" size="icon" onClick={() => {
-                                        setActiveOrder(tenant);
-                                        setOpenAddUser(true)
-                                    }}>
-                                        <Tooltip >
-                                            <TooltipTrigger>
-                                                <Button variant="outline" size="icon" onClick={() => {
-                                                    setActiveOrder(tenant);
-                                                    setOpenAddUser(true)
-                                                }}>
-                                                    <UserPlusIcon className="w-4 h-4" />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                {tenant.tenants && tenant.tenants.length > 0
-                                                    ? "Thêm người thuê cho phòng này"
-                                                    : "Cho thuê phòng"}
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </Button>
+                                    {tenant.tenants && tenant.tenants.length > 0
+                                        ?
+                                        <Button variant="outline" size="icon" onClick={() => {
+                                            setActiveOrder(tenant);
+                                            setOpenExtension(true)
+                                        }}>
+                                            <Tooltip >
+                                                <TooltipTrigger>
+                                                    <Button variant="outline" size="icon" onClick={() => {
+                                                        setActiveOrder(tenant);
+                                                        setOpenExtension(true)
+                                                    }}>
+                                                        <CirclePlusIcon className="w-4 h-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    Gia hạn phòng
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </Button>
+                                        :
+                                        <Button variant="outline" size="icon" onClick={() => {
+                                            setActiveOrder(tenant);
+                                            setOpenAddUser(true)
+                                        }}>
+                                            <Tooltip >
+                                                <TooltipTrigger>
+                                                    <Button variant="outline" size="icon" onClick={() => {
+                                                        setActiveOrder(tenant);
+                                                        setOpenAddUser(true)
+                                                    }}>
+                                                        <UserPlus2Icon className="w-4 h-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    Cho thuê phòng
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </Button>}
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -189,7 +216,7 @@ export const OrderRooms = () => {
             </div>
 
             {openAddUser && <AddUserDialog open={openAddUser} setOpen={setOpenAddUser} order={activeOrder} users={users} fetchData={fetchData} />}
-
+            {openExtension && <DialogExtension open={openExtension} setOpen={setOpenExtension} order={activeOrder} fetchData={fetchData} />}
         </div>
 
     )

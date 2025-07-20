@@ -50,7 +50,7 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
     }, [phoneInput, users])
 
     const handleAddUser = async () => {
-        if (!selectedUser || !startDate || !electricityNumber) {
+        if (!selectedUser || !startDate) {
             alert("Vui lòng điền đầy đủ thông tin")
             return
         }
@@ -59,7 +59,6 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
             tenantId: selectedUser._id,
             startAt: startDate ? format(startDate, "yyyy-MM-dd") : "",
             endAt: endDate ? format(endDate, "yyyy-MM-dd") : "",
-            oldElectricNumber: parseInt(electricityNumber, 10),
             contract: null
         }
         await updateOrderAPIs(order._id, updateData).then(() => {
@@ -88,7 +87,7 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
                 phone,
                 orderId: order._id,
                 startAt: startDate ? format(startDate, "yyyy-MM-dd") : "",
-                endAt: endDate ? format(endDate, "yyyy-MM-dd") : "", 
+                endAt: endDate ? format(endDate, "yyyy-MM-dd") : "",
             })
 
             toast.success("Tạo tài khoản và gán phòng thành công")
@@ -138,8 +137,8 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
                                 className="mt-2"
                             />
                         </div> :
-                            <div>
-                                {order._id}
+                            <div className="background-blue-50 border text-black border-blue-200 rounded-lg p-3 flex items-center gap-2">
+                                Phòng  {order.room.roomId}
                             </div>
 
                         }
@@ -202,23 +201,6 @@ export default function AddUserDialog({ open, setOpen, users, order, fetchData }
                                     />
                                 </div>
 
-                                <div className="flex items-center gap-3 mt-4">
-                                    <label className="w-1/3 flex items-center gap-2 font-medium">
-                                        <CalendarCheck className="w-4 h-4 text-gray-600" />
-                                        Số Điện Ban đầu:
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        className="w-1/3 bg-white"
-                                        value={electricityNumber}
-                                        onChange={(e) => setElectricityNumber(e.target.value)}
-                                        placeholder="Nhập số điện hiện tại"
-                                    />
-                                    <div className="w-1/3 ">
-                                        <strong>KW</strong>
-
-                                    </div>
-                                </div>
 
                                 <div className="flex justify-end">
                                     <Button
