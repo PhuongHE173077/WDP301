@@ -46,6 +46,7 @@ import ProfileScreenLandlord from "./pages/me/ProfileScreen";
 import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
+import HistoryPayment from "./pages/Admin/HistoryPayment/history";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -106,6 +107,7 @@ const App = () => (
               <Route path="/package" element={<ManagementPackage />} />
               <Route path="/packages/create" element={<PackageManager />} />
               <Route path="/packages/edit/:id" element={<PackageManager />} />
+              <Route path="/history" element={<HistoryPayment />} />
 
             </Route>
 

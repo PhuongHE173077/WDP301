@@ -64,7 +64,8 @@ const createRoom = async (req, res, next) => {
       departmentId,
       post,
       status,
-      type
+      type,
+      _destroy: false
     });
 
 

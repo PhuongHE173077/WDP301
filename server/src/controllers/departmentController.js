@@ -1,3 +1,5 @@
+import Room from '~/models/roomModel';
+
 const Department = require('../models/departmentModel');
 
 // Tạo mới toà nhà (department)
@@ -55,7 +57,7 @@ const getDepartmentsByOwner = async (req, res) => {
 };
 
 // Cập nhật thông tin tòa nhà
-export const updateDepartment = async (req, res) => {
+ const updateDepartment = async (req, res) => {
   try {
     const updatedDepartment = await Department.findByIdAndUpdate(
       req.params.id,
@@ -74,23 +76,37 @@ export const updateDepartment = async (req, res) => {
 }
 
 // Xoá mềm tòa nhà (_destroy = true)
-export const deleteDepartment = async (req, res) => {
+ const deleteDepartment = async (req, res) => {
   try {
-    const deleted = await Department.findByIdAndUpdate(
-      req.params.id,
-      { _destroy: true },
-      { new: true }
-    )
+    const departmentId = req.params.id;
 
-    if (!deleted) {
-      return res.status(404).json({ message: 'Department not found' })
+    // Kiểm tra tòa nhà có tồn tại không
+    const department = await Department.findById(departmentId);
+    if (!department || department._destroy) {
+      return res.status(404).json({ message: 'Không tìm thấy tòa nhà' });
     }
 
-    res.status(200).json({ message: 'Department deleted successfully' })
+    // Tìm các phòng thuộc tòa nhà này
+    const rooms = await Room.find({ departmentId, _destroy: false });
+
+    // Kiểm tra xem có phòng nào đang có người thuê không (status = true là đang có người thuê)
+    const hasOccupiedRoom = rooms.some((room) => room.status === true);
+    if (hasOccupiedRoom) {
+
+      return res.status(400).json({ message: 'Không thể xoá tòa nhà vì có phòng đang được thuê' });
+    }
+
+    // Xoá mềm tất cả phòng thuộc tòa nhà này
+    await Room.updateMany({ departmentId }, { _destroy: true });
+
+    // Xoá mềm tòa nhà
+    await Department.findByIdAndUpdate(departmentId, { _destroy: true });
+
+    return res.status(200).json({ message: 'Xoá tòa nhà thành công (đã xoá mềm)' });
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({ message: error.message });
   }
-}
+};
 
 //Lấy toà nhà theo id
 const getDepartmentById = async (req, res) => {

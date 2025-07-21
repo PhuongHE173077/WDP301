@@ -8,5 +8,7 @@ const Router = express.Router()
 
 Router.route('/')
     .get(authMiddlewares.isAuthorized, walletController.getWallet)
+Router.route('/admin')
+    .get(authMiddlewares.isAdmin, walletController.getWalletByAdmin)
 
 export const walletRouter = Router

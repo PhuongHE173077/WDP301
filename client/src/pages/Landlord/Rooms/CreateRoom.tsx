@@ -159,6 +159,10 @@ const CreateRoom = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    if (form.image.length === 0) {
+    toast.error('Vui lòng chọn ít nhất một ảnh cho phòng!');
+    return;
+  }
     const payload = {
       ...form,
       utilities: form.utilities.join(', '),
@@ -167,12 +171,28 @@ const CreateRoom = () => {
     }
 
     try {
-      await createRoom(payload)
-      toast.success('Tạo phòng thành công')
-      navigate('/rooms')
-    } catch {
-      toast.error('Tạo phòng thất bại')
-    }
+  await createRoom(payload);
+  toast.success('Tạo phòng thành công');
+  navigate('/rooms');
+}   catch (error) {
+  const resData = error?.response?.data;
+  const rawError = resData?.error || error?.message || '';
+  let message = '';
+
+  if (rawError.includes('E11000') && rawError.includes('roomId')) {
+    const match = rawError.match(/dup key: \{ roomId: "(.*?)" \}/);
+    const duplicatedId = match?.[1];
+    message = duplicatedId
+      ? `Phòng với mã "${duplicatedId}" đã tồn tại!`
+      : 'Mã phòng đã tồn tại!';
+  } else if (resData?.message) {
+    message = resData.message;
+  } else {
+    message = 'Tạo phòng thất bại!';
+  }
+
+  toast.error(message);
+}
   }
 
   return (
@@ -296,7 +316,7 @@ const CreateRoom = () => {
                   required
                 />
                 <Input readOnly value={fee.unit} className="w-1/4" />
-                {index > 1 && (
+                {index > 0 && (
                   <MinusCircle className="text-red-500 w-5 h-5 cursor-pointer" onClick={() => handleRemoveService(index)} />
                 )}
               </div>
