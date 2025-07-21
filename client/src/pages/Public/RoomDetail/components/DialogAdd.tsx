@@ -17,6 +17,7 @@ import { CalendarIcon } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { createBookRoomAPIs } from "@/apis/book.room.apis"
 import { toast } from "react-toastify"
+import { useNavigate } from "react-router-dom"
 
 type RentDateForm = {
     startDate: string
@@ -27,12 +28,14 @@ type RentDateForm = {
 export default function RentDateDialog({ open, setOpen, id }: any) {
     const { register, handleSubmit, reset } = useForm<RentDateForm>()
 
+    const navigate = useNavigate()
     const onSubmit = async (data: RentDateForm) => {
         await createBookRoomAPIs({
             ...data,
             blogId: id
         }).then(res => {
             toast.success("Đặt phòng trọ thành công ! ")
+            navigate('/book-rooms')
             setOpen(false)
             reset()
         })

@@ -9,7 +9,7 @@ import {
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { BadgeDollarSignIcon, Download, Edit, EyeIcon, Trash2 } from "lucide-react";
-import { getContractsByTenantId } from '@/apis/contract.apis';
+import { getContractsByTenantId, updateContractAPIs } from '@/apis/contract.apis';
 import Loader from '@/components/ui-customize/Loader';
 import React, { useEffect, useState } from 'react'
 import { cn } from "@/lib/utils";
@@ -42,6 +42,13 @@ export const Contracts = () => {
         await createPaymentContract(data).then((res) => {
             window.location.href = res.data;
         });
+    }
+
+    const handleReject = async (contract: any) => {
+        await updateContractAPIs(contract._id, { status: 'rejected' })
+            .then(() => {
+                fetchData();
+            })
     }
     if (loading) return <Loader />
     return (
@@ -163,7 +170,7 @@ export const Contracts = () => {
                                                         size="icon"
                                                         variant="outline"
                                                         className="rounded-full border-red-400 hover:bg-red-100 transition"
-                                                        onClick={() => {/* TODO: Thêm hàm xử lý từ chối ở đây */ }}
+                                                        onClick={() => handleReject(contract)}
                                                     >
                                                         {/* Bạn có thể dùng icon X hoặc chữ */}
                                                         <span className="text-red-600 font-bold">✕</span>
