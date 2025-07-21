@@ -1,5 +1,6 @@
 import OrderRoom from "~/models/orderModel"
 import Room from "~/models/roomModel"
+import ApiError from "~/utils/ApiError"
 
 // Lấy danh sách phòng theo departmentId
 const getRoomsByDepartment = async (req, res) => {
@@ -22,7 +23,7 @@ const getRoomsByDepartment = async (req, res) => {
 }
 
 // (Tùy chọn) Tạo phòng mới - nếu bạn cần
-const createRoom = async (req, res) => {
+const createRoom = async (req, res, next) => {
   try {
     const {
       roomId,
@@ -43,6 +44,15 @@ const createRoom = async (req, res) => {
       return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
     }
 
+    const department = await department.findById(departmentId);
+    if (!department) {
+      throw new ApiError(404, "Department not found");
+    }
+    const existingRoom = await Room.findOne({ roomId, departmentId, _destroy: false });
+
+    if (existingRoom) {
+      throw new ApiError(400, "Phòng đã tồn tại trong phòng trọ này");
+    }
     // Tạo Room
     const newRoom = await Room.create({
       roomId,
@@ -56,6 +66,7 @@ const createRoom = async (req, res) => {
       status,
       type
     });
+
 
     // Tạo OrderRoom mặc định gắn với Room mới
     await OrderRoom.create({
@@ -75,8 +86,7 @@ const createRoom = async (req, res) => {
       room: newRoom
     });
   } catch (error) {
-    console.error("Lỗi tạo phòng:", error);
-    return res.status(500).json({ message: "Tạo phòng thất bại", error: error.message });
+    next(error);
   }
 };
 
@@ -123,7 +133,7 @@ const updateRoom = async (req, res) => {
 }
 
 //lấy thông tin phòng theo id
- const getRoomById = async (req, res) => {
+const getRoomById = async (req, res) => {
   try {
     const room = await Room.findById(req.params.id)
 
@@ -139,7 +149,7 @@ const updateRoom = async (req, res) => {
 
 export const roomController = {
   getRoomsByDepartment,
-  createRoom, 
+  createRoom,
   deleteRoom,
   updateRoom,
   getRoomById

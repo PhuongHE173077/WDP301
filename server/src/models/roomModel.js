@@ -11,7 +11,7 @@ const serviceFeeSchema = new mongoose.Schema(
 
 const roomSchema = new mongoose.Schema(
     {
-        roomId: { type: String, required: true, unique: true },
+        roomId: { type: String, required: true },
         image: { type: [String], default: [] },
         price: { type: Number, required: true },
         area: { type: String },

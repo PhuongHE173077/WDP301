@@ -26,9 +26,9 @@ const CreateRoom = () => {
     utilities: [...defaultUtilities],
     serviceFee: [...defaultServiceFees],
     departmentId: '',
-    post: true,        
-  status: true,      
-  type: 'Phòng trọ'
+    post: false,
+    status: false,
+    type: 'Phòng trọ'
   })
 
   const [newUtility, setNewUtility] = useState('')
@@ -51,7 +51,6 @@ const CreateRoom = () => {
             serviceFee: [
               { name: 'Tiền điện', price: first.electricPrice || '', unit: 'kWh' },
               { name: 'Tiền nước', price: first.waterPrice || '', unit: 'm³' },
-              { name: 'Tiền vệ sinh', price: '', unit: 'phòng/tháng' }
             ]
           }))
         }
@@ -78,7 +77,6 @@ const CreateRoom = () => {
       serviceFee: [
         { name: 'Tiền điện', price: dep?.electricPrice || '', unit: 'kWh' },
         { name: 'Tiền nước', price: dep?.waterPrice || '', unit: 'm³' },
-        { name: 'Tiền vệ sinh', price: '', unit: 'phòng/tháng' }
       ]
     }))
   }
@@ -250,38 +248,38 @@ const CreateRoom = () => {
             />
           </div>
         </div>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Chọn tòa nhà */}
-        <div>
-          <label className="text-sm font-medium">Chọn tòa nhà</label>
-          <select
-            title='Toà nhà'
-            name="departmentId"
-            value={form.departmentId}
-            onChange={handleDepartmentChange}
-            className="w-full border rounded-md px-3 py-2"
-            required
-          >
-            {departments.map(dep => (
-              <option key={dep._id} value={dep._id}>{dep.name}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Chọn tòa nhà */}
+          <div>
+            <label className="text-sm font-medium">Chọn tòa nhà</label>
+            <select
+              title='Toà nhà'
+              name="departmentId"
+              value={form.departmentId}
+              onChange={handleDepartmentChange}
+              className="w-full border rounded-md px-3 py-2"
+              required
+            >
+              {departments.map(dep => (
+                <option key={dep._id} value={dep._id}>{dep.name}</option>
+              ))}
+            </select>
+          </div>
+          {/* Chọn loại phòng */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Loại phòng</label>
+            <select
+              title='Loại phòng'
+              name="type"
+              value={form.type}
+              onChange={handleInputChange}
+              className="w-full border rounded-md px-3 py-2"
+            >
+              <option value="Phòng trọ">Phòng trọ</option>
+              <option value="Căn hộ mini">Căn hộ mini</option>
+            </select>
+          </div>
         </div>
-        {/* Chọn loại phòng */}
-        <div>
-  <label className="block text-sm font-medium mb-1">Loại phòng</label>
-  <select
-  title='Loại phòng'
-    name="type"
-    value={form.type}
-    onChange={handleInputChange}
-    className="w-full border rounded-md px-3 py-2"
-  >
-    <option value="Phòng trọ">Phòng trọ</option>
-    <option value="Căn hộ mini">Căn hộ mini</option>
-  </select>
-</div>
-</div>
         {/* Phí dịch vụ */}
         <div>
           <h3 className="text-lg font-semibold mb-2">Phí dịch vụ</h3>
