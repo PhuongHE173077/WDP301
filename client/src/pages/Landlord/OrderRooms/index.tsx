@@ -1,4 +1,4 @@
-import { fetchOrders } from '@/apis/order.apis'
+import { deleteOrderAndSaveAPIs, deleteOrderAPIs, fetchOrders } from '@/apis/order.apis'
 import { fetchTenantAPIs } from '@/apis/tenant.apis'
 import Loader from '@/components/ui-customize/Loader'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import Swal from 'sweetalert2'
 import AddUserDialog from './components/DialogAdd'
 import { getDepartmentsByOwner } from '@/apis/departmentApi'
 import { DialogExtension } from './components/DialogExtension'
+import { toast } from 'react-toastify'
 
 export const OrderRooms = () => {
     const navigate = useNavigate()
@@ -45,23 +46,36 @@ export const OrderRooms = () => {
 
     const handleDelete = async (data: any) => {
         Swal.fire({
-            title: `Bạn có muốn xóa người thuê ra khỏi phòng ${data.room.roomId}? `,
-            text: data.contract ? `Phòng này đã tạo hợp đồng khi xóa trước hết hạn thì có thể đền hợp đồng!` : "Hành động này không thể phục hồi! ",
+            title: `Bạn có muốn xóa người thuê ra khỏi phòng ${data.room.roomId}?`,
+            text: data.contract
+                ? "Phòng này đã tạo hợp đồng. Nếu xóa trước khi hết hạn có thể phải đền bù hợp đồng!"
+                : "Hành động này không thể phục hồi!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Có, xóa!",
-            cancelButtonText: "Hủy"
-        }).then((result) => {
+            showDenyButton: true,
+            confirmButtonColor: "#d33", // Màu đỏ cho "Xóa"
+            denyButtonColor: "#f39c12", // Màu vàng cho "Xóa và lưu lịch sử"
+            cancelButtonColor: "#3085d6", // Màu xanh cho "Hủy"
+            confirmButtonText: "Xóa",
+            denyButtonText: "Xóa & lưu lịch sử",
+            cancelButtonText: "Hủy",
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                if (data.contract) {
-
-                }
-
+                await deleteOrderAPIs(data._id).then(() => {
+                    toast.success("Xóa người thuê thành công");
+                    fetchData();
+                })
+            } else if (result.isDenied) {
+                await deleteOrderAndSaveAPIs(data._id).then(() => {
+                    toast.success("Xóa người thuê thành công");
+                    fetchData();
+                })
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // Người dùng nhấn Hủy
+                console.log("Đã hủy");
             }
         });
-    }
+    };
 
     // Helper function to render contract status beautifully
     const renderContractStatus = (tenant: any) => {
@@ -161,8 +175,7 @@ export const OrderRooms = () => {
                                     <Tooltip >
                                         <TooltipTrigger>
                                             <Button variant="outline" size="icon" onClick={() => {
-                                                setActiveOrder(tenant.history);
-                                                setOpen(true)
+                                                navigate(`/order-room/history/${tenant._id}`)
                                             }}>
                                                 <EyeIcon className="w-4 h-4" />
                                             </Button>

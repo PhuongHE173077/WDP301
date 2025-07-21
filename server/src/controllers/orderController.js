@@ -1,5 +1,8 @@
 import { StatusCodes } from "http-status-codes"
+import Contract from "~/models/contractModel"
 import OrderRoom from "~/models/orderModel"
+import Room from "~/models/roomModel"
+import Tenant from "~/models/tenantModel"
 import { pickUser } from "~/utils/algorithms"
 import ApiError from "~/utils/ApiError"
 
@@ -71,8 +74,21 @@ const getOrderById = async (req, res, next) => {
         const id = req.params.id
         const findBy = req.query.findBy
         let order
+        const contractList = await Contract.find({})
+        const tenantList = await Tenant.find({})
         if (!findBy) {
-            order = await OrderRoom.findOne({ _id: id, _destroy: false }).populate('roomId').populate('tenantId').populate('ownerId').populate('contract')
+            order = await OrderRoom.findOne({ _id: id, _destroy: false })
+                .populate({
+                    path: 'roomId',
+                    populate: {
+                        path: 'departmentId',
+                        model: 'Department'
+                    }
+                })
+                .populate('tenantId')
+                .populate('ownerId')
+                .populate('contract');
+
             if (order.ownerId._id.toString() !== ownerId) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
         }
         // Tìm theo ContractId
@@ -88,6 +104,14 @@ const getOrderById = async (req, res, next) => {
             owner: pickUser(order.ownerId),
             tenants: order.tenantId && order.tenantId?.length > 0 ? order.tenantId.map(t => pickUser(t)) : null,
             contract: order.contract,
+            history: order.history.map(h => ({
+                tenant: tenantList.find(t => t._id.toString() === h.tenantId.toString()),
+                contract: contractList.find(c => c._id.toString() === h.contract.toString()),
+                startAt: h.startAt,
+                endAt: h.endAt,
+                createdAt: h.createdAt,
+                updatedAt: h.updatedAt,
+            })),
             startAt: order.startAt,
             endAt: order.endAt,
             createdAt: order.createdAt,
@@ -129,7 +153,58 @@ const getOrdersOfTenant = async (req, res, next) => {
     }
 };
 
+const deleteOrder = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const { isSave } = req.query
+        const ownerId = req.jwtDecoded._id
 
+        const order = await OrderRoom.findOne({ _id: id, _destroy: false })
+        if (!order) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
+
+        if (order.ownerId.toString() !== ownerId) return next(new ApiError(StatusCodes.NOT_FOUND, 'Order not found!'))
+
+        if (isSave) {
+            const today = new Date();
+            const orderEndAt = new Date(order.endAt);
+
+            const newHistory = {
+                tenantId: order.tenantId,
+                contract: order.contract,
+                startAt: order.startAt,
+                endAt: today > orderEndAt ? order.endAt : today,
+            };
+
+            const orderDelete = await OrderRoom.findOneAndUpdate(
+                { _id: id },
+                {
+                    tenantId: [],
+                    contract: null,
+                    startAt: null,
+                    endAt: null,
+                    history: [...order.history, newHistory],
+                },
+                { new: true }
+            );
+            await Room.findOneAndUpdate({ _id: order.roomId }, { status: false });
+
+            res.status(StatusCodes.OK).json(orderDelete);
+        }
+
+
+        const orderDelete = await OrderRoom.findOneAndUpdate({ _id: id }, {
+            tenantId: [],
+            contract: null,
+            startAt: null,
+            endAt: null,
+        }, { new: true })
+        await Room.findOneAndUpdate({ _id: order.roomId }, { status: false });
+
+        res.status(StatusCodes.OK).json(orderDelete)
+    } catch (error) {
+        next(error)
+    }
+}
 
 
 export const orderController = {
@@ -138,5 +213,6 @@ export const orderController = {
     getTenantOrder,
     updateOrder,
     getOrderById,
-    getOrdersOfTenant
+    getOrdersOfTenant,
+    deleteOrder
 };

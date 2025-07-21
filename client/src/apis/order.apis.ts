@@ -17,5 +17,13 @@ export const fetchOrderByContractIdAPIs = async (id: string) => {
 };
 
 export const getTenantRooms = async () => {
-  return await axiosCustomize.get('/api/v1/orders/tenant/my-rooms');
+    return await axiosCustomize.get('/api/v1/orders/tenant/my-rooms');
+};
+
+export const deleteOrderAPIs = async (id: string) => {
+    return await axiosCustomize.delete(`api/v1/orders/${id}`);
+};
+
+export const deleteOrderAndSaveAPIs = async (id: string) => {
+    return await axiosCustomize.delete(`api/v1/orders/${id}?isSave=true`);
 };

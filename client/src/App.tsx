@@ -1,53 +1,51 @@
-import { TooltipProvider } from "@/components/ui/tooltip";
+import "react-datepicker/dist/react-datepicker.css";
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from 'react-toastify';
 import { persistStore } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import { HomeLayout } from "./layouts/Landlord/layouts/home-page";
-import Index from "./pages/Index";
-import { Rooms } from "./pages/Landlord/Rooms";
-import NotFound from "./pages/NotFound";
-import { Login } from "./pages/auth/Login";
-import { ProtectedRoute } from "./routers/ProtectedRoute";
-import { injectStore } from "./service/axios.customize";
-import { store } from "./store/store";
-import Tenants from "./pages/Landlord/Tenants/Tenant";
-import { OrderRooms } from "./pages/Landlord/OrderRooms";
 import { TenantLayout } from "./layouts/Tenant/layouts/home-page";
-import { TenantRooms } from "./pages/Tenant/Rooms";
-import { Contracts } from "./pages/Tenant/Contracts";
-import DepartmentList from "./pages/Landlord/Rooms/DepartmentList";
-import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
-import Feedback from "./pages/Landlord/Feedback/Feedback";
-import "react-datepicker/dist/react-datepicker.css"
-import { LandlordContracts } from "./pages/Landlord/Contracts";
-import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDetail";
-import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
-import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
-import TroDetailPage from "./pages/Public/RoomDetail";
-import RentalSearch from "./pages/Public/SearchRoom";
-import ProfileScreenLandlord from "./pages/me/ProfileScreen";
-import ProfileScreenTenant from "./pages/Tenant/me/ProfileScreen";
-import EditRoom from "./pages/Landlord/Rooms/EditRoom";
 import LayoutAdmin from "./layouts/admin";
 import Page from "./pages/Admin/Dashboard";
 import { ManagerUser } from "./pages/Admin/Manager-User";
-import Transaction from "./pages/Public/Transaction/Index";
-import { BookRoom } from "./pages/Tenant/BookRooms";
-import { BookRoomManager } from "./pages/Landlord/BookRooms";
-import { PaymentReturn } from "./pages/Tenant/Payment";
-import { ErrorPayment } from "./pages/Tenant/Payment/ErrorPayment";
-import { PaymentSuccess } from "./pages/Tenant/Payment/PaymentSuccess";
-import RegisterPage from "./pages/auth/Register";
-import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback"
-import { Bills } from "./pages/Landlord/Bills";
-import { CalculateBill } from "./pages/Landlord/Bills/CalculateBill";
-import { BillsTenant } from "./pages/Tenant/Bills";
-import LandlordTransaction from './pages/Landlord/Transaction/Index';
 import { ManagementPackage } from "./pages/Admin/ManagerPackage";
 import PackageManager from "./pages/Admin/ManagerPackage/PackageCreate";
+import Index from "./pages/Index";
+import { Bills } from "./pages/Landlord/Bills";
+import { CalculateBill } from "./pages/Landlord/Bills/CalculateBill";
+import { BookRoomManager } from "./pages/Landlord/BookRooms";
+import { LandlordContracts } from "./pages/Landlord/Contracts";
+import Feedback from "./pages/Landlord/Feedback/Feedback";
+import { OrderRooms } from "./pages/Landlord/OrderRooms";
+import RentalHistory from "./pages/Landlord/OrderRooms/HistoryOrder";
 import { PackageList } from "./pages/Landlord/Packages/Package";
+import { Rooms } from "./pages/Landlord/Rooms";
+import CreateDepartment from "./pages/Landlord/Rooms/CreateDepartment";
+import CreateRoom from "./pages/Landlord/Rooms/CreateRoom";
+import DepartmentDetail from "./pages/Landlord/Rooms/DepartmentDetail";
+import EditRoom from "./pages/Landlord/Rooms/EditRoom";
+import Tenants from "./pages/Landlord/Tenants/Tenant";
+import LandlordTransaction from './pages/Landlord/Transaction/Index';
+import NotFound from "./pages/NotFound";
+import TroDetailPage from "./pages/Public/RoomDetail";
+import RentalSearch from "./pages/Public/SearchRoom";
+import Transaction from "./pages/Public/Transaction/Index";
+import { BillsTenant } from "./pages/Tenant/Bills";
+import { BookRoom } from "./pages/Tenant/BookRooms";
+import { Contracts } from "./pages/Tenant/Contracts";
+import { ContractDetail } from "./pages/Tenant/Contracts/components/ContractDetail";
+import TenanFeedback from "./pages/Tenant/Feedback/TenantFeedback";
+import { ErrorPayment } from "./pages/Tenant/Payment/ErrorPayment";
+import { PaymentSuccess } from "./pages/Tenant/Payment/PaymentSuccess";
+import { TenantRooms } from "./pages/Tenant/Rooms";
+import ProfileScreenTenant from "./pages/Tenant/me/ProfileScreen";
+import { Login } from "./pages/auth/Login";
+import RegisterPage from "./pages/auth/Register";
+import ProfileScreenLandlord from "./pages/me/ProfileScreen";
+import { ProtectedRoute } from "./routers/ProtectedRoute";
+import { injectStore } from "./service/axios.customize";
+import { store } from "./store/store";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -81,14 +79,13 @@ const App = () => (
               <Route path="/rooms/create" element={<CreateRoom />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
-              {/* <Route path="/profile" element={<ProfileScreen />} /> */}
               <Route path="/book-room-manager" element={<BookRoomManager />} />
               <Route path="/bills" element={<Bills />} />
               <Route path="/calculate-bill/:id" element={<CalculateBill />} />
               <Route path="/profile" element={<ProfileScreenLandlord />} />
               <Route path="/landlord/transactions" element={<LandlordTransaction />} />
               <Route path="/packages" element={<PackageList />} />
-
+              <Route path="/order-room/history/:id" element={<RentalHistory />} />
             </Route>
 
             {/* Tenant router */}

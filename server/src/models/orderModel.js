@@ -43,9 +43,28 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    history: {
-        type: Array,
-    },
+    history: [
+        {
+            tenantId: {
+                type: Schema.Types.ObjectId,
+                ref: "Tenant",
+                required: true
+            },
+            contract: {
+                type: Schema.Types.ObjectId,
+                ref: "Contract",
+                required: false
+            },
+            startAt: {
+                type: Date,
+                required: true
+            },
+            endAt: {
+                type: Date,
+                required: true
+            }
+        }
+    ],
     _destroy: {
         type: Boolean,
         default: false
