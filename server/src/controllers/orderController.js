@@ -121,31 +121,34 @@ const getOrderById = async (req, res, next) => {
         next(error)
     }
 }
-
 const getOrdersOfTenant = async (req, res, next) => {
     try {
         const tenantId = req.jwtDecoded._id;
 
-        // Lấy các đơn thuê của tenant
+        // Tìm các đơn thuê có tenant hiện tại và populate roomId & contract
         const orders = await OrderRoom.find({
             tenantId: tenantId,
             _destroy: false
-        }).populate("roomId");
+        })
+            .populate("roomId")
+            .populate("contract"); // cần để kiểm tra contract.paid
 
-        const roomData = orders
-            .filter(order => order.roomId)
-            .map(order => {
-                const room = order.roomId;
-                return {
-                    _id: room._id,
-                    roomId: room.roomId,
-                    image: room.image,
-                    price: room.price,
-                    area: room.area,
-                    utilities: room.utilities,
-                    serviceFee: room.serviceFee
-                };
-            });
+        const paidOrders = orders.filter(order => {
+            return order.contract && order.contract.paid === true && order.roomId;
+        });
+
+        const roomData = paidOrders.map(order => {
+            const room = order.roomId;
+            return {
+                _id: room._id,
+                roomId: room.roomId,
+                image: room.image,
+                price: room.price,
+                area: room.area,
+                utilities: room.utilities,
+                serviceFee: room.serviceFee
+            };
+        });
 
         res.status(StatusCodes.OK).json(roomData);
     } catch (error) {
