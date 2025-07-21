@@ -8,12 +8,15 @@ import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/store/slice/userSlice';
 import { SignatureDialog } from './components/Signature';
-import { createContactApis } from '@/apis/contract.apis';
+import { createContactApis, updateContractAPIs } from '@/apis/contract.apis';
 import html2pdf from 'html2pdf.js';
 import { toast } from 'react-toastify';
 import { getDownloadUrl } from '@/utils/contanst';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const LandlordContracts = () => {
     const [order, setOrder] = useState<any>({});
@@ -46,9 +49,11 @@ export const LandlordContracts = () => {
     const [loadingUpload, setLoadingUpload] = useState(false);
 
     const [deposit, setDeposit] = useState(2000000);
+    const [paid, setPaid] = useState(false);
 
     const navigate = useNavigate();
 
+    const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -59,6 +64,8 @@ export const LandlordContracts = () => {
         try {
             const res = await fetchOrderByIdAPIs(orderId);
             setOrder(res.data);
+            setDeposit(res.data?.contract?.deposit || 0);
+            setPaid(res.data?.contract?.paid || false);
         } finally {
             setLoading(false);
         }
@@ -136,6 +143,16 @@ export const LandlordContracts = () => {
             </div>
         )
     }
+
+    const handleUpdateContract = async (data) => {
+        await updateContractAPIs(contract?._id, {
+            deposit: deposit,
+            paid: paid
+        });
+        toast.success("Cập nhật hợp đồng thành công!");
+        setUpdateDialogOpen(false);
+        fetchData();
+    };
 
 
     return (
@@ -277,13 +294,54 @@ export const LandlordContracts = () => {
                                         <Download className="w-4 h-4" />
                                         Tải xuống hợp đồng
                                     </Button>
-                                    <Button variant="outline" onClick={() => navigate(`/landlord/contracts/${contract?.contractId}`)} className="gap-2">
+                                    <Button variant="outline" onClick={() => setUpdateDialogOpen(true)} className="gap-2">
                                         <NotebookPen className="w-4 h-4" />
                                         Cập nhật hợp đồng
                                     </Button>
                                 </div>
                             </CardContent>
                         </Card>
+                        <Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
+                            <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Cập nhật hợp đồng</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label>Số tiền cọc (VNĐ)</Label>
+                                        <Input
+                                            type="number"
+                                            value={contract?.deposit || 0}
+                                            onChange={e => setDeposit(Number(e.target.value))}
+                                            min={0}
+                                        />
+                                    </div>
+
+
+                                    <div className=" items-center gap-2">
+                                        <Label htmlFor="paid">Thanh toán :</Label>
+                                        {/* Replace checkbox with Select */}
+                                        <Select value={paid ? "paid" : "unpaid"} onValueChange={val => setPaid(val === "paid")}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="paid">Đã thanh toán</SelectItem>
+                                                <SelectItem value="unpaid">Chưa thanh toán</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setUpdateDialogOpen(false)}>
+                                        Hủy
+                                    </Button>
+                                    <Button onClick={handleUpdateContract} className="bg-blue-600 text-white hover:bg-blue-700">
+                                        Lưu thay đổi
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
                     </>
 
                 )}

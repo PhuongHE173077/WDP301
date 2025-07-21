@@ -10,6 +10,7 @@ import { WEBSITE_DOMAIN } from '../utils/constants';
 import Wallet from '~/models/walletModel';
 import Bill from '~/models/billModel';
 import dayjs from 'dayjs';
+import Room from '~/models/roomModel';
 const createPayment = async (req, res, next) => {
     try {
         const data = req.body;
@@ -82,6 +83,7 @@ const checkPaymentContract = async (req, res, next) => {
         if (req.query.vnp_ResponseCode == '00') {
             await Transaction.create(newTransaction);
             await Contract.findByIdAndUpdate(orderRoom.contract, { paid: true });
+            await Room.findByIdAndUpdate(orderRoom.roomId, { status: true });
             await Wallet.findOneAndUpdate({ userId: orderRoom.ownerId }, { $inc: { balance: newTransaction.amount } });
             return res.redirect(`${WEBSITE_DOMAIN}/payment/success`);
         } else {

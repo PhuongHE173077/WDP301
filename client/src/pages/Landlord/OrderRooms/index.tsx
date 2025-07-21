@@ -66,10 +66,13 @@ export const OrderRooms = () => {
     // Helper function to render contract status beautifully
     const renderContractStatus = (tenant: any) => {
         if (tenant?.contract?.status === "pending_signature" && tenant?.contract?.paid) {
-            return <span className="px-2 py-1 rounded bg-green-100 text-green-700 font-medium">Đã thanh toán</span>;
+            return <span className="px-2 py-1 rounded text-blue-700 bg-blue-100 border border-blue-300 font-medium">Đã thanh toán(chưa ký)</span>;
         }
         if (tenant?.contract?.status === "pending_signature") {
             return <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700 font-medium">Đang đợi phản hồi của người thuê</span>;
+        }
+        if (tenant?.contract?.status === "pending_review") {
+            return <span className="px-2 py-1 rounded text-green-700 bg-green-100 border border-green-300 font-medium"> Đã thanh toán</span>;
         }
         if (tenant?.contract?.status === "rejected") {
             return <span className="px-2 py-1 rounded bg-red-100 text-red-700 font-medium">Bị từ chối</span>;

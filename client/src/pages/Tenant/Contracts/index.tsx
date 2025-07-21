@@ -103,7 +103,7 @@ export const Contracts = () => {
                                                 "font-semibold px-3 py-1 rounded-full text-xs shadow",
                                                 contract.status === "pending_signature" && !contract.paid && "text-yellow-700 bg-yellow-100 border border-yellow-300",
                                                 contract.status === "pending_signature" && contract.paid && "text-blue-700 bg-blue-100 border border-blue-300",
-                                                contract.status === "approved" && "text-green-700 bg-green-100 border border-green-300",
+                                                contract.status === "pending_review" && "text-green-700 bg-green-100 border border-green-300",
                                                 contract.status === "rejected" && "text-red-700 bg-red-100 border border-red-300"
                                             )}
                                         >
@@ -111,8 +111,8 @@ export const Contracts = () => {
                                                 ? <>
                                                     {contract.paid ? "Đã thanh toán - chưa ký" : "Chưa giải quyết"}
                                                 </>
-                                                : contract.status === "approved"
-                                                    ? "Đã duyệt"
+                                                : contract.status === "pending_review"
+                                                    ? "Đã thanh toán"
                                                     : "Đã từ chối"}
                                         </span>
                                     </TableCell>

@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { fileMiddleware } from "~/middlewares/fileMiddleware";
 import Contract from "~/models/contractModel";
 import OrderRoom from "~/models/orderModel";
+import Room from "~/models/roomModel";
 import { cloudinaryProvider } from "~/providers/CloudinaryProvider";
 import { sendEmail } from "~/providers/MailProvider";
 import { pickUser } from "~/utils/algorithms";
@@ -82,8 +83,6 @@ const updateContract = async (req, res, next) => {
         const id = req.params.id
         const { signature_B, image1CCCD, image2CCCD } = req.body
         if (file) {
-
-
             const fileNameWithExt = path.parse(file.originalname).name + path.extname(file.originalname);
             const sanitized = fileNameWithExt.replace(/\s+/g, '_');
             const resultUpload = await cloudinaryProvider.streamUploadFile(file.buffer, 'contracts', sanitized)
@@ -97,6 +96,11 @@ const updateContract = async (req, res, next) => {
             const contract = await Contract.findOneAndUpdate({ _id: id }, dataUpdate, { new: true })
             res.status(StatusCodes.OK).json(contract)
         }
+        const contract = await Contract.findByIdAndUpdate(id, req.body, { new: true })
+        if (req.body.paid) {
+            await Room.findByIdAndUpdate(contract.roomId, { status: true })
+        }
+        res.status(StatusCodes.OK).json({ message: 'Update contract successfully' })
     } catch (error) {
         next(error)
     }

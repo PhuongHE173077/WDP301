@@ -4,7 +4,7 @@ import { selectCurrentUser } from '@/store/slice/userSlice';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { SignatureDialog } from './Signature';
 import { DialogUpdateCCCD } from './DialogUpload';
 import { toast } from 'react-toastify';
@@ -42,18 +42,15 @@ export const ContractDetail = () => {
         setSignature(image);
     }
 
-    const handleCreate = async () => {
-        const data = {
-            amount: order?.contract?.deposit,
-            _id: order?._id
-        }
-        await createPaymentContract(data).then((res) => {
-            window.location.href = res.data;
-        });
-    }
+    const navigate = useNavigate();
+
     const handleSubmit = async () => {
         const element = document.getElementById('contract-content');
         if (!element) return;
+        if (!signature) {
+            toast.error("Vui lòng ký hợp đồng trước khi lưu!");
+            return;
+        }
         const opt = {
             margin: 0.5,
             filename: 'hop_dong_thue_tro.pdf',
@@ -77,7 +74,9 @@ export const ContractDetail = () => {
                 success: 'Tạo hợp đồng thanh cong',
                 error: 'Tạo hợp đồng that bai',
             }
-        ).then((res) => order(res.data));
+        ).then((res) =>
+            navigate('/contracts')
+        );
     }
 
     return (
@@ -88,7 +87,7 @@ export const ContractDetail = () => {
                 right: 20,
                 zIndex: 1000
             }}>
-                <Button disabled={loadingUpload} onClick={() => handleCreate()}>
+                <Button disabled={loadingUpload} onClick={() => handleSubmit()}>
                     Lưu hợp đồng
                 </Button>
             </div>

@@ -11,3 +11,7 @@ export const getContractsByTenantId = async () => {
 export const uploadContractAPIs = async (id: string, data: any) => {
     return await axiosCustomize.put(`api/v1/contracts/${id}`, data);
 };
+
+export const updateContractAPIs = async (id: string, data: any) => {
+    return await axiosCustomize.put(`api/v1/contracts/${id}`, data);
+};
