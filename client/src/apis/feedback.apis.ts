@@ -11,3 +11,10 @@ export const createFeedback = async (data: any) => {
   return await axiosCustomize.post(`api/v1/feedbacks`, data);
 };
 
+export const getOwnersOfTenant = async () => {
+    return await axiosCustomize.get(`/api/v1/feedbacks/me/owners`);
+};
+
+export const getTenantsOfTenant = async () => {
+    return await axiosCustomize.get(`/api/v1/feedbacks/myfeedbacks`);
+};

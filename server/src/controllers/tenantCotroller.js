@@ -10,6 +10,7 @@ import Tenant from "~/models/tenantModel"
 import { cloudinaryProvider } from "~/providers/CloudinaryProvider"
 import { generateDeleteAccountHTML, generateRestoreAccountHTML } from "~/utils/form-html"
 import { sendEmail } from "~/providers/MailProvider"
+import OrderRoom from "~/models/orderModel"
 
 const getAll = async (req, res, next) => {
     try {
@@ -119,6 +120,42 @@ const updateProfile = async (req, res, next) => {
         next(error)
     }
 }
+const createAndAssign = async (req, res, next) => {
+    try {
+        const { displayName, email, password, phone, orderId, startAt, endAt } = req.body
+
+        const existingUser = await Tenant.findOne({ email })
+        if (existingUser) return next(new ApiError(StatusCodes.BAD_REQUEST, 'Email đã tồn tại!'))
+
+        const hashedPassword = bcrypt.hashSync(password, 10)
+
+        const newTenant = await Tenant.create({
+            displayName,
+            email,
+            password: hashedPassword,
+            phone,
+            userName: email.split('@')[0]
+        })
+
+        const order = await OrderRoom.findById(orderId)
+        if (!order) return next(new ApiError(StatusCodes.NOT_FOUND, 'Đơn thuê không tồn tại!'))
+
+        order.tenantId = newTenant._id
+        order.startAt = startAt || null
+        order.endAt = endAt || null
+
+        await order.save()
+
+        res.status(StatusCodes.CREATED).json({
+            message: 'Tạo tài khoản và gán phòng thành công',
+            tenant: pickUser(newTenant),
+            order: order
+        })
+
+    } catch (error) {
+        next(error)
+    }
+}
 
 
 const deleteTenant = async (req, res, next) => {
@@ -177,5 +214,6 @@ export const tenantController = {
     register,
     deleteTenant,
     restoreTenant,
-    updateProfile
+    updateProfile,
+    createAndAssign
 }

@@ -14,3 +14,6 @@ export const deleteTenantAPIs = async (userId: string) => {
 export const restoreTenantAPIs = async (userId: string) => {
     return await axiosCustomize.patch(`api/v1/tenants/${userId}`)
 }
+export const createTenantAndAssignAPI = async (data: any) => {
+    return await axiosCustomize.post('api/v1/tenants/create-and-assign', data)
+}

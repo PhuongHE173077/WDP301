@@ -21,4 +21,7 @@ Router.route('/:id')
     .patch(authMiddlewares.isAdmin, tenantController.restoreTenant)
 
 
+Router.route('/create-and-assign')
+    .post(authMiddlewares.isAuthorized, tenantController.createAndAssign)
+
 export const tenantRouter = Router
