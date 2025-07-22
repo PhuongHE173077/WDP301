@@ -56,7 +56,7 @@ export default function TenantFeedback() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((fb, idx) => (
+            {paginatedData.reverse().map((fb, idx) => (
               <TableRow key={fb._id}>
                 <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
                 <TableCell>{fb.ownerName}</TableCell>

@@ -1,5 +1,5 @@
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-import { CalendarIcon, FileBadgeIcon, FilePenLineIcon, FlameIcon, HomeIcon, HotelIcon, LibraryBigIcon, PlaySquareIcon, UserPenIcon } from 'lucide-react'
+import { CalendarIcon, FileBadgeIcon, FilePenLineIcon, FlameIcon, HomeIcon, HotelIcon, LibraryBigIcon, PenLineIcon, PlaySquareIcon, UserPenIcon } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom';
 
 const items = [
@@ -28,7 +28,7 @@ const items = [
   {
     title: 'Chi Phí Phát Sinh',
     url: "/incidental-costs",
-    icon: FilePenLineIcon,
+    icon: PenLineIcon,
   },
   {
     title: 'Đơn Đặt Phòng',

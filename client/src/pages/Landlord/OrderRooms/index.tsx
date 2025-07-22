@@ -29,6 +29,7 @@ export const OrderRooms = () => {
     const [openExtension, setOpenExtension] = useState(false)
 
     const [departments, setDepartments] = useState<any[]>([]);
+    const [selectedDepartment, setSelectedDepartment] = useState("");
 
     useEffect(() => {
         fetchData()
@@ -97,46 +98,82 @@ export const OrderRooms = () => {
         return "";
     }
 
+    // Lọc orders theo department và search
+    const filteredOrders = orders
+        .filter((o: any) =>
+            !selectedDepartment || o.room.departmentId === selectedDepartment
+        )
+        .filter((o: any) => {
+            if (!searchTerm.trim()) return true;
+            const roomId = o?.room?.roomId?.toLowerCase() || "";
+            const tenantNames = (o?.tenants || []).map((t: any) => t.displayName?.toLowerCase() || "").join(" ");
+            const search = searchTerm.toLowerCase();
+            return roomId.includes(search) || tenantNames.includes(search);
+        });
+
+
     if (loading) return <Loader />
     return (
-        <div className="p-4">
-            <div className="mb-4 flex justify-between items-center ">
-                <input
-                    type="text"
-                    placeholder="Tìm theo tên người thuê hoặc ID phòng"
-                    className="w-full md:w-1/3 px-4 py-2 border rounded-md "
-                    value={searchTerm}
-                    onChange={(e) => {
-                        setSearchTerm(e.target.value)
-                        setPage(1)
-                    }}
-                />
+        <div className="p-2 md:p-6 max-w-7xl mx-auto">
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 md:p-6 mb-6 flex flex-col md:flex-row md:items-center md:gap-6 gap-4">
+                <div className="flex-1 flex flex-col md:flex-row gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Chọn tòa nhà</label>
+                        <select
+                            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 min-w-[160px]"
+                            value={selectedDepartment}
+                            onChange={e => setSelectedDepartment(e.target.value)}
+                        >
+                            <option value="">Tất cả tòa</option>
+                            {departments.map((d: any) => (
+                                <option key={d._id} value={d._id}>{d.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                        <input
+                            type="text"
+                            placeholder="Tên người thuê hoặc ID phòng..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value)
+                                setPage(1)
+                            }}
+                        />
+                    </div>
+                </div>
             </div>
 
-            <div className="overflow-x-auto hidden md:block rounded-lg border shadow-lg">
-                <Table className="min-w-[700px] bg-white">
+            <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-md bg-white">
+                <Table className="min-w-[900px]">
                     <TableHeader>
-                        <TableRow>
-                            <TableHead>ID phòng</TableHead>
-                            <TableHead>Người thuê</TableHead>
-                            <TableHead>Ngày bắt đầu</TableHead>
-                            <TableHead>Thời hạn</TableHead>
-                            <TableHead>Hợp đồng</TableHead>
-                            <TableHead>Trạng thái</TableHead>
-                            <TableHead className="text-right">Chức năng</TableHead>
+                        <TableRow className="bg-gray-50">
+                            <TableHead className="font-semibold text-gray-700">ID phòng</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Người thuê</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Ngày bắt đầu</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Thời hạn</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Tiền cọc</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Hợp đồng</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Trạng thái</TableHead>
+                            <TableHead className="text-right font-semibold text-gray-700">Chức năng</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {orders.map((tenant: any) => (
-                            <TableRow key={tenant._id}>
+                        {filteredOrders.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="text-center py-8 text-gray-400">Không có dữ liệu phù hợp</TableCell>
+                            </TableRow>
+                        ) : filteredOrders.map((tenant: any) => (
+                            <TableRow key={tenant._id} className="hover:bg-blue-50 transition">
                                 <TableCell>
-                                    <strong>{tenant?.room?.roomId}</strong>
+                                    <span className="font-bold text-blue-700 text-base">{tenant?.room?.roomId}</span>
                                 </TableCell>
                                 <TableCell>
                                     <ul>
                                         {tenant?.tenants?.map((t: any) => (
-
-                                            <li key={t._id} className='mb-2'>
+                                            <li key={t._id} className='mb-2 text-gray-800 font-medium'>
                                                 {t?.displayName}
                                             </li>
                                         ))}
@@ -144,6 +181,9 @@ export const OrderRooms = () => {
                                 </TableCell>
                                 <TableCell>{tenant?.startAt ? dayjs(tenant?.startAt).format('DD/MM/YYYY') : ""}</TableCell>
                                 <TableCell>{tenant?.startAt ? dayjs(tenant?.endAt).format('DD/MM/YYYY') : ""}</TableCell>
+                                <TableCell>
+                                    <span className=" text-base">{tenant?.contract?.deposit.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                                </TableCell>
                                 <TableCell>{tenant?.tenants ?
                                     <Tooltip >
                                         <TooltipTrigger>
@@ -159,7 +199,6 @@ export const OrderRooms = () => {
                                 <TableCell>{renderContractStatus(tenant)}</TableCell>
                                 <TableCell className="text-right space-x-2">
                                     {tenant.tenants && <Button variant={"destructive"} size="icon" onClick={() => handleDelete(tenant)}>
-
                                         <Tooltip >
                                             <TooltipTrigger>
                                                 <Button variant="destructive" size="icon" >
@@ -171,7 +210,6 @@ export const OrderRooms = () => {
                                             </TooltipContent>
                                         </Tooltip>
                                     </Button>}
-
                                     <Tooltip >
                                         <TooltipTrigger>
                                             <Button variant="outline" size="icon" onClick={() => {
@@ -184,7 +222,6 @@ export const OrderRooms = () => {
                                             Xem lịch sử thuê trọ
                                         </TooltipContent>
                                     </Tooltip>
-
                                     {tenant.tenants && tenant.tenants.length > 0
                                         ?
                                         <Button variant="outline" size="icon" onClick={() => {
@@ -234,6 +271,5 @@ export const OrderRooms = () => {
             {openAddUser && <AddUserDialog open={openAddUser} setOpen={setOpenAddUser} order={activeOrder} users={users} fetchData={fetchData} />}
             {openExtension && <DialogExtension open={openExtension} setOpen={setOpenExtension} order={activeOrder} fetchData={fetchData} />}
         </div>
-
     )
 }

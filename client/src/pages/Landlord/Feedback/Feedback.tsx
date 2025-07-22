@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis"; 
+import { fetchFeedback, updateFeedbackReply } from "@/apis/feedback.apis";
 
 const PAGE_SIZE = 5;
 
@@ -38,20 +38,20 @@ export default function Feedback() {
   };
 
   const handleReplyBlur = async (e, fb, idx, page, setFeedbacks, feedbacks) => {
-  const newReply = e.target.value.trim();
-  if (!newReply) return;
+    const newReply = e.target.value.trim();
+    if (!newReply) return;
 
-  try {
-    await updateFeedbackReply(fb._id, { reply: newReply });
+    try {
+      await updateFeedbackReply(fb._id, { reply: newReply });
 
-    const updated = [...feedbacks];
-    updated[(page - 1) * PAGE_SIZE + idx].status = 'Replied';
-    updated[(page - 1) * PAGE_SIZE + idx].reply = newReply; // cập nhật reply mới
-    setFeedbacks(updated);
-  } catch (error) {
-    console.error("Lỗi khi cập nhật phản hồi:", error);
-  }
-};
+      const updated = [...feedbacks];
+      updated[(page - 1) * PAGE_SIZE + idx].status = 'Replied';
+      updated[(page - 1) * PAGE_SIZE + idx].reply = newReply; // cập nhật reply mới
+      setFeedbacks(updated);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật phản hồi:", error);
+    }
+  };
 
 
 
@@ -70,7 +70,7 @@ export default function Feedback() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.map((fb, idx) => (
+            {paginatedData.reverse().map((fb, idx) => (
               <TableRow key={fb._id}>
                 <TableCell>{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
                 <TableCell>{fb.tenantName}</TableCell>

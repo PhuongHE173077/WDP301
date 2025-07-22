@@ -47,6 +47,7 @@ import { ProtectedRoute } from "./routers/ProtectedRoute";
 import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
 import HistoryPayment from "./pages/Admin/HistoryPayment/history";
+import { IncidentalCosts } from "./pages/Landlord/IncidentalCosts";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -87,6 +88,7 @@ const App = () => (
               <Route path="/landlord/transactions" element={<LandlordTransaction />} />
               <Route path="/packages" element={<PackageList />} />
               <Route path="/order-room/history/:id" element={<RentalHistory />} />
+              <Route path="/incidental-costs" element={<IncidentalCosts />} />
             </Route>
 
             {/* Tenant router */}
