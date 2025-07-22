@@ -122,17 +122,18 @@ const DepartmentList: React.FC = () => {
 
   return (
     <>
-      <div className="p-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-700">Danh sách tòa nhà</h1>
+      <div className="p-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl shadow mb-4 border border-blue-200">
+        <h1 className="text-2xl font-extrabold text-blue-700 tracking-tight flex items-center gap-2">
+          <img src="/images/departments.svg" alt="departments" className="w-10 h-10" />
+          Danh sách tòa nhà
+        </h1>
         <Button
           onClick={() => navigate('/departments/create')}
-          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-6 py-2 rounded-lg shadow-md text-base font-semibold transition-all duration-200"
         >
           <PlusCircle className="w-5 h-5" />
           <span> Tạo tòa nhà</span>
         </Button>
-
-
       </div>
 
       {departments.length === 0 ? (
@@ -140,42 +141,46 @@ const DepartmentList: React.FC = () => {
           <img
             src="/images/departments.svg"
             alt="Empty departments"
-            className="w-64 h-64 object-contain mb-6"
+            className="w-48 h-48 object-contain mb-6 opacity-80"
           />
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
+          <h2 className="text-2xl font-bold text-blue-600 mb-2">
             Bạn không có tòa nhà nào!
           </h2>
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 mb-4 text-base">
             Hãy tạo ngay để bắt đầu quản lý phòng trọ hiệu quả.
           </p>
         </div>
       ) : (
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+        <div className="p-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 w-full">
           {departments.map(dep => (
             <div key={dep._id} className="mb-2">
               <div
-                className={`rounded-xl shadow-md p-4 border cursor-pointer flex items-center justify-between transition-all duration-200
+                className={`rounded-xl shadow-md p-3 border cursor-pointer flex items-center justify-between transition-all duration-200 group hover:scale-[1.02] hover:shadow-lg
                   ${selectedDepartment?._id === dep._id
-                    ? 'bg-blue-100 border-blue-500'
+                    ? 'bg-blue-50 border-blue-500 shadow-blue-200'
                     : 'bg-white border-gray-200'}
                 `}
                 onClick={() => handleShowRooms(dep)}
               >
-                <div>
-                  <h2 className={`text-lg font-semibold ${selectedDepartment?._id === dep._id ? 'text-blue-700' : 'text-blue-600'}`}>{dep.name}</h2>
-                  <p className="text-sm text-gray-500">
-                    {dep.village}, {dep.commune}, {dep.district}, {dep.province}
-                  </p>
+                <div className="flex flex-col gap-1">
+                  <h2 className={`text-base font-bold flex items-center gap-2 ${selectedDepartment?._id === dep._id ? 'text-blue-700' : 'text-blue-600'}`}>
+                    <span className="inline-block bg-blue-100 text-blue-600 rounded-full px-2 py-0.5 text-xs font-semibold mr-2">Tòa</span>
+                    {dep.name}
+                  </h2>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4" />
+                    <Button variant="ghost" size="icon" className="group-hover:bg-blue-100">
+                      <MoreHorizontal className="w-5 h-5 text-blue-500" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleDetail(dep._id)}>Xem / Chỉnh sửa</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(dep._id, dep.name)}>Xoá</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDetail(dep._id)}>
+                      <span className="text-blue-600 font-medium">Xem / Chỉnh sửa</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDelete(dep._id, dep.name)}>
+                      <span className="text-red-600 font-medium">Xoá</span>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -185,7 +190,7 @@ const DepartmentList: React.FC = () => {
       )}
 
       {selectedDepartment && (
-        <div className="px-6 pb-12">
+        <div className="px-2 md:px-6 pb-12">
           <RoomTable rooms={selectedRooms} departmentName={selectedDepartment.name} />
         </div>
       )}

@@ -1,3 +1,4 @@
+import Department from "~/models/departmentModel"
 import OrderRoom from "~/models/orderModel"
 import Room from "~/models/roomModel"
 import ApiError from "~/utils/ApiError"
@@ -44,7 +45,7 @@ const createRoom = async (req, res, next) => {
       return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
     }
 
-    const department = await department.findById(departmentId);
+    const department = await Department.findById(departmentId);
     if (!department) {
       throw new ApiError(404, "Department not found");
     }

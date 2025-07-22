@@ -64,7 +64,6 @@ export const LandlordContracts = () => {
         try {
             const res = await fetchOrderByIdAPIs(orderId);
             setOrder(res.data);
-            setDeposit(res.data?.contract?.deposit || 0);
             setPaid(res.data?.contract?.paid || false);
         } finally {
             setLoading(false);

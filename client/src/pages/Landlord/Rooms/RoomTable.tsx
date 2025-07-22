@@ -74,12 +74,12 @@ const RoomTable: React.FC<RoomTableProps> = ({ rooms, departmentName, onRoomDele
     }
   };
 
-const showBlogFormDialog = async (defaultDate: Date) => {
-  const minDate = dayjs(defaultDate).format("YYYY-MM-DD");
+  const showBlogFormDialog = async (defaultDate: Date) => {
+    const minDate = dayjs(defaultDate).format("YYYY-MM-DD");
 
-  const { value: formValues } = await Swal.fire({
-    title: '<span style="font-size: 20px; font-weight: 600;"> Thêm phòng vào blog</span>',
-    html: `
+    const { value: formValues } = await Swal.fire({
+      title: '<span style="font-size: 20px; font-weight: 600;"> Thêm phòng vào blog</span>',
+      html: `
   <div style="padding: 0 16px; box-sizing: border-box;">
     <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
       <div style="display: flex; flex-direction: column;">
@@ -100,33 +100,33 @@ const showBlogFormDialog = async (defaultDate: Date) => {
     </div>
   </div>
 `
-,
-    confirmButtonText: 'Thêm',
-    showCancelButton: true,
-    cancelButtonText: 'Hủy',
-    focusConfirm: false,
-    
-    preConfirm: () => {
-      const title = (document.getElementById("title") as HTMLInputElement).value.trim();
-      const description = (document.getElementById("description") as HTMLTextAreaElement).value.trim();
-      const availableFrom = (document.getElementById("availableFrom") as HTMLInputElement).value;
+      ,
+      confirmButtonText: 'Thêm',
+      showCancelButton: true,
+      cancelButtonText: 'Hủy',
+      focusConfirm: false,
 
-      if (!title) {
-        Swal.showValidationMessage("⚠️ Tiêu đề là bắt buộc");
-        return false;
+      preConfirm: () => {
+        const title = (document.getElementById("title") as HTMLInputElement).value.trim();
+        const description = (document.getElementById("description") as HTMLTextAreaElement).value.trim();
+        const availableFrom = (document.getElementById("availableFrom") as HTMLInputElement).value;
+
+        if (!title) {
+          Swal.showValidationMessage("⚠️ Tiêu đề là bắt buộc");
+          return false;
+        }
+
+        if (dayjs(availableFrom).isBefore(minDate)) {
+          Swal.showValidationMessage(`⚠️ Ngày bắt đầu không được trước ${dayjs(minDate).format("DD/MM/YYYY")}`);
+          return false;
+        }
+
+        return { title, description, availableFrom };
       }
+    });
 
-      if (dayjs(availableFrom).isBefore(minDate)) {
-        Swal.showValidationMessage(`⚠️ Ngày bắt đầu không được trước ${dayjs(minDate).format("DD/MM/YYYY")}`);
-        return false;
-      }
-
-      return { title, description, availableFrom };
-    }
-  });
-
-  return formValues;
-};
+    return formValues;
+  };
 
 
   const updateRoomPostStatus = (roomId: string) => {
@@ -224,92 +224,96 @@ const showBlogFormDialog = async (defaultDate: Date) => {
 
   return (
     <div className="mt-8 w-full">
-      <div className="p-6 flex justify-between items-center">
-        <h3 className="text-xl font-bold mb-4 text-blue-800">
-          Danh sách phòng thuộc toà nhà: {departmentName}
+      <div className="p-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow mb-4 border border-green-200">
+        <h3 className="text-2xl font-extrabold text-green-700 tracking-tight flex items-center gap-2">
+          <span className="inline-block bg-green-100 text-green-600 rounded-full px-3 py-1 text-xs font-semibold mr-2">Phòng</span>
+          Danh sách phòng thuộc toà nhà: <span className="text-blue-700 ml-1">{departmentName}</span>
         </h3>
         <Button
           onClick={() => navigate('/rooms/create')}
-          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-6 py-2 rounded-lg shadow-md text-base font-semibold transition-all duration-200"
         >
           <PlusCircle className="w-5 h-5" />
           <span> Tạo phòng</span>
         </Button>
       </div>
       {localRooms.length > 0 ? (
-        <div className="overflow-x-auto bg-white rounded shadow">
-          <table className="min-w-full border text-sm">
-            <thead className="bg-gray-100">
+        <div className="overflow-x-auto bg-white rounded-2xl shadow-lg border border-gray-100">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gradient-to-r from-blue-100 to-green-100">
               <tr>
-                <th className="py-2 px-4 border-b">Ảnh</th>
-                <th className="py-2 px-4 border-b">Mã phòng</th>
-                <th className="py-2 px-4 border-b">Giá (VNĐ)</th>
-                <th className="py-2 px-4 border-b">Diện tích</th>
-                <th className="py-2 px-4 border-b">Tiện ích</th>
-                <th className="py-2 px-4 border-b">Phí dịch vụ</th>
-                <th className="py-2 px-4 border-b">Cho thuê</th>
-                <th className="py-2 px-4 border-b">Loại</th>
-                <th className="py-2 px-4 border-b">Hành động</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Ảnh</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Mã phòng</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Giá (VNĐ)</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Diện tích</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Tiện ích</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Phí dịch vụ</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Cho thuê</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Loại</th>
+                <th className="py-3 px-4 font-bold text-gray-700 border-b border-gray-200 text-center">Hành động</th>
               </tr>
             </thead>
             <tbody>
               {localRooms.map((room) => (
-                <tr key={room._id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">
+                <tr key={room._id} className="hover:bg-blue-50 transition-all duration-150">
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">
                     {Array.isArray(room.image) && room.image.length > 0 ? (
-                      <img src={room.image[0]} alt="room" className="w-16 h-16 object-cover rounded" />
+                      <img src={room.image[0]} alt="room" className="w-16 h-16 object-cover rounded-xl mx-auto shadow" />
                     ) : typeof room.image === "string" && room.image ? (
-                      <img src={room.image} alt="room" className="w-16 h-16 object-cover rounded" />
+                      <img src={room.image} alt="room" className="w-16 h-16 object-cover rounded-xl mx-auto shadow" />
                     ) : (
                       <span className="text-gray-400 italic">Không có ảnh</span>
                     )}
                   </td>
-                  <td className="py-2 px-4 border-b">{room.roomId}</td>
-                  <td className="py-2 px-4 border-b">{room.price.toLocaleString()}₫</td>
-                  <td className="py-2 px-4 border-b">{room.area}</td>
-                  <td className="py-2 px-4 border-b">
-                    <div className="bg-green-100 p-2 rounded">
+                  <td className="py-2 px-4 border-b border-gray-100 text-center font-semibold text-blue-700">{room.roomId}</td>
+                  <td className="py-2 px-4 border-b border-gray-100 text-center text-green-700 font-bold">{room.price.toLocaleString()}₫</td>
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">{room.area}</td>
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">
+                    <div className="bg-green-50 p-2 rounded-xl min-w-[80px] mx-auto">
                       {room.utilities?.split(",").map((item, idx) => (
-                        <div key={idx}>{item.trim()}</div>
+                        <div key={idx} className="text-green-700 text-xs font-medium">{item.trim()}</div>
                       ))}
                     </div>
                   </td>
-                  <td className="py-2 px-4 border-b">
-                    <div className="bg-blue-100 p-2 rounded">
-                      <ul className="list-inside space-y-1 text-sm">
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">
+                    <div className="bg-blue-50 p-2 rounded-xl min-w-[80px] mx-auto">
+                      <ul className="list-inside space-y-1 text-xs">
                         {room.serviceFee?.map((fee, idx) => (
-                          <li key={idx}>
+                          <li key={idx} className="text-blue-700 font-medium">
                             <strong>{fee.name}</strong>: {fee.price.toLocaleString()}đ/{fee.unit}
                           </li>
                         ))}
                       </ul>
                     </div>
                   </td>
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">
                     {room.status ? (
-                      <span className="text-green-600 font-medium">Đang cho thuê</span>
+                      <span className="text-green-600 font-semibold bg-green-100 px-2 py-1 rounded-full">Đang cho thuê</span>
                     ) : (
-                      <span className="text-red-500 font-medium">Trống</span>
+                      <span className="text-red-500 font-semibold bg-red-100 px-2 py-1 rounded-full">Trống</span>
                     )}
                   </td>
-                  <td className="py-2 px-4 border-b">{room.type}</td>
-                  <td className="py-2 px-4 border-b space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => navigate(`/rooms/edit/${room._id}`)}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => confirmDelete(room._id)}>
-                      <Trash className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        room.post ? handleRemoveFromBlog(room._id) : handleAddToBlog(room._id)
-                      }
-                    >
-                      <UploadCloud className="w-4 h-4 mr-1" />
-                      {room.post ? "Gỡ blog" : "Blog"}
-                    </Button>
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">{room.type}</td>
+                  <td className="py-2 px-4 border-b border-gray-100 text-center">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <Button variant="outline" size="sm" className="border-blue-200 hover:bg-blue-100" onClick={() => navigate(`/rooms/edit/${room._id}`)}>
+                        <Pencil className="w-4 h-4 text-blue-600" />
+                      </Button>
+                      <Button variant="destructive" size="sm" className="hover:bg-red-600" onClick={() => confirmDelete(room._id)}>
+                        <Trash className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={room.post ? 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100' : 'border-blue-200 hover:bg-blue-100'}
+                        onClick={() =>
+                          room.post ? handleRemoveFromBlog(room._id) : handleAddToBlog(room._id)
+                        }
+                      >
+                        <UploadCloud className="w-4 h-4 mr-1" />
+                        {room.post ? "Gỡ blog" : "Blog"}
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

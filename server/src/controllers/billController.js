@@ -88,6 +88,7 @@ const updateBill = async (req, res, next) => {
         }
 
         const dataUpdate = {
+            price: req.body.price,
             oldElectricity: req.body.oldElectricity,
             newElectricity: req.body.newElectricity,
             oldWater: req.body.oldWater,

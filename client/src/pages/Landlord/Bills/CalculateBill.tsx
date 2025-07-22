@@ -32,8 +32,8 @@ export const CalculateBill = () => {
             setOldWater(data.oldWater || 0);
             setPrepay(data.prepay || 0);
             setDeadline(data.duration || data.time?.slice(0, 10));
-            const elec = data.serviceFee.find((s: any) => s.name === "Điện");
-            const water = data.serviceFee.find((s: any) => s.name === "Nước");
+            const elec = data.serviceFee.find((s: any) => s.name === "Tiền điện");
+            const water = data.serviceFee.find((s: any) => s.name === "Tiền nước");
             setElectricityPrice(elec?.price || 0);
             setWaterPrice(water?.price || 0);
         });
@@ -120,12 +120,12 @@ export const CalculateBill = () => {
                     <TableBody>
                         {allServices.map((service, idx) => {
                             let oldIdx = 0, newIdx = 0, qty = 1, total = service.price;
-                            if (service.name === "Điện") {
+                            if (service.name === "Tiền điện") {
                                 oldIdx = oldElectricity;
                                 newIdx = newElectricity;
                                 qty = newElectricity - oldElectricity;
                                 total = qty * electricityPrice;
-                            } else if (service.name === "Nước") {
+                            } else if (service.name === "Tiền nước") {
                                 oldIdx = oldWater;
                                 newIdx = newWater;
                                 qty = newWater - oldWater;
@@ -140,7 +140,7 @@ export const CalculateBill = () => {
                                         {service.price?.toLocaleString()} VNĐ
                                     </TableCell>
                                     <TableCell>
-                                        {service.name === "Điện" || service.name === "Nước" ? (
+                                        {service.name === "Tiền điện" || service.name === "Tiền nước" ? (
                                             <Input
                                                 type="number"
                                                 className="w-16 h-7 text-sm text-center"
@@ -154,12 +154,12 @@ export const CalculateBill = () => {
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        {service.name === "Điện" || service.name === "Nước" ? (
+                                        {service.name === "Tiền điện" || service.name === "Tiền nước" ? (
                                             <Input
                                                 type="number"
                                                 className="w-16 h-7 text-sm text-center"
                                                 value={newIdx}
-                                                onChange={e => service.name === "Điện"
+                                                onChange={e => service.name === "Tiền điện"
                                                     ? setNewElectricity(+e.target.value)
                                                     : setNewWater(+e.target.value)}
                                             />
@@ -168,7 +168,7 @@ export const CalculateBill = () => {
                                         )}
                                     </TableCell>
                                     <TableCell className="text-center text-sm">
-                                        {service.name === "Điện" || service.name === "Nước" ? qty : "-"}
+                                        {service.name === "Tiền điện" || service.name === "Tiền nước" ? qty : "-"}
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
                                         {total?.toLocaleString()} VNĐ

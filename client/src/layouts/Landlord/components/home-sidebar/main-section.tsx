@@ -26,10 +26,16 @@ const items = [
     icon: FileBadgeIcon,
   },
   {
+    title: 'Chi Phí Phát Sinh',
+    url: "/incidental-costs",
+    icon: FilePenLineIcon,
+  },
+  {
     title: 'Đơn Đặt Phòng',
     url: "/book-room-manager",
     icon: FilePenLineIcon,
   },
+
 
 ]
 export const MainSection = () => {

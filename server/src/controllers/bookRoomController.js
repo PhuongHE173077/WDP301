@@ -92,7 +92,7 @@ const updateBookRoom = async (req, res, next) => {
 
                 const orderRoom = await OrderRoom.findOne({ roomId: bookRoom.roomId });
 
-                if (!orderRoom.tenantId.length > 0) {
+                if (orderRoom.tenantId.length > 0) {
                     return next(new ApiError(StatusCodes.NOT_FOUND, 'Phòng này đã có người thuê'));
                 }
 
