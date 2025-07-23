@@ -3,7 +3,12 @@ import { CalendarIcon, FileBadgeIcon, FilePenLineIcon, FlameIcon, HomeIcon, Hote
 import { Link, useLocation } from 'react-router-dom';
 
 const items = [
-
+  {
+    title: 'Trang chủ',
+    url: "/home-page",
+    icon: HomeIcon,
+    auth: true
+  },
   {
     title: 'Phòng Trọ',
     url: "/rooms",

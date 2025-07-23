@@ -15,3 +15,7 @@ export const deleteIncidentalCostAPIs = async (id: string) => {
 export const updateIncidentalCostAPIs = async (id: string, data: any) => {
     return axiosCustomize.put(`/api/v1/incidental-costs/${id}`, data);
 }
+
+export const fetchIncidentalCostByTenant = async () => {
+    return axiosCustomize.get('/api/v1/incidental-costs/tenant');
+}

@@ -48,6 +48,7 @@ import { injectStore } from "./service/axios.customize";
 import { store } from "./store/store";
 import HistoryPayment from "./pages/Admin/HistoryPayment/history";
 import { IncidentalCosts } from "./pages/Landlord/IncidentalCosts";
+import { HomePage } from "./pages/Landlord/Home";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -70,6 +71,7 @@ const App = () => (
 
             {/* Landlord router */}
             <Route element={<HomeLayout />} >
+              <Route path="/home-page" element={<HomePage />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/order-rooms" element={<OrderRooms />} />
               <Route path="/landlord/contract" element={<LandlordContracts />} />

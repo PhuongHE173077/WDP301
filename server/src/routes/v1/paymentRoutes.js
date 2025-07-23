@@ -18,5 +18,7 @@ Router.route('/check-payment-contract')
 Router.route('/check-payment-bill')
     .get(authMiddlewares.isAuthorized, paymentController.checkPaymentBill)
 
+Router.route('/check-payment-incidental-cost')
+    .get(authMiddlewares.isAuthorized, paymentController.checkPaymentIncidentalCost)
 
 export const paymentRouter = Router

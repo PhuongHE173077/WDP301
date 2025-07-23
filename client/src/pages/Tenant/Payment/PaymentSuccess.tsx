@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom"
 
 export const PaymentSuccess = () => {
     const navigate = useNavigate()
+    const searchParams = new URLSearchParams(window.location.search);
+    const type = searchParams.get("type");
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-white px-4">
@@ -17,7 +19,7 @@ export const PaymentSuccess = () => {
                 </p>
                 <Button
                     className="w-full"
-                    onClick={() => navigate("/contracts")}
+                    onClick={() => type === "bill" ? navigate("/bill-tenant") : type === "incidentalCost" ? navigate("/bill-tenant") : navigate("/contracts")}
                 >
                     Quay về trang chủ
                 </Button>

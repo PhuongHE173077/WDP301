@@ -98,6 +98,12 @@ const updateBill = async (req, res, next) => {
             total: req.body.total,
             status: true
         }
+        if (dataUpdate.prepay === dataUpdate.total) {
+            dataUpdate.isPaid = true;
+
+        }
+
+        await OrderRoom.findOneAndUpdate({ roomId: bill.roomId }, { oldElectricNumber: dataUpdate.newElectricity, oldWaterNumber: dataUpdate.newWater });
 
         const updatedBill = await Bill.findByIdAndUpdate(billId, dataUpdate, { new: true });
         res.status(StatusCodes.OK).json(updatedBill);

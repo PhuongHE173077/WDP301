@@ -112,9 +112,25 @@ const updateIncidentalCost = async (req, res, next) => {
     }
 }
 
+const getAllIncidentalCostsByTenant = async (req, res, next) => {
+    try {
+        const userId = req.jwtDecoded._id;
+        const incidentalCosts = await IncidentalCosts.find({ tenantId: userId, whoPaid: "Tenant" })
+            .populate('roomId', 'roomId departmentId price')
+            .populate('tenantId', 'displayName email phone')
+            .populate('ownerId', 'displayName email phone')
+            .sort({ createdAt: -1 });
+
+        res.status(StatusCodes.OK).json(incidentalCosts);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const incidentalCostsController = {
     getAllIncidentalCosts,
     createIncidentalCost,
     deleteIncidentalCost,
-    updateIncidentalCost
+    updateIncidentalCost,
+    getAllIncidentalCostsByTenant
 }

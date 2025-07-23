@@ -12,5 +12,7 @@ Router.route('/:id')
     .delete(authMiddlewares.isAuthorized, incidentalCostsController.deleteIncidentalCost)
     .put(authMiddlewares.isAuthorized, incidentalCostsController.updateIncidentalCost)
 
+Router.route('/tenant')
+    .get(authMiddlewares.isAuthorized, incidentalCostsController.getAllIncidentalCostsByTenant)
 
 export const incidentalCostsRouter = Router

@@ -67,7 +67,6 @@ export const CalculateBill = () => {
             deadline,
             total
         }
-        console.log("🚀 ~ handleSave ~ payload:", payload)
 
         await updateBillAPIs(id, payload)
             .then(() => {

@@ -1,17 +1,18 @@
 "use client"
 
 import { fetchBillsByTenantAPIs } from "@/apis/bill.apis"
-import { useEffect, useState, useMemo } from "react"
+import { fetchIncidentalCostByTenant } from "@/apis/incidentalCosts.apis"
+import { createPaymentBill, createPaymentIncidentalCost } from "@/apis/payment.apis"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, CreditCard, Calendar, Zap, Droplets, Home, User, ImageIcon, FileText } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { createPaymentBill } from "@/apis/payment.apis"
+import { Calendar, CreditCard, Droplets, Eye, FileText, Home, ImageIcon, User, Zap } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 
 interface Bill {
     _id: string
@@ -55,6 +56,7 @@ export const BillsTenant = () => {
     const [selectedMonth, setSelectedMonth] = useState<string>("")
     const [selectedYear, setSelectedYear] = useState<string>("")
     const [open, setOpen] = useState<boolean>(false)
+    const [IncidentalCosts, setIncidentalCosts] = useState<any[]>([])
     // Set current month and year as default
     useEffect(() => {
         const now = new Date()
@@ -71,7 +73,12 @@ export const BillsTenant = () => {
             .catch(() => {
                 setLoading(false)
             })
+        fetchIncidentalCostByTenant()
+            .then((res) => {
+                setIncidentalCosts(res.data)
+            })
     }, [])
+
 
     // Filter bills by selected month and year
     const filteredBills = useMemo(() => {
@@ -116,6 +123,14 @@ export const BillsTenant = () => {
         await createPaymentBill({
             _id: bill._id,
             amount: bill.total
+        }).then((res) => {
+            window.location.href = res.data;
+        });
+    }
+    const handlePaymentCost = async (cost) => {
+        await createPaymentIncidentalCost({
+            _id: cost._id,
+            amount: cost.amount
         }).then((res) => {
             window.location.href = res.data;
         });
@@ -343,6 +358,104 @@ export const BillsTenant = () => {
                             </TableBody>
                         </Table>
                     </div>
+                    {IncidentalCosts
+                        .filter((item) => {
+                            const date = new Date(item.createdAt)
+                            const month = (date.getMonth() + 1).toString().padStart(2, '0')
+                            const year = date.getFullYear().toString()
+                            return month === selectedMonth && year === selectedYear
+                        }).length > 0 && <>
+                            <div className="mt-2">
+                                <div className="text-xl font-semibold">Phí phát sinh:</div>
+                            </div>
+
+                            <div className="rounded-md border overflow-hidden mt-2">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                            <TableHead className="font-semibold">
+                                                <div className="flex items-center gap-2">
+                                                    <Home className="h-4 w-4" />
+                                                    Phòng
+                                                </div>
+                                            </TableHead>
+                                            <TableHead className="font-semibold">
+                                                <div className="flex items-center gap-2">
+                                                    <User className="h-4 w-4" />
+                                                    Chủ trọ
+                                                </div>
+                                            </TableHead>
+                                            <TableHead className="font-semibold">Ngày tạo</TableHead>
+                                            <TableHead className="font-semibold">Mô tả</TableHead>
+                                            <TableHead className="font-semibold">Số tiền</TableHead>
+                                            <TableHead className="font-semibold">Trạng thái</TableHead>
+                                            <TableHead className="font-semibold">Chức năng</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {IncidentalCosts.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                                    Không có phí phát sinh nào trong tháng {selectedMonth}/{selectedYear}
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            IncidentalCosts
+                                                .filter((item) => {
+                                                    const date = new Date(item.createdAt)
+                                                    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+                                                    const year = date.getFullYear().toString()
+                                                    return month === selectedMonth && year === selectedYear
+                                                })
+                                                .map((cost) => (
+                                                    <TableRow key={cost._id} className="hover:bg-muted/30">
+                                                        <TableCell className="font-medium">
+                                                            <div className="flex flex-col">
+                                                                <span className="font-semibold">{cost?.roomId?.roomId}</span>
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {formatCurrency(cost?.roomId?.price)}/tháng
+                                                                </span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-col">
+                                                                <span className="font-medium">{cost?.ownerId?.displayName}</span>
+                                                                <span className="text-xs text-muted-foreground">{cost?.ownerId?.phone}</span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {format(new Date(cost.createdAt), "dd/MM/yyyy", { locale: vi })}
+                                                        </TableCell>
+                                                        <TableCell className="max-w-[200px] truncate" title={cost.description}>
+                                                            {cost.description || "-"}
+                                                        </TableCell>
+                                                        <TableCell className="font-semibold text-lg">
+                                                            {formatCurrency(cost.amount)}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {cost.isPaid ? (
+                                                                <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Đã thanh toán</Badge>
+                                                            ) : (
+                                                                <Badge variant="destructive">Chưa thanh toán</Badge>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="font-semibold text-lg">
+                                                            <Button
+                                                                onClick={() => handlePaymentCost(cost)}
+                                                                className="h-8 w-8 p-0"
+                                                            >
+                                                                <CreditCard className="h-4 w-4" />
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </>}
+
+
                 </CardContent>
             </Card>
         </div>

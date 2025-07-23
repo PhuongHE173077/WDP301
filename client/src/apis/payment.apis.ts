@@ -7,3 +7,7 @@ export const createPaymentContract = async (data: any) => {
 export const createPaymentBill = async (data: any) => {
     return await axiosCustomize.post('api/v1/payment/create-qr?typePayment=bill', data)
 }
+
+export const createPaymentIncidentalCost = async (data: any) => {
+    return await axiosCustomize.post('api/v1/payment/create-qr?typePayment=incidentalCost', data)
+}

@@ -28,7 +28,7 @@ const Index = () => {
       if (currentUser.role === USER_ROLE.ADMIN) {
         navigate("/dashboard");
       } else if (currentUser.role === USER_ROLE.OWNER_1 || currentUser.role === USER_ROLE.OWNER_2 || currentUser.role === USER_ROLE.OWNER_3) {
-        navigate("/rooms");
+        navigate("/home-page");
       } else if (currentUser.role === USER_ROLE.TENANT) {
         navigate("/tenant-rooms");
       }

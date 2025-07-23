@@ -11,6 +11,7 @@ import Wallet from '~/models/walletModel';
 import Bill from '~/models/billModel';
 import dayjs from 'dayjs';
 import Room from '~/models/roomModel';
+import IncidentalCosts from '~/models/incidentalCostsModel';
 const createPayment = async (req, res, next) => {
     try {
         const data = req.body;
@@ -33,7 +34,8 @@ const createPayment = async (req, res, next) => {
             vnp_OrderType: ProductCode.Other,
             vnp_ReturnUrl: typePayment === 'contract' ? 'http://localhost:8081/api/v1/payment/check-payment-contract' :
                 typePayment === 'bill' ? 'http://localhost:8081/api/v1/payment/check-payment-bill' :
-                    'http://localhost:8081/api/v1/payment/check-payment-vnpay',
+                    typePayment === 'incidentalCost' ? 'http://localhost:8081/api/v1/payment/check-payment-incidental-cost' :
+                        'http://localhost:8081/api/v1/payment/check-payment-vnpay',
             vnp_Locale: VnpLocale.VN,
             vnp_CreateDate: dateFormat(new Date()),
             vnp_ExpireDate: dateFormat(new Date(Date.now() + 15 * 60 * 1000)),
@@ -122,7 +124,38 @@ const checkPaymentBill = async (req, res, next) => {
             await Transaction.create(newTransaction);
             await Bill.findByIdAndUpdate(bill._id, { prepay: data.vnp_Amount / 100, isPaid: true });
             await Wallet.findOneAndUpdate({ userId: bill.ownerId }, { $inc: { balance: newTransaction.amount } });
+            await OrderRoom.findOneAndUpdate({ roomId: bill.roomId._id }, { oldElectricNumber: bill.newElectricity, oldWaterNumber: bill.newWater });
             return res.redirect(`${WEBSITE_DOMAIN}/payment/success?type=bill`);
+        } else {
+            return res.redirect(`${WEBSITE_DOMAIN}/payment/error`);
+        }
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+const checkPaymentIncidentalCost = async (req, res, next) => {
+    try {
+        const data = req.query;
+        const userId = req.jwtDecoded._id;
+        const incidentalCost = await IncidentalCosts.findById(data.vnp_OrderInfo).populate('roomId');
+        const newTransaction = {
+            receiverId: incidentalCost.ownerId,
+            senderId: userId,
+            amount: data.vnp_Amount / 100,
+            bank: data.vnp_BankCode,
+            orderInfo: data.vnp_OrderInfo,
+            cardType: data.vnp_CardType,
+            description: `Thanh toán chi phí phát sinh do ${incidentalCost.description} của phòng ${incidentalCost.roomId.roomId}`,
+            txnRef: data.vnp_TxnRef,
+            status: data.vnp_ResponseCode === '00' ? 'success' : 'failed',
+        }
+        if (req.query.vnp_ResponseCode == '00') {
+            await Transaction.create(newTransaction);
+            await IncidentalCosts.findByIdAndUpdate(incidentalCost._id, { isPaid: true });
+            await Wallet.findOneAndUpdate({ userId: incidentalCost.ownerId }, { $inc: { balance: newTransaction.amount } });
+            return res.redirect(`${WEBSITE_DOMAIN}/payment/success?type=incidentalCost`);
         } else {
             return res.redirect(`${WEBSITE_DOMAIN}/payment/error`);
         }
@@ -136,5 +169,6 @@ export const paymentController = {
     createPayment,
     checkPayment,
     checkPaymentContract,
-    checkPaymentBill
+    checkPaymentBill,
+    checkPaymentIncidentalCost
 }
