@@ -149,10 +149,23 @@ const getRoomById = async (req, res) => {
   }
 }
 
+const getAllRooms = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id;
+    const rooms = await Room.find({ _destroy: false })
+      .populate('departmentId', 'name ownerId')
+    const results = rooms.filter(room => room.departmentId.ownerId.toString() === userId.toString());
+    res.status(200).json(results);
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const roomController = {
   getRoomsByDepartment,
   createRoom,
   deleteRoom,
   updateRoom,
-  getRoomById
+  getRoomById,
+  getAllRooms
 }

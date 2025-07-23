@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.route('/')
     .post(authMiddlewares.isAuthorized, roomController.createRoom)
+    .get(authMiddlewares.isAuthorized, roomController.getAllRooms)
 
 router.route('/:id')
     .put(authMiddlewares.isAuthorized, roomController.updateRoom)

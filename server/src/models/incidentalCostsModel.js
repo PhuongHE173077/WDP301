@@ -11,6 +11,11 @@ const incidentalCostsSchema = new mongoose.Schema({
         ref: "Tenant",
         required: true,
     },
+    ownerId: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
     description: {
         type: String,
         required: true,
@@ -32,3 +37,5 @@ const incidentalCostsSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 })
+const IncidentalCosts = mongoose.model("IncidentalCosts", incidentalCostsSchema, "incidentalCosts");
+export default IncidentalCosts;

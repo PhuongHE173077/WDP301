@@ -4,6 +4,10 @@ export const createRoom = (data: any) => {
     return axiosCustomize.post(`/api/v1/rooms`, data)
 }
 
+export const getAllRooms = () => {
+    return axiosCustomize.get(`/api/v1/rooms`)
+}
+
 export const getRoomById = (id: string) => {
     return axiosCustomize.get(`/api/v1/rooms/${id}`)
 }

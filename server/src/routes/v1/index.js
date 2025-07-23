@@ -14,6 +14,7 @@ import { walletRouter } from './WalletRouter'
 import { paymentRouter } from './paymentRoutes'
 import { billRouter } from './billRoutes'
 import { packageRouter } from './packageRoute'
+import { incidentalCostsRouter } from './IncidentalCostRoter'
 
 
 
@@ -66,4 +67,8 @@ Router.use('/bills', billRouter)
 
 //package APIs
 Router.use('/packages', packageRouter)
+
+//incidental costs APIs
+Router.use('/incidental-costs', incidentalCostsRouter)
+
 export const APIs_V1 = Router
