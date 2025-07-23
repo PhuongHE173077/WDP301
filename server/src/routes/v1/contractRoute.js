@@ -12,9 +12,4 @@ router.route('/')
 
 router.route('/:id')
     .put(multerUploadMiddlewares.upload.single('file'), contractController.updateContract)
-
-
-
-
-
 export const contractRouter = router
