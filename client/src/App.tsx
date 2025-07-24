@@ -49,6 +49,7 @@ import { store } from "./store/store";
 import HistoryPayment from "./pages/Admin/HistoryPayment/history";
 import { IncidentalCosts } from "./pages/Landlord/IncidentalCosts";
 import { HomePage } from "./pages/Landlord/Home";
+import AdminDashboard from "./pages/Admin/Dashboard";
 
 const persistor = persistStore(store);
 injectStore(store);
@@ -106,7 +107,7 @@ const App = () => (
             </Route>
 
             <Route element={<LayoutAdmin />} >
-              <Route path="/dashboard" element={<Page />} />
+              <Route path="/dashboard" element={<AdminDashboard />} />
               <Route path="/manage-user" element={<ManagerUser />} />
               <Route path="/package" element={<ManagementPackage />} />
               <Route path="/packages/create" element={<PackageManager />} />
