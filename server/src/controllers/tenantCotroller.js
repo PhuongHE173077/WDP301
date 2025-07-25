@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs'
 
 import Tenant from "~/models/tenantModel"
 import { cloudinaryProvider } from "~/providers/CloudinaryProvider"
-import { generateDeleteAccountHTML, generateRestoreAccountHTML } from "~/utils/form-html"
+import { generateAccountInfoHTML, generateDeleteAccountHTML, generateRestoreAccountHTML } from "~/utils/form-html"
 import { sendEmail } from "~/providers/MailProvider"
 import OrderRoom from "~/models/orderModel"
 
@@ -145,6 +145,20 @@ const createAndAssign = async (req, res, next) => {
         order.endAt = endAt || null
 
         await order.save()
+        const html = generateAccountInfoHTML(
+            'RoomRentPro',
+            newTenant.displayName,
+            newTenant.email,
+            password,
+            newTenant.role)
+
+        sendEmail(
+            'RoomRentPro',
+            newTenant.email,
+            'Chào mừng bạn đến với RoomRentPro',
+            html
+        )
+
 
         res.status(StatusCodes.CREATED).json({
             message: 'Tạo tài khoản và gán phòng thành công',

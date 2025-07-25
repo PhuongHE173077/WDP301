@@ -2,7 +2,9 @@ import { StatusCodes } from "http-status-codes";
 import Bill from "~/models/billModel";
 import OrderRoom from "~/models/orderModel";
 import Room from "~/models/roomModel";
+import { sendEmail } from "~/providers/MailProvider";
 import ApiError from "~/utils/ApiError";
+import { generateElectricBillHTML } from "~/utils/form-html";
 
 const getBills = async (req, res, next) => {
     try {
@@ -159,11 +161,33 @@ const getBillsByTenant = async (req, res, next) => {
     }
 }
 
+const sendMail = async (req, res, next) => {
+    try {
+        const userId = req.jwtDecoded._id;
+        const { billId } = req.query;
+        if (billId) {
+            const bill = await Bill.findById(billId)
+                .populate('ownerId', 'displayName email')
+                .populate('tenantId', 'displayName email phone')
+                .populate('roomId', 'roomId departmentId price');
+            if (!bill) {
+                throw new ApiError(StatusCodes.NOT_FOUND, 'Bill not found');
+            }
+            sendEmail('Bill', bill.tenantId.email, 'Bill', generateElectricBillHTML(bill));
+            res.status(StatusCodes.OK).json(bill);
+        }
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const billController = {
     getBills,
     createBill,
     getBillById,
     updateBill,
     deleteBill,
-    getBillsByTenant
+    getBillsByTenant,
+    sendMail
 }

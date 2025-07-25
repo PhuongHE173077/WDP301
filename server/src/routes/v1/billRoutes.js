@@ -16,4 +16,7 @@ router.route('/:id')
     .put(authMiddlewares.isAuthorized, billController.updateBill)
     .delete(authMiddlewares.isAuthorized, billController.deleteBill)
 
+router.route('/send-mail')
+    .post(authMiddlewares.isAuthorized, billController.sendMail)
+
 export const billRouter = router

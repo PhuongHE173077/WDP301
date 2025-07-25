@@ -160,9 +160,9 @@ const DialogViewBill = ({ open, setOpen, billData, departments }) => {
     };
 
     // Phân loại các dịch vụ
-    const electricityService = billData.serviceFee?.find(s => s.name === "Điện");
-    const waterService = billData.serviceFee?.find(s => s.name === "Nước");
-    const otherServices = billData.serviceFee?.filter(s => s.name !== "Điện" && s.name !== "Nước") || [];
+    const electricityService = billData.serviceFee?.find(s => s.name === "Tiền điện");
+    const waterService = billData.serviceFee?.find(s => s.name === "Tiền nước");
+    const otherServices = billData.serviceFee?.filter(s => s.name !== "Tiền điện" && s.name !== "Tiền nước") || [];
 
     // Tính toán số lượng và thành tiền
     const electricityQuantity = (billData.newElectricity || 0) - (billData.oldElectricity || 0);

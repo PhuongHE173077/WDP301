@@ -23,3 +23,7 @@ export const deleteBillAPIs = async (id: string) => {
 export const fetchBillsByTenantAPIs = async () => {
     return await axiosCustomize.get('/api/v1/bills/tenant')
 }
+
+export const sendMailByIdAPIs = async (id: any) => {
+    return await axiosCustomize.post('/api/v1/bills/send-mail?billId=' + id)
+}

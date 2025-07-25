@@ -355,26 +355,10 @@ export default function TroDetailPage() {
                                 <div className="text-xs text-gray-500 text-center">Liên hệ để xem phòng và thương lượng giá</div>
                             </CardContent>
                         </Card>
-
-                        {/* Map Placeholder */}
-                        {/* <Card>
-                            <CardHeader>
-                                <CardTitle>Vị trí</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="bg-gray-200 h-48 rounded-lg flex items-center justify-center">
-                                    <div className="text-center text-gray-500">
-                                        <MapPin className="h-8 w-8 mx-auto mb-2" />
-                                        <p className="text-sm">Bản đồ vị trí</p>
-                                        <p className="text-xs">{mockTroDetail.address}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card> */}
                     </div>
                 </div>
             </div>
-            <RentDateDialog open={open} setOpen={setOpen} id={id} />
+            <RentDateDialog open={open} setOpen={setOpen} blog={blog} />
             <FormAuth open={openLogin} setOpen={setOpenLogin} />
         </div >
     )

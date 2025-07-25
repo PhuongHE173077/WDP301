@@ -16,7 +16,8 @@ const tenantSchema = new mongoose.Schema(
         phone: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            unique: true
         },
         email: {
             type: String,

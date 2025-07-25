@@ -6,13 +6,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { DialogCreateBill } from './components/DialogCreateBill';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Loader from '@/components/ui-customize/Loader';
-import { deleteBillAPIs, fetchBillsAPIs } from '@/apis/bill.apis';
+import { deleteBillAPIs, fetchBillsAPIs, sendMailByIdAPIs } from '@/apis/bill.apis';
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
 import DialogViewBill from './components/DialogViewBill';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { toast } from 'react-toastify';
 
 export const Bills = () => {
     const [orderRooms, setOrderRooms] = useState<any[]>([]);
@@ -82,8 +83,13 @@ export const Bills = () => {
         setOpenDialogView(true);
     };
 
-    const handleSendBill = (bill: any) => {
-        // Chưa xử lý gửi
+    const handleSendBill = async (bill: any) => {
+        toast.promise(sendMailByIdAPIs(bill?._id), {
+            pending: 'Đang tạo hóa đơn...',
+            success: 'Tạo hóa đơn thanh cong!',
+        });
+
+
     };
 
     const filteredBills = useMemo(() => {

@@ -4,7 +4,8 @@ import { useState } from "react"
 interface RentalRequest {
     _id: string
     tenantId: {
-        displayName: string
+        displayName: string,
+        phone: string
         _id: string
     }
     roomId: {
@@ -61,6 +62,9 @@ export function RentalRequestTable({
                                 Người thuê
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                SDT
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Mã phòng
                             </th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -88,6 +92,9 @@ export function RentalRequestTable({
                             <tr key={request._id} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {request.tenantId.displayName}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {request.tenantId.phone}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {request.roomId.roomId}
